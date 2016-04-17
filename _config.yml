@@ -14,7 +14,7 @@ description              : "An amazing website."
 url                      : "https://shackett.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 gh_repo                  :
-teaser                   : images/boarding.jpg # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
+teaser                   : "boarding.jpg" # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
 comments:
@@ -61,10 +61,10 @@ google_ad_slot           :
 
 # Site Author
 author:
-  name             : "Your Name"
-  avatar           : "bio-photo.jpg"
-  bio              : "I am an amazing person."
-  location         : "Somewhere"
+  name             : "Sean Hackett"
+  avatar           : "boarding.jpg"
+  bio              : "I apply statistics and data science to answer questions in genomics. I also love martial arts (MMA and BJJ) and have been developing methods for analyzing fighters."
+  location         : "Princeton, NJ"
   email            :
   uri              :
   bitbucket        :
@@ -73,18 +73,18 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           :
+  github           : "shackett"
   google_plus      :
   keybase          :
   instagram        :
   lastfm           :
-  linkedin         :
+  linkedin         : "sean-hackett-53852aaa"
   pinterest        :
   soundcloud       :
   stackoverflow    : # http://stackoverflow.com/users/123456/username
   steam            :
   tumblr           :
-  twitter          :
+  twitter          : "SeanHacks"
   vine             :
   weibo            :
   xing             :
