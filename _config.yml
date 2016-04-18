@@ -1,10 +1,3 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your entire site, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# `jekyll serve`. If you change this file, please restart the server process.
-
 # Site Settings
 locale                   : "en-US"
 title                    : "Mixed membership Martial Arts"
@@ -65,6 +58,9 @@ author:
   avatar           : "boarding.jpg"
   bio              : "I apply statistics and data science to answer questions in genomics. I also love martial arts (MMA and BJJ) and have been developing methods for analyzing fighters."
   location         : "Princeton, NJ"
+  twitter          : "SeanHacks"
+  github           : "shackett"
+  linkedin         : "sean-hackett-53852aaa"
   email            :
   uri              :
   bitbucket        :
@@ -73,18 +69,15 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           : "shackett"
   google_plus      :
   keybase          :
   instagram        :
   lastfm           :
-  linkedin         : "sean-hackett-53852aaa"
   pinterest        :
   soundcloud       :
   stackoverflow    : # http://stackoverflow.com/users/123456/username
   steam            :
   tumblr           :
-  twitter          : "SeanHacks"
   vine             :
   weibo            :
   xing             :
@@ -204,3 +197,16 @@ compress_html:
   clippings: all
   ignore:
     envs: development
+
+defaults:
+  # _posts
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      comments: true
+      share: true
+      related: true
