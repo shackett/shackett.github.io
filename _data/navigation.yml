@@ -1,7 +1,7 @@
 # main links links
 main:
   - title: "Posts"
-    url: /posts/
+    url: /year-archive/
 
   - title: "About Me"
     url: http://www.shackett.org
