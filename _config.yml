@@ -3,7 +3,7 @@ locale                   : "en-US"
 title                    : "Mixed membership Martial Arts"
 title_separator          : "-"
 name                     : "Sean Hackett"
-description              : "An amazing website."
+description              : "MMA, genomics and data"
 url                      : "https://shackett.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 gh_repo                  :
@@ -61,7 +61,7 @@ author:
   twitter          : "SeanHacks"
   github           : "shackett"
   linkedin         : "sean-hackett-53852aaa"
-  email            :
+  email            : shackett@princeton.edu
   uri              :
   bitbucket        :
   codepen          :
