@@ -35,11 +35,19 @@ Now that we have a CSS selector for name and nickname we need a way of programat
 
 The R code to extract name and nickname from Sherdog is:
 
+```{r echo = F}
+suppressMessages(library(rvest))
+suppressMessages(library(dplyr))
+suppressWarnings(suppressMessages(library(ggplot2)))
+```
+
+
+
 ```{r}
 
 # Load packages
-suppressMessages(library(rvest))
-suppressMessages(library(dplyr))
+library(rvest)
+library(dplyr)
 
 # read the webpage page of the fighter that we are interested in
 fighter_page <- read_html("http://www.sherdog.com/fighter/Andrei-Arlovski-270")
@@ -124,7 +132,8 @@ fighters <- readRDS("~/Desktop/MMA/software/data/processed_fight_data/mma_all_fi
 From scraping the Sherdog database, I obtained data from `r nrow(fighters)` encompassing `r nrow(bouts)` fight entries. While I will leave deeper analysis of this dataset for the future, one aspect of this dataset that we can quickly look at is how many fights MMA fighters usually have.
 
 ```{r, fig.width=6}
-suppressWarnings(suppressMessages(library(ggplot2)))
+
+library(ggplot2)
 
 # bouts is a cleaned-up summary of this dataset (I will discuss its generation later on)
 fight_counts <- bouts %>%
