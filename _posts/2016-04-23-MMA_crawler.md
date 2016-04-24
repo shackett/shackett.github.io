@@ -1,19 +1,18 @@
 ---
-title: "Scraping a large database of MMA fights using rvest"
-description: "woot"
-category: r
-tags: [tmp, tmp2]
+title: "Making a large database of MMA fight results I: scraping with rvest"
+description: "Scraping a large database of MMA fights using rvest"
+category: [MMA]
+tags: [rvest]
 ---
+
+
+
 
 While MMA is an exciting sport that offers many interesting data analysis opportunities, there is no existing dataset that has aggregated the results of the more than 400,000 fights that have occured to date. The challenge is not that the information is not available, rather that the information is distributed across thousands of webpages. If we are looking for individual fighters or MMA events, we can easily find a large amount of information about fighters and their fight histories.
 
 For example, if we wanted to learn more about Andrei Arlovski we could look at his [wikipedia page](https://en.wikipedia.org/wiki/Andrei_Arlovski) or any number of MMA-specific websites such as [mixedmartialarts.com](http://www.mixedmartialarts.com/fighter/Andrei-Arlovski:1C1B0969FAC99E77) or [sherdog.com](http://www.sherdog.com/fighter/Andrei-Arlovski-270).
 
-<div align="center" style="text-align: center; width:300px;">
-![](../figs/2016-04-23-MMA_crawler/sherdog.com.png)
-</div>
-
-#![image-center](../figs/2016-04-23-MMA_crawler/sherdog.com.png){: .align-center}
+![image-right](../figs/2016-04-23-MMA_crawler/sherdog.png)
 
 These websites, taking Sherdog as an example, provide a massive amount of factual data on fighters past performance. We can see Andrei's age, weight, height as well as a list of his previous fights. Importantly, for each of these fights, we have the opponent's name and a link to their corresponding webpage, so we could visit their webpage by following the link. We could follow the link to Arlovski's most recent opponent Stipe Miocic and all Arlovski's other opponents; determine their opponents in turn, and continue this iterative process until all fighters had been explored. Before we can implement this strategy, we need to be able to extract the links of opponents from individual webpages, as well as the fight information that we are interested in.
 
@@ -25,9 +24,7 @@ Identifying common features of html can be challenging, but this process can be 
 
 As an example, if we want to extract Arlovski's name and nickname, then we can just click on his name and nickname and any fields that will be extracted will be highlighted in green. If some fields were inappropriately selected (as shown below, Andrei's next fight in Ahoy Rotterdam) then these entries are then unselected and they will be shown in red. From this input, SelectorGadget generates a minimal CSS selector that can then be used to extract name and nickname from Arlovski's page or any other fighter's page that we want to explore. For name and nickname this is: ".nickname em , .fn".
 
-<div align="center" style="text-align: center; width:300px;">
-![](../figs/2016-04-23-MMA_crawler/nickname_CSS.png)
-</div>
+![image-right](../figs/2016-04-23-MMA_crawler/nickname_CSS.png)
 
 Now that we have a CSS selector for name and nickname we need a way of programatically extracting this information from webpages. To carry out this analysis I will use the [freely available](https://cran.r-project.org/) program language R. R is well-suited for streamlined data analysis due to its many user-created packages. One such package, that will form the backbone of my analysis is [rvest](https://github.com/hadley/rvest). I will also use dplyr and the %>% convention to simplify and improve the readability of my analysis.
 
@@ -36,8 +33,8 @@ The R code to extract name and nickname from Sherdog is:
 
 {% highlight r %}
 # Load packages
-suppressMessages(library(rvest))
-suppressMessages(library(dplyr))
+library(rvest)
+library(dplyr)
 
 # read the webpage page of the fighter that we are interested in
 fighter_page <- read_html("http://www.sherdog.com/fighter/Andrei-Arlovski-270")
@@ -137,9 +134,8 @@ One possibly unsatisfying aspect of searching for fighters based on their shared
 
 One obvious approach to dealing with the possibility of multiple disconnected sets of fighters would be to initialize our search using a fighter in each category. This may work for the major male and female subnetworks but if small pockets of fighters who have only fought one-another exist, it would be difficult to identify these groups. If we care about such fighters, we can modify our fighter-to-fighter search strategy to search for fighters in additional ways. To more comprehensively comb through possible fighters, we can modify our search strategy to include both the events (e.g. UFC 195) which fighters competed in as well as the organizations (e.g. UFC) that these events occured in. From organizations we can query additional events and from events we can query all fighters that were involved.
 
-<div align="center">
-![](../figs/2016-04-23-MMA_crawler/scraping_strategy.png)
-</div>
+![image-center](../figs/2016-04-23-MMA_crawler/scraping_strategy.png){: .align-center}
+
 
 ### What did we get?
 
@@ -149,12 +145,15 @@ From scraping the Sherdog database, I obtained data from 143602 encompassing 484
 
 
 {% highlight r %}
-suppressWarnings(suppressMessages(library(ggplot2)))
+library(ggplot2)
 
 # bouts is a cleaned-up summary of this dataset (I will discuss its generation later on)
 fight_counts <- bouts %>%
   # count the number of each fighter's bouts
-  count(Fighter_link)
+  count(Fighter_link) %>%
+  rename(nfights = n) %>%
+  count(nfights)
+  
 
 # ggplot2 plotting theme
 hist_theme <- theme(axis.title = element_text(color = "black", size = 25),
@@ -167,16 +166,18 @@ hist_theme <- theme(axis.title = element_text(color = "black", size = 25),
                     axis.ticks = element_line(size = 1),
                     axis.ticks.length = unit(0.15, "cm"))
 
-ggplot(fight_counts, aes(x = n)) +
-  geom_histogram(fill = "firebrick", bins = 30) +
-  scale_y_continuous("Number of fighters") + 
+no_sci_conv <- function(x){format(x, scientific=FALSE)}
+
+ggplot(fight_counts, aes(x = nfights, y = n)) +
+  geom_point(color = "firebrick", size = 2) +
+  scale_y_continuous("Number of fighters", trans = "log10", breaks = 10^c(0:5), labels = no_sci_conv) +
   scale_x_continuous("Number of fights", trans = "log10", breaks = c(1, 3, 10, 30, 100)) +
   hist_theme
 {% endhighlight %}
 
-![plot of chunk unnamed-chunk-5](/figure/source/2016-04-23-MMA_crawler/unnamed-chunk-5-1.png)
+![plot of chunk nfights](/figure/source/2016-04-23-MMA_crawler/nfights-1.png)
 
-Looking at this histogram of # of bouts in a fighter's career, it is clear that the majority of fighters have very short careers. Only 9343 fighters have fought in more than 10 MMA bouts. 
+Looking at this log-log scatter plot of # of bouts in each fighter's career, it is clear that the majority of fighters have very short careers. Only 53 fighters have fought in more than 10 MMA bouts. 
 
 Another simple summary of the fight data that we can look at is when most of the fights in the data occured.
 
@@ -189,7 +190,7 @@ ggplot(bouts, aes(x = Date)) +
   hist_theme
 {% endhighlight %}
 
-![plot of chunk unnamed-chunk-6](/figure/source/2016-04-23-MMA_crawler/unnamed-chunk-6-1.png)
+![plot of chunk fight dates](/figure/source/2016-04-23-MMA_crawler/fight dates-1.png)
 
 Looking at when fights have occurred we can see the explosive growth of MMA, with the vast majority of fights occuring within the last 10 years.
 
