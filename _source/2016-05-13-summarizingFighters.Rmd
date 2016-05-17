@@ -1,5 +1,5 @@
 ---
-title: "Building a large database of MMA fight results III: Summarizing the demographics of 140,000 MMA fighters"
+title: "Building a large database of MMA fight results III: summarizing the demographics of 140,000 MMA fighters"
 description: "Network-based inference of MMA fighter demographics"
 category: MMA
 tags: [dplyr, treemaps]

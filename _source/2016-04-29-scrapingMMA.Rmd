@@ -2,7 +2,8 @@
 title: "Building a large database of MMA fight results I: scraping with rvest"
 description: "Scraping a large database of MMA fights using rvest"
 category: MMA
-tags: [R, rvest, database]
+tags: [rvest, database]
+output: html_document
 ---
 
 ```{r echo = F, warning = F, message = F}
@@ -41,7 +42,6 @@ Now that we have a CSS selector for name and nickname we need a way of programma
 The R code to extract name and nickname from Sherdog is:
 
 ```{r}
-
 # Load packages
 library(rvest)
 library(dplyr)
@@ -54,19 +54,17 @@ fighter_page %>%
   html_nodes(".nickname em , .fn") %>%
   # turn the html output into simple text fields
   html_text
-
 ```
 
 ### Extracting fight history and opponent links
 
-Now that we have extracted some basic fields from html, we want to pull out some more substantial data by obtaining fight histories and links to all opponents. We can again use the CSS selector to identify the  fight history section of the html. For Andrei Arlovski, this entry is "section:nth-child(4) td"
+Now that we have extracted some basic fields from html, we want to pull out some more substantial data by obtaining fight histories and links to all opponents. We can again use the CSS selector to identify the  fight history section of the html. For Andrei Arlovski, this entry is "section:nth-child(3) td"
 
 ```{r fighter_table}
-
 # Using our same fight page from before
 fighter_table <- fighter_page %>%
   # extract fight history
-  html_nodes("section:nth-child(4) td") %>%
+  html_nodes("section:nth-child(3) td") %>%
   # not a well-behaved table so it is extracted as strings
   html_text() %>%
   # wrap text to reform table
@@ -82,19 +80,16 @@ fighter_table <- fighter_table %>%
   select(Result, Fighter, `Method/Referee`, R, Time, Event)
 
 kable(head(fighter_table, 10), row.names = F)
-
 ```
 
 We obtain links to opponents separately from the text fields but we can just as easily access these fields from the html using the CSS selector rule: "td:nth-child(2) a"
 
 ```{r}
-
 fighter_links <- fighter_page %>%
   html_nodes("td:nth-child(2) a") %>%
   html_attr("href")
 
 fighter_links[1:5]
-
 ```
 
 ### Finding new fighters and large-scale extraction
@@ -125,7 +120,6 @@ fighters <- readRDS("~/Desktop/MMA/software/data/processed_fight_data/mma_all_fi
 From scraping the Sherdog database, I obtained data from `r nrow(fighters)` fighters encompassing `r nrow(bouts)` fight entries. While I will leave deeper analysis of this dataset for future analyses, one aspect of this dataset that we can quickly observe is how many fights MMA fighters usually have.
 
 ```{r nfights, dependson="load data", fig.width=8}
-
 library(ggplot2)
 
 # bouts is a cleaned-up summary of this dataset (I will discuss its generation later on)
@@ -154,7 +148,6 @@ ggplot(fight_counts, aes(x = nfights, y = n)) +
   scale_y_continuous("Number of fighters", trans = "log10", breaks = 10^c(0:5), labels = no_sci_conv) +
   scale_x_continuous("Number of fights", trans = "log10", breaks = c(1, 3, 10, 30, 100)) +
   hist_theme
-
 ```
 
 Looking at this log-log scatter plot of # of bouts in each fighter's career, it is clear that the majority of fighters have very short careers. Only `r fight_counts %>% filter(n > 10) %>% nrow` fighters have fought in more than 10 MMA bouts. 
@@ -162,17 +155,13 @@ Looking at this log-log scatter plot of # of bouts in each fighter's career, it 
 Another simple summary of the fight data that we can look at is when most of the fights in the data occurred.
 
 ```{r fight dates, dependson="load data", fig.width=8, warning=F}
-
 ggplot(bouts, aes(x = Date)) +
   geom_histogram(fill = "firebrick", bins = 2017-1990) +
   scale_y_continuous("Number of bouts") +
   scale_x_datetime("Fight Date", limits = as.POSIXct(c("1990", "2017"), format = '%Y')) +
   hist_theme
-
 ```
 
 By looking at when fights have occurred we can see the explosive growth of MMA, with the vast majority of fights occurring within the last 10 years.
 
-
 In my next post, I will discuss some of the methods that I used to turn raw fighter-centric data into large tables. I will also talk about ways of standardizing the inputs so that fighters can be fairly compared.
-

@@ -2,7 +2,8 @@
 title: "Building a large database of MMA fight results I: scraping with rvest"
 description: "Scraping a large database of MMA fights using rvest"
 category: MMA
-tags: [R, rvest, database]
+tags: [rvest, database]
+output: html_document
 ---
 
 
@@ -57,14 +58,14 @@ fighter_page %>%
 
 ### Extracting fight history and opponent links
 
-Now that we have extracted some basic fields from html, we want to pull out some more substantial data by obtaining fight histories and links to all opponents. We can again use the CSS selector to identify the  fight history section of the html. For Andrei Arlovski, this entry is "section:nth-child(4) td"
+Now that we have extracted some basic fields from html, we want to pull out some more substantial data by obtaining fight histories and links to all opponents. We can again use the CSS selector to identify the  fight history section of the html. For Andrei Arlovski, this entry is "section:nth-child(3) td"
 
 
 {% highlight r %}
 # Using our same fight page from before
 fighter_table <- fighter_page %>%
   # extract fight history
-  html_nodes("section:nth-child(4) td") %>%
+  html_nodes("section:nth-child(3) td") %>%
   # not a well-behaved table so it is extracted as strings
   html_text() %>%
   # wrap text to reform table
@@ -84,18 +85,18 @@ kable(head(fighter_table, 10), row.names = F)
 
 
 
-|Result |Fighter             |Method/Referee                       |R  |Time |Event                                                      |
-|:------|:-------------------|:------------------------------------|:--|:----|:----------------------------------------------------------|
-|loss   |Stipe Miocic        |TKO (Punches)Herb Dean               |1  |0:54 |UFC 195 - Lawler vs. ConditJan / 02 / 2016                 |
-|win    |Frank Mir           |Decision (Unanimous)John McCarthy    |3  |5:00 |UFC 191 - Johnson vs. Dodson 2Sep / 05 / 2015              |
-|win    |Travis Browne       |TKO (Punches)Mark Smith              |1  |4:41 |UFC 187 - Johnson vs. CormierMay / 23 / 2015               |
-|win    |Antonio Silva       |KO (Punches)Jerin Valel              |1  |2:59 |UFC Fight Night 51 - Bigfoot vs. Arlovski 2Sep / 13 / 2014 |
-|win    |Brendan Schaub      |Decision (Split)John McCarthy        |3  |5:00 |UFC 174 - Johnson vs. BagautinovJun / 14 / 2014            |
-|win    |Andreas Kraniotakes |TKO (Punches)N/A                     |2  |3:14 |Fight Nights - Battle on NyamihaNov / 29 / 2013            |
-|win    |Mike Kyle           |Decision (Unanimous)Dan Miragliotta  |3  |5:00 |WSOF 5 - Arlovski vs. KyleSep / 14 / 2013                  |
-|loss   |Anthony Johnson     |Decision (Unanimous)Kevin Mulhall    |3  |5:00 |WSOF 2 - Arlovski vs. JohnsonMar / 23 / 2013               |
-|win    |Mike Hayes          |Decision (Unanimous)Valentin Tarasov |3  |5:00 |Fight Nights - Battle of Moscow 9Dec / 16 / 2012           |
-|win    |Devin Cole          |TKO (Punches)Steve Mazzagatti        |1  |2:37 |WSOF 1 - Arlovski vs. ColeNov / 03 / 2012                  |
+|Result |Fighter             |Method/Referee                           |R  |Time |Event                                                      |
+|:------|:-------------------|:----------------------------------------|:--|:----|:----------------------------------------------------------|
+|loss   |Alistair Overeem    |TKO (Front Kick and Punches)Marc Goddard |2  |1:12 |UFC Fight Night 87 - Overeem vs. ArlovskiMay / 08 / 2016   |
+|loss   |Stipe Miocic        |TKO (Punches)Herb Dean                   |1  |0:54 |UFC 195 - Lawler vs. ConditJan / 02 / 2016                 |
+|win    |Frank Mir           |Decision (Unanimous)John McCarthy        |3  |5:00 |UFC 191 - Johnson vs. Dodson 2Sep / 05 / 2015              |
+|win    |Travis Browne       |TKO (Punches)Mark Smith                  |1  |4:41 |UFC 187 - Johnson vs. CormierMay / 23 / 2015               |
+|win    |Antonio Silva       |KO (Punches)Jerin Valel                  |1  |2:59 |UFC Fight Night 51 - Bigfoot vs. Arlovski 2Sep / 13 / 2014 |
+|win    |Brendan Schaub      |Decision (Split)John McCarthy            |3  |5:00 |UFC 174 - Johnson vs. BagautinovJun / 14 / 2014            |
+|win    |Andreas Kraniotakes |TKO (Punches)N/A                         |2  |3:14 |Fight Nights - Battle on NyamihaNov / 29 / 2013            |
+|win    |Mike Kyle           |Decision (Unanimous)Dan Miragliotta      |3  |5:00 |WSOF 5 - Arlovski vs. KyleSep / 14 / 2013                  |
+|loss   |Anthony Johnson     |Decision (Unanimous)Kevin Mulhall        |3  |5:00 |WSOF 2 - Arlovski vs. JohnsonMar / 23 / 2013               |
+|win    |Mike Hayes          |Decision (Unanimous)Valentin Tarasov     |3  |5:00 |Fight Nights - Battle of Moscow 9Dec / 16 / 2012           |
 
 We obtain links to opponents separately from the text fields but we can just as easily access these fields from the html using the CSS selector rule: "td:nth-child(2) a"
 
@@ -111,9 +112,9 @@ fighter_links[1:5]
 
 
 {% highlight text %}
-## [1] "/fighter/Stipe-Miocic-39537"   "/fighter/Frank-Mir-2329"      
-## [3] "/fighter/Travis-Browne-16785"  "/fighter/Antonio-Silva-12354" 
-## [5] "/fighter/Brendan-Schaub-33926"
+## [1] "/fighter/Alistair-Overeem-461" "/fighter/Stipe-Miocic-39537"  
+## [3] "/fighter/Frank-Mir-2329"       "/fighter/Travis-Browne-16785" 
+## [5] "/fighter/Antonio-Silva-12354"
 {% endhighlight %}
 
 ### Finding new fighters and large-scale extraction
@@ -191,6 +192,4 @@ ggplot(bouts, aes(x = Date)) +
 
 By looking at when fights have occurred we can see the explosive growth of MMA, with the vast majority of fights occurring within the last 10 years.
 
-
 In my next post, I will discuss some of the methods that I used to turn raw fighter-centric data into large tables. I will also talk about ways of standardizing the inputs so that fighters can be fairly compared.
-

@@ -1,8 +1,8 @@
 ---
 title: "Building a large database of MMA fight results II: quantitatively summarizing over 240,000 MMA fights"
-description: "summarizing the results and finishes of over 240,000 MMA fights"
+description: "Summarizing the results and finishes of over 240,000 MMA fights"
 category: MMA
-tags: [R, dplyr, treemaps]
+tags: [dplyr, treemaps]
 output: html_document
 ---
 
