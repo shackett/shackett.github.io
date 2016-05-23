@@ -4,4 +4,7 @@ main:
     url: /year-archive/
 
   - title: "About Me"
-    url: http://www.shackett.org
+    url: /about/
+
+  - title: "Academic Work"
+    url: /academics/
