@@ -1,0 +1,208 @@
+---
+title: "Visualizing hierarchical data"
+description: "Creating natural parallels between data hierarchies and partitioning of color space."
+category: data_science
+tags: [color theory, hierarchies]
+---
+
+A recent tweet by Matthew Stephens showed a colorful plot of tissue expression profiles grouped based on 20 clusters and goaded the readers to "go on, ask how we chose K."
+
+
+
+The answer was essentially that 20 clusters was the number of distinct colors that were available.
+
+With the expansion of high-dimensional datasets, researchers continue to try to squeeze more distinctiveness out of a limited number of colors in order to resolve more populations, more tissues and more genes. At the root of this desire is an answer to the question of how many distinct colors can be used without confusing the reader?
+
+Similar colors tend to have similar values of hue (color), chroma (saturation) and luminance (brightness) which are quantified by quantitative similarity within a color space (such as HCL: hue-chroma-luminance) that includes all possible colors. One interesting way of identifying a distinct set of colors from this color space is to cluster colors according to their HCL values. If we want 20 distinct colors then we can use K-means clustering to divide the HCL color space into 20 clusters and then treat the center of each cluster as a single representative color. This approach was implemented in [I want hue](http://tools.medialab.sciences-po.fr/iwanthue/) and in R as a [gist](https://gist.github.com/johnbaums/45b49da5e260a9fc1cd7).
+
+While I want hue can suggest a large number of distinct colors, when we get to a large K, groups will tend to have similar colors that may not be perceptually seperable. If we want to be able to seperate all K groups then we are essentially limited by how accurately we can resolve the most similar categories. In Matthew Stephens' case of labeling clusters we may be stuck with the limitation, but more generally, visualizing misidentifying some pairs of samples may be worse than others. If we were instead interested in labelling tissues, we may be more permissive of not readily distinguishing regions of the brain but more woried about distinguishing the brain from the liver. This risk could be paralleled by coloring regions of the brain shades of blue, but coloring the liver a very different color such as red.
+
+Naturally hierarchies exist in biology (populations, gene sets, ...) and more broadly (geography, business sectors, ...) and the natural structures imposed by these hierarchies can be used to guide color choice to balance the risk of misclassifcation with the benefits of informative coloration.
+
+To illustrate this idea, I will use a simple hierarchical classification of US states to convey that relationship hierarchies can be represented by hierarchical colors. A [gist](https://gist.github.com/shackett/01c26a7f7749a31fc6617764317e0bd6) is provided that includes the code to generate hierarchical color schemes.
+
+```{r echo = F, message = F, warning = F}
+library(knitr)
+
+```
+
+
+```{r message = F, warning = F}
+library(countrycode)
+
+data(state)
+
+state_data <- data.frame(abb = state.abb,
+           name = state.name,
+           division = state.division,
+           region = state.region,
+           area = state.area,
+           center = state.center,
+           state.x77)
+
+kable(head(state_data, 10), row.names = F)
+```
+
+## Hierarchical segmentation of color space
+
+Using an approach similar to I want hue, I start out with a color space, a set of all colors that are available. Using the top level of the hierarchy (region) I divide the color space into the appropriate number of clusters, each representing a single category in the top level. The sizes of the clusters and categories are aligned so larger categories contain a larger set of colors (but with the current approach very small categories could still carve out a substantial region of color space).
+
+This partitioned color space determines the regions that are available to the daughter terms of each category. For example, one region such as the Northeast may contain all the reds and thus its daughter, the Middle Atlantic, will be restricted to a subset of this red region. New York being within the Middle Atlantic will in turn be restricted to the colors available within the Middle Atlantic division. 
+
+```{r message = F, warning = F}
+source("~/Desktop/MMA/manuscripts/blogs/Coloring_hierarchical_data/hierarchical_color_lib.R")
+```
+
+```{r warning = F, message = F}
+library(dplyr)
+
+state_hierarchy <- state_data %>% select(region, division, name)
+
+# generate a desired set of possible colors
+available_colors <- extract_color_space(lmin=30, cmin = 40)
+
+# cluster colors based on structure of hierarchy
+state_colors <- identify_color_hierarchy(state_hierarchy, available_colors)
+
+kable(head(state_colors, 10), row.names = F)
+
+division_colors = state_colors %>%
+  filter(Tier == "division") %>%
+  select(division = Category, division_color = Color)
+
+state_colors <- state_colors %>%
+  filter(Tier == "name") %>%
+  select(name = Category, state_color = Color)
+
+state_data <- state_data %>%
+  left_join(state_colors, by = "name") %>%
+  left_join(division_colors, by = "division")
+```
+
+## Visualizing the color hierarchy: coloring states by their colors
+
+# Looking at the whole Contiguous USA
+
+Projecting our hierarchical colors onto a map we can see that most colors are represented but different regions of the country take up different subsets of colors.
+
+```{r warning = F, message = F}
+library(ggplot2)
+library(maps)
+
+# colors, divisions and regions of state are summarized so they can be passed to a map 
+mapped_state_data <- state_data %>%
+  select(region, division, state = name, state_color) %>%
+  mutate(state = tolower(state))
+  
+# map layout data is setup and combined with color scheme
+all_states <- map_data("state") %>%
+  rename(state = region) %>%
+  left_join(mapped_state_data, by = "state") %>%
+  filter(!is.na(region)) # remove DC
+
+ggplot() +
+  geom_polygon( data=all_states, aes(x=long, y=lat, group = group, fill = state_color),colour="white") +
+  scale_fill_identity() +
+  theme_void()
+```
+
+## Looking at individual regions of the USA
+
+Each region of the USA, and there subregions occupy a distinct partition of color space. You can generally tell which states are in the west based on color and the distinction between the Pacific and Mountain states. Further refinement of this approach may be needed in some case to toss out some colors along the boundaries between categories to improve distinctiveness, albeit at the loss of some available colors.
+
+```{r fig.height = 12, warning = F, message = F}
+state_facet_theme <- theme_void() + theme(strip.background = element_rect(color = "gray50"),
+                                          strip.text = element_text(size = 20, color = "black"))
+  
+region_plots <- list()
+for(a_region in unique(all_states$region)){
+  
+  one_region <- all_states %>% filter(region == a_region)
+  
+  EW_order <- one_region %>% group_by(division) %>% summarize(long = mean(long), lat = mean(lat)) %>% arrange(long)
+  
+  one_region <- one_region %>% mutate(division = factor(division, levels = EW_order$division))
+  
+  region_plots[[a_region]] <- ggplot() +
+  geom_polygon(data = one_region, aes(x=long, y=lat, group = group, fill = state_color),colour="white") +
+  scale_fill_identity() +
+  facet_grid(region ~ division, space = "free", scales = "free") +
+  state_facet_theme + coord_fixed()
+  
+}
+
+library(gridExtra)
+
+grid.arrange(region_plots[["Northeast"]], region_plots[["North Central"]], region_plots[["South"]], region_plots[["West"]], ncol = 1)
+```
+
+## Using the color hierarchy: coloring data by major regions
+
+As a test of how well colors are tied to geography such that the geographical hierarchy can be reproduced by colors, we can plot attributes of each state and then determine whether geographical trends are apparent. Plotting illiteracy rate versus murder rate across the 50 states, we can see that the two attributes have a strong positive correlation. Furthermore, this is correlation appears to arise from geographical stratification. The the west and midwest have low murder rates and high literacy while the south has a murder rate and low literacy.
+
+```{r fig.align="center", fig.width = 8, fig.height = 8, warning = F, message = F}
+library(plotly)
+
+scatter_theme <- theme(axis.text = element_text(size = 12, color = "black"),
+                       axis.title = element_text(size = 15),
+                       legend.position = "none")
+
+ggplotly(
+  ggplot(state_data,
+         aes(x = Illiteracy, y = Murder, color = division_color,
+             Region = region, Division = division, State = name)) +
+    geom_point(size = 3) +
+    scale_color_identity(guide = "none") +
+    scale_y_continuous("Murder rate, per 100,000 people (1976)") +
+    scale_x_continuous("Illiteracy rate (%, 1970)", breaks = seq(0, 3, by = 0.5))+
+    scatter_theme +
+    ggtitle("Illiteracy rate and murder rate across major state divsiions")
+  , tooltip = c("Region", "Division", "State"))
+```
+
+In this example it doesn't make sense to color individual states because we only have one point of data for each state. Still, we are making use of the US state geographical hierarchy by breaking the major regions of the country into finer-scale divisions that can be resolved while still grouping by region.
+
+## Using the color hierarchy: coloring data by their state colors
+
+For an example where state-level coloring becomes important, we can consider an example where it is not immediately clear whether grouping should occur at the levels of regions, division or state. One area where we may want to know about specific state and broader trends in the country is racial demographics. More specifically, we can consider the racial composition of universities.
+
+To determine the racial composition of US colleges we can use the [College Scorecard API](https://collegescorecard.ed.gov/data/documentation/). This dataset contains the percent of the student body of identifying as various races (white, african american, hispanic, asian and american indian) at each of ~7,000 schools. Using the data from 2010, I looked at schools with an undergraduate student body of over 5,000 people resulting in ~1,000 schools with available demographic data. Fully summarizing racial composition would more than two axes, but we can achieve a simplified view of demographic makeup by breaking the racial groups into 3 categories (with the third category generated as 1 - (C1 + C2)). Treating the x-axis as the % of hispanic and african american student and the y-axis is the % of asian and american indian students, low values of x and y can be interpretted as a high fraction of white students.
+
+```{r fig.align="center", fig.width = 10, fig.height = 10}
+library(readr)
+
+state_data_by_color <- state_data %>%
+  select(STABBR = abb, state = name, division, region, state_color, division_color)
+
+# load data from College Scorecard
+raw_college_data <- read_csv("~/Desktop/MMA/manuscripts/blogs/Coloring_hierarchical_data/MERGED2010_PP.csv") %>% tbl_df
+raw_college_data[raw_college_data == "NULL"] <- NA
+
+college_data <- raw_college_data %>%
+  select(STABBR, INSTNM, UGDS, main, HIGHDEG, UGDS_WHITE:UGDS_AIAN) %>%
+  mutate_each(funs(as.numeric), UGDS, UGDS_WHITE:UGDS_AIAN) %>%
+  filter(main == 1,
+          UGDS > 5000,
+         UGDS_ASIAN + UGDS_AIAN > 0.003) %>%
+  left_join(state_data_by_color, by = "STABBR") %>%
+  # remove colleges that are not in the 50 states (i.e. DC or territories)
+  filter(!is.na(state_color))
+
+reduced_college_data <- college_data %>% mutate(black_hisp = UGDS_BLACK + UGDS_HISP,
+                        asian_aian = UGDS_ASIAN + UGDS_AIAN,
+                        white = 1 - (black_hisp + asian_aian)) %>%
+  select(INSTNM, region:state, state_color, black_hisp:white)
+
+ggplotly(
+ggplot(reduced_college_data, aes(x = black_hisp, asian_aian, color = state_color, INSTNM = INSTNM, region = region, division = division, state = state)) +
+  geom_point() +
+  scale_x_log10("African and hispanic americans", label = scales::percent, breaks = c(0.01, 0.03, 0.1, 0.3, 1)) +
+  scale_y_log10("Asian and native americans", label = scales::percent, breaks = c(0.003, 0.01, 0.03, 0.1, 0.3, 1)) +
+  coord_equal() +
+  scatter_theme +
+  scale_color_identity(), tooltip = c("INSTNM", "region", "division", "state"))
+```
+
+Looking at school demographics we see that some trends are very apparent at the state-level such as the large number of asian students in California, while other trends manifest at broader geographical scales, such as the large fraction of hispanics or aftrican americans in the south and the lower fraction of hispanics or african americans in the west and midwest. Many other trends are apparent in this visualization; with one plot we can convey much about the composition of all 50 states.
+
+While my approach to forming hierarchical color schemes is primarily a proof of principle and needs to be adjusted to better balance large-scale misclassifcation with color availability I think that these approaches will be really useful for facilitating visualization of complex datasets.

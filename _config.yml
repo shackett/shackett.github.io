@@ -4,7 +4,8 @@ title                    : "Mixed membership Martial Arts"
 title_separator          : "-"
 name                     : "Sean Hackett"
 description              : "MMA, genomics and data"
-url                      : "https://shackett.github.io"
+url:                      'http://www.shackett.org'
+#url                      : 'http://127.0.0.1:4000'
 baseurl                  : # the subpath of your site, e.g. "/blog"
 gh_repo                  :
 teaser                   : "boarding.jpg" # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
