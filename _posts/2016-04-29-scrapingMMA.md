@@ -79,24 +79,57 @@ fighter_table <- fighter_table %>%
   as.data.frame(stringsAsFactors = F) %>% tbl_df() %>%
   # reorder
   select(Result, Fighter, `Method/Referee`, R, Time, Event)
+{% endhighlight %}
 
+
+
+{% highlight text %}
+## Error in eval(expr, envir, enclos): object 'Result' not found
+{% endhighlight %}
+
+
+
+{% highlight r %}
 kable(head(fighter_table, 10), row.names = F)
 {% endhighlight %}
 
 
 
-|Result |Fighter             |Method/Referee                           |R  |Time |Event                                                      |
-|:------|:-------------------|:----------------------------------------|:--|:----|:----------------------------------------------------------|
-|loss   |Alistair Overeem    |TKO (Front Kick and Punches)Marc Goddard |2  |1:12 |UFC Fight Night 87 - Overeem vs. ArlovskiMay / 08 / 2016   |
-|loss   |Stipe Miocic        |TKO (Punches)Herb Dean                   |1  |0:54 |UFC 195 - Lawler vs. ConditJan / 02 / 2016                 |
-|win    |Frank Mir           |Decision (Unanimous)John McCarthy        |3  |5:00 |UFC 191 - Johnson vs. Dodson 2Sep / 05 / 2015              |
-|win    |Travis Browne       |TKO (Punches)Mark Smith                  |1  |4:41 |UFC 187 - Johnson vs. CormierMay / 23 / 2015               |
-|win    |Antonio Silva       |KO (Punches)Jerin Valel                  |1  |2:59 |UFC Fight Night 51 - Bigfoot vs. Arlovski 2Sep / 13 / 2014 |
-|win    |Brendan Schaub      |Decision (Split)John McCarthy            |3  |5:00 |UFC 174 - Johnson vs. BagautinovJun / 14 / 2014            |
-|win    |Andreas Kraniotakes |TKO (Punches)N/A                         |2  |3:14 |Fight Nights - Battle on NyamihaNov / 29 / 2013            |
-|win    |Mike Kyle           |Decision (Unanimous)Dan Miragliotta      |3  |5:00 |WSOF 5 - Arlovski vs. KyleSep / 14 / 2013                  |
-|loss   |Anthony Johnson     |Decision (Unanimous)Kevin Mulhall        |3  |5:00 |WSOF 2 - Arlovski vs. JohnsonMar / 23 / 2013               |
-|win    |Mike Hayes          |Decision (Unanimous)Valentin Tarasov     |3  |5:00 |Fight Nights - Battle of Moscow 9Dec / 16 / 2012           |
+|Date |VS. Fighter |Event |Location |
+                                
+                                    
+                                        
+                                            UFC Fight Night
+                                        
+                                        
+                                            
+                                                
+                                                September 03, 2016 / Barclaycard Arena, Hamburg, Germany
+                                            
+                                            
+                                                Versus
+                                                
+                                                    
+                                                    Andrei Arlovski
+                                                    25 - 12 - 0
+                                                    (Win - Loss - Draw)
+                                                
+                                                
+                                                    
+                                                    Josh Barnett
+                                                    34 - 8 - 0
+                                                    (Win - Loss - Draw)
+                                                
+                                            
+                                            
+                                                See entire fight card
+                                            
+                                        
+                                    
+                                
+                             |
+                         |
+|:----|:-----------|:-----|:--------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------|
 
 We obtain links to opponents separately from the text fields but we can just as easily access these fields from the html using the CSS selector rule: "td:nth-child(2) a"
 

@@ -1,13 +1,13 @@
 ---
-title: "Visualizing hierarchical data"
+title: "Visualizing hierarchical data using hierarchical colors"
 description: "Creating natural parallels between data hierarchies and partitioning of color space."
 category: data_science
-tags: [color theory, hierarchies]
+tags: [color, hierarchies]
 ---
 
 A recent tweet by Matthew Stephens showed a colorful plot of tissue expression profiles grouped based on 20 clusters and goaded the readers to "go on, ask how we chose K."
 
-
+<!--![Stephens tweet]({{ site.url }}/figure/2016-06-07-Coloring_hierarchical_data/stephens_tweet.png){: .align-center }-->
 
 The answer was essentially that 20 clusters was the number of distinct colors that were available.
 
@@ -23,11 +23,12 @@ To illustrate this idea, I will use a simple hierarchical classification of US s
 
 ```{r echo = F, message = F, warning = F}
 library(knitr)
-
+options(stringsAsFactors = F)
 ```
 
 
 ```{r message = F, warning = F}
+library(dplyr)
 library(countrycode)
 
 data(state)
@@ -38,7 +39,8 @@ state_data <- data.frame(abb = state.abb,
            region = state.region,
            area = state.area,
            center = state.center,
-           state.x77)
+           state.x77) %>%
+  mutate_each(funs(as.character), division, region)
 
 kable(head(state_data, 10), row.names = F)
 ```
@@ -54,8 +56,6 @@ source("~/Desktop/MMA/manuscripts/blogs/Coloring_hierarchical_data/hierarchical_
 ```
 
 ```{r warning = F, message = F}
-library(dplyr)
-
 state_hierarchy <- state_data %>% select(region, division, name)
 
 # generate a desired set of possible colors
@@ -85,7 +85,7 @@ state_data <- state_data %>%
 
 Projecting our hierarchical colors onto a map we can see that most colors are represented but different regions of the country take up different subsets of colors.
 
-```{r warning = F, message = F}
+```{r fig.align="center", warning = F, message = F}
 library(ggplot2)
 library(maps)
 
@@ -110,7 +110,7 @@ ggplot() +
 
 Each region of the USA, and there subregions occupy a distinct partition of color space. You can generally tell which states are in the west based on color and the distinction between the Pacific and Mountain states. Further refinement of this approach may be needed in some case to toss out some colors along the boundaries between categories to improve distinctiveness, albeit at the loss of some available colors.
 
-```{r fig.height = 12, warning = F, message = F}
+```{r fig.align="center", fig.height = 12, warning = F, message = F}
 state_facet_theme <- theme_void() + theme(strip.background = element_rect(color = "gray50"),
                                           strip.text = element_text(size = 20, color = "black"))
   
@@ -140,15 +140,14 @@ grid.arrange(region_plots[["Northeast"]], region_plots[["North Central"]], regio
 
 As a test of how well colors are tied to geography such that the geographical hierarchy can be reproduced by colors, we can plot attributes of each state and then determine whether geographical trends are apparent. Plotting illiteracy rate versus murder rate across the 50 states, we can see that the two attributes have a strong positive correlation. Furthermore, this is correlation appears to arise from geographical stratification. The the west and midwest have low murder rates and high literacy while the south has a murder rate and low literacy.
 
-```{r fig.align="center", fig.width = 8, fig.height = 8, warning = F, message = F}
+```{r fig.align="center", fig.width = 8, fig.height = 8, plotly=TRUE, warning = F, message = F}
 library(plotly)
 
 scatter_theme <- theme(axis.text = element_text(size = 12, color = "black"),
                        axis.title = element_text(size = 15),
                        legend.position = "none")
 
-ggplotly(
-  ggplot(state_data,
+state_plot <- ggplot(state_data,
          aes(x = Illiteracy, y = Murder, color = division_color,
              Region = region, Division = division, State = name)) +
     geom_point(size = 3) +
@@ -157,7 +156,8 @@ ggplotly(
     scale_x_continuous("Illiteracy rate (%, 1970)", breaks = seq(0, 3, by = 0.5))+
     scatter_theme +
     ggtitle("Illiteracy rate and murder rate across major state divsiions")
-  , tooltip = c("Region", "Division", "State"))
+
+ggplotly(state_plot, session="knitr", tooltip = c("Region", "Division", "State"))
 ```
 
 In this example it doesn't make sense to color individual states because we only have one point of data for each state. Still, we are making use of the US state geographical hierarchy by breaking the major regions of the country into finer-scale divisions that can be resolved while still grouping by region.
@@ -168,7 +168,7 @@ For an example where state-level coloring becomes important, we can consider an 
 
 To determine the racial composition of US colleges we can use the [College Scorecard API](https://collegescorecard.ed.gov/data/documentation/). This dataset contains the percent of the student body of identifying as various races (white, african american, hispanic, asian and american indian) at each of ~7,000 schools. Using the data from 2010, I looked at schools with an undergraduate student body of over 5,000 people resulting in ~1,000 schools with available demographic data. Fully summarizing racial composition would more than two axes, but we can achieve a simplified view of demographic makeup by breaking the racial groups into 3 categories (with the third category generated as 1 - (C1 + C2)). Treating the x-axis as the % of hispanic and african american student and the y-axis is the % of asian and american indian students, low values of x and y can be interpretted as a high fraction of white students.
 
-```{r fig.align="center", fig.width = 10, fig.height = 10}
+```{r fig.align="center", fig.width = 8, fig.height = 8, plotly=TRUE, warning = F, message = F}
 library(readr)
 
 state_data_by_color <- state_data %>%
@@ -193,14 +193,17 @@ reduced_college_data <- college_data %>% mutate(black_hisp = UGDS_BLACK + UGDS_H
                         white = 1 - (black_hisp + asian_aian)) %>%
   select(INSTNM, region:state, state_color, black_hisp:white)
 
-ggplotly(
-ggplot(reduced_college_data, aes(x = black_hisp, asian_aian, color = state_color, INSTNM = INSTNM, region = region, division = division, state = state)) +
+education_plot <- ggplot(reduced_college_data,
+                         aes(x = black_hisp, asian_aian, color = state_color, INSTNM = INSTNM,
+                             region = region, division = division, state = state)) +
   geom_point() +
   scale_x_log10("African and hispanic americans", label = scales::percent, breaks = c(0.01, 0.03, 0.1, 0.3, 1)) +
   scale_y_log10("Asian and native americans", label = scales::percent, breaks = c(0.003, 0.01, 0.03, 0.1, 0.3, 1)) +
   coord_equal() +
   scatter_theme +
-  scale_color_identity(), tooltip = c("INSTNM", "region", "division", "state"))
+  scale_color_identity()
+
+ggplotly(education_plot, session="knitr", tooltip = c("INSTNM", "region", "division", "state"))
 ```
 
 Looking at school demographics we see that some trends are very apparent at the state-level such as the large number of asian students in California, while other trends manifest at broader geographical scales, such as the large fraction of hispanics or aftrican americans in the south and the lower fraction of hispanics or african americans in the west and midwest. Many other trends are apparent in this visualization; with one plot we can convey much about the composition of all 50 states.

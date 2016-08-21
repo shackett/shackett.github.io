@@ -6,7 +6,7 @@ tags: [dplyr, treemaps]
 output: html_document
 ---
 
-In my [last post](https://shackett.github.io/mma/scrapingMMA), I discussed how it was possible to extract match-level summaries of more than 240,000 unique MMA bouts between 143,602 fighters. In this entry, I will discuss how data from individual webpages can be combined into a single table with comparable entries. I will then show some high-leve
+In my [last post](https://shackett.github.io/mma/scrapingMMA), I discussed how it was possible to extract match-level summaries of more than 240,000 unique MMA bouts between 143,602 fighters. In this entry, I will discuss how data from individual webpages can be combined into a single table with comparable entries. I will then show some high-level summaries of how fights are finished.
 
 Data from fighters was obtained one webpage at a time, with the fields from one website saved as elements of a list. The fields that we want to work with for the first fighter in this list, Andrei Arlovski, are:
 
