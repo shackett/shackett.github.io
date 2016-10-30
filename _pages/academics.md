@@ -7,7 +7,7 @@ author_profile: true
 
 My research focuses on understanding how genetic and environmental changes alter the complicated systems of metabolism and physiology. I try to model systems using data-driven approaches that break network-level behavior into simpler sub-questions.
 
-I am currently a postdoc with [John Storey](http://www.genomine.org/index.html) where I am creating interactive methods for exploring data.
+I am currently a postdoc with [John Storey](http://www.genomine.org/index.html) where I am working on machine learning oriented approaches to systems genetics and sports analytics.
 
 A summary of my education and research can be found on my [curriculum vitae]({{ site.url }}/figure/misc/shackett_CV.pdf)
 
@@ -24,7 +24,7 @@ My research primarily focused on:
 
 Published (or under review) papers from this work are:
 
-- **Sean R. Hackett**, Vito R.T. Zanotelli, Wenxin Xu, Jonathan Goya, Junyoung O. Park, David H. Perlman, Patrick A. Gibney, David Botstein, John D. Storey, and Joshua D. Rabinowitz. Systems-level analysis of mechansims controlling yeast metabolic flux. **Science**, in revision.
+- **Sean R. Hackett**, Vito R.T. Zanotelli, Wenxin Xu, Jonathan Goya, Junyoung O. Park, David H. Perlman, Patrick A. Gibney, David Botstein, John D. Storey, and Joshua D. Rabinowitz. Systems-level analysis of mechansims controlling yeast metabolic flux. **Science**, 345, 2016.
 - Jurre Kamphorst, Michel Nofal, Cosimo Commisso, **Sean R. Hackett**, Wenyun Lu, Elda Grabocka, George Miller, Jeffrey Drebin, Matthew Vander Heiden, Dafna Bar-Sagi, Craig Thompson, Josh Rabinowitz. Human pancreatic cancer tumors are nutrient poor and the tumor cells actively scavenge extracellular protein. **Cancer Research**, 75, 2015.
 - Robin Mathew, Sinan Khor, **Sean R. Hackett**, Joshua D. Rabinowitz, David H. Perlman, and Eileen White. Functional Role of Autophagy-Mediated Proteome Remodeling in Cell Survival Signaling and Innate Immunity. **Molecular Cell**, 55(6), 2014.
 - Jeffrey S. Breunig, **Sean R. Hackett**, Joshua D. Rabinowitz, Leonid Kruglyak. Genetic Basis of Metabolome Variation in Yeast. **PLoS Genetics**, 10(4) e1004142, 2014.
