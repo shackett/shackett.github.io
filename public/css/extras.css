@@ -62,12 +62,12 @@ button.accordion.hide {
 }
 
 figure.highlight {
-    padding: 0 18px;
+    padding: 0 0px;
     background-color: white;
 }
 @media (min-width: 38em) {
     figure.highlight {
-        background-color: white;
+        padding: 0 18px;
     }
 }
 
