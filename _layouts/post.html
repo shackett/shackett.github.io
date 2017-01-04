@@ -1,0 +1,42 @@
+---
+layout: default
+---
+
+<div class="post">
+  <h1 class="post-title">{{ page.title }}</h1>
+  <span class="post-date">{{ page.date | date_to_string }}</span>
+  
+  {% assign author = site.data.authors[page.author] %}
+  {% if author %}
+  <span class="author-list">
+    By <a href="{{ author.web }}" target="_blank">{{ author.name }}</a><br>
+  </span>
+  {% endif %}
+  
+  {{ content }}
+  {% include social-share.html %}
+
+</div>
+
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    {% for post in site.related_posts limit:3 %}
+      <li>
+        <h3>
+          <a href="{{ site.baseurl }}{{ post.url }}">
+            {{ post.title }}
+            <small>{{ post.date | date_to_string }}</small>
+          </a>
+        </h3>
+      </li>
+    {% endfor %}
+  </ul>
+
+	{% if page.comments == true %}
+	{% include _disqus_comments.html %}
+	<section id="disqus_thread"></section><!-- /#disqus_thread -->
+	{% endif %}
+	{% include _collapse_code.html %}
+
+</div>

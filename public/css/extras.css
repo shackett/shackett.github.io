@@ -1,0 +1,83 @@
+/*
+ * Social icon positioning
+ */
+
+ul.share-buttons{
+  list-style: none;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+ul.share-buttons li{
+  padding-left:    0.3rem;
+  float: left;
+  padding-right:    0.3rem;
+}
+
+/*
+ * Other formatting
+ */
+
+/* image align right */
+
+.align-right {
+  display: block;
+  margin-left: 12em;
+  margin-right: auto;
+  float: right;
+}
+
+/* image align center */
+
+.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*
+ * Formatting collapsible code blocks
+ */
+ 
+button.accordion {
+    background-color: #f9f9f9;
+    color: #444;
+    cursor: pointer;
+    padding: 8px;
+    border-style: solid;
+    border-color: #6a9fb5; 
+    border-width: 3px;
+    text-align: center;
+    outline: none;
+    font-size: 20px;
+    transition: 0.4s;
+    display: block;
+    margin:0 auto; /* center box */
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+button.accordion.hide {
+    display: none;
+}
+    
+figure.highlight {
+    padding: 0 18px;
+    background-color: white;
+}
+
+figure.highlight.hide {
+    display: none;
+}
+figure.highlight.show {
+    display: block !important;
+}
+
+/*
+ * Formatting post headers
+ */
+ 
+.author-list {
+  display: block;
+  margin-bottom: 0.8rem;
+}
