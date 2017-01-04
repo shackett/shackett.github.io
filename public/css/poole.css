@@ -182,13 +182,9 @@ pre code {
 /* Pygments via Jekyll */
 .highlight {
   margin-bottom: 1rem;
-  border-radius: 0px;
+  border-radius: 1px;
 }
-@media (min-width: 38em) {
-  figure.highlight {
-    border-radius: 1px;
-  }
-}
+
 .highlight pre {
   margin-bottom: 0;
 }
