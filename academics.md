@@ -10,7 +10,7 @@ My research focuses on understanding how genetic and environmental changes alter
 
 I am currently a postdoc with [John Storey](http://www.genomine.org/index.html) where I am working on machine learning oriented approaches to systems genetics and sports analytics.
 
-A summary of my education and research can be found on my [curriculum vitae]({{ site.url }}/figure/misc/shackett_CV.pdf)
+A summary of my education and research can be found on my [curriculum vitae]({{ site.url }}/public/shackettCV.pdf)
 
 <hr>
 
