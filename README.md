@@ -1,6 +1,17 @@
 # shackett.org
 
-# Authors
+# Setup
+
+```bash
+# install jekyll
+gem install jekyll bundler
+
+# install dependencies from Gemfile.lock
+bundle install
+
+# serve site locally
+bundle exec jekyll serve
+```
 
 # Site Design
 

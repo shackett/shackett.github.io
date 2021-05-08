@@ -4,19 +4,41 @@ permalink: /academics/
 title: "Research"
 ---
 
-## Systems Genetics of Metabolism
+## Identifying Causal Regulation at a Genome-wide Scale
 
-My research focuses on understanding how genetic and environmental changes alter the complicated systems of metabolism and physiology. I try to model systems using data-driven approaches that break network-level behavior into simpler sub-questions.
+My research focuses on developing genome-scale, mechanistic models of metabolism and cellular physiology. I approach these problem using large multi-omics datasets that provide complementary views of the systems' states. Using such datasets, allows me to break network-level complexity into simpler sub-questions where novel connections among features can be discovered. To discover these connections I utilize and extend techniques from statistics and machine learning.
 
-I am currently a postdoc with [John Storey](http://www.genomine.org/index.html) where I am working on machine learning oriented approaches to systems genetics and sports analytics.
-
-A summary of my education and research can be found on my [curriculum vitae]({{ site.url }}/public/shackettCV.pdf)
+A summary of my employment, education and research can be found in my [curriculum vitae]({{ site.url }}/public/shackett_CV.pdf), while my [resume]({{ site.url }}/public/shackett_resume.pdf) provides a more succinct summary work history.
 
 <hr>
 
-### Graduate Research at Princeton 
+### Data Science and Leadership at Calico Life Sciences
 
-I recently completed my PhD in the program of Quantitative and Computational Biology (QCB) at Princeton University; my adviser was [Josh Rabinowitz](https://www.princeton.edu/genomics/rabinowitz/research/).
+In 2017, I joined Calico Life Sciences, an Alphabet subsidiary focused on improving our understanding of aging and advancing the treatment of diseases of aging. As a Data Scientist, I have developed infrastructure for understanding aging at a systems-level by profiling the molecular state of aging organisms and disentagling the causal inter-dependencies among molecular traits. To generate ever larger and more comprehensive profiles, I have worked closely with experimental researchers, particularly those working on mass spectrometry, to streamline and advance our internal workflows. 
+
+In January of 2018 my role expanded into managing a team of data scientists. Adopting this role, I received management training so that I could better understand my role as a manager and a leader in our organization. I soon put this training to work, by contributing to a re-organization of the Computing team, and by representing my team to the executive team and in all-company formats. As a manager, I've hired six researchers into diverse, specialized roles, and helped them maintain effectiveness amidst a problem-rich environment. As a leader, I've helped individual's align their work with their personal, and the companies long-term goals, and initiated new directions, of increasingly strategic importance, for the company.
+
+Published papers from my time at Calico include:
+
+- **Sean R. Hackett**, Edward A. Baltz, Marc Coram, Bernd J. Wranik, Griffin Kim, Adam Baker, Minjie Fan, David G. Hendrickson, Marc Brendl, R. Scott McIsaac. Learning causal networks using inducible transcription factors and transcriptome-wide time serie. **Molecular Systems Biology**, 16 (3), 2020.
+- Sam S. Schoenholz, **Sean Hackett**, Laura Deming, Eugene Melamud, Navdeep Jaitly, Fiona McAllister, Jonathon O’Brien, George Dahl, Bryson Bennett, Andrew Dai, Daphne Kohler. Peptide-spectrum matching from weak supervision. ArXiv.
+
+### PhD and Postdoc at Princeton
+
+After finishing my PhD I did a short PostDoc with [John Storey](https://storeylab.org/).
+
+My research focused on:
+
+- Exploratory analysis of high-dimensional sports data: see [fightprior.com](https://www.fightprior.com).
+- Modeling competitive growth of yeast strains that are mosaics of two parental backgrounds (BYxRM) using BarSeq.
+
+Published papers from this work are:
+
+- **Sean R. Hackett** and John D. Storey. Mixed Membership Martial Arts: Data-Driven Analysis of Winning Martial Arts Styles. **Proceedings of the Sloan Sports Conference**, 2017.
+
+<hr>
+
+I completed my PhD in the program of Quantitative and Computational Biology (QCB) at Princeton University, where I was advised by [Josh Rabinowitz](https://www.princeton.edu/genomics/rabinowitz/research/).
 
 My research primarily focused on:
 
