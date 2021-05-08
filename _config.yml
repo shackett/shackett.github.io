@@ -5,9 +5,8 @@ permalink:           pretty
 
 # Setup
 title:               Sean Hackett
-tagline:             'High-Dimensional Data Science of <a href=http://shackett.org/academics>Genomics</a> and <a href="http://fightprior.com">Sports</a>'
-description:         '<img src="https://raw.githubusercontent.com/shackett/shackett.github.io/master/public/boarding.jpg" width=200 </img> <br>I spend my days using tools from data science to wrangle big biological datasets. Most of my research involves modeling how yeast and cancer metabolism is shaped by genetics and the environment. The rest of my time I spend watching MMA and training BJJ.</br><br>Recently, I have been fusing these passions by applying exploratory data analysis to MMA and BJJ at <a href="https://fightprior.com">FightPrior.com</a>.</br>'
-url:                 'http://www.shackett.org'
+tagline:             'High-Dimensional Data Science of <a href=http://shackett.org/research>Genomics</a> and <a href="http://fightprior.com">Sports</a>'
+description:         '<img src="https://raw.githubusercontent.com/shackett/shackett.github.io/master/public/boarding.jpg" width=200 </img> <br>I spend my days using tools from data science to discover regulation from high-dimensional genomic datasets. Most of my downtime, I spend playing with my one year old daughter.'
 #url:                 'http://127.0.0.1:4000'
 paginate:            5
 gems:                [jekyll-paginate]
