@@ -11,6 +11,7 @@ local({
     fig.path   = sprintf("figure/%s/", d),
     cache.path = sprintf("cache/%s/", d)
   )
+  
   knitr::knit(
     a[1], a[2], quiet = TRUE, encoding = "UTF-8",
     envir = globalenv()

@@ -7,10 +7,12 @@ permalink:           pretty
 title:               Sean Hackett
 tagline:             'High-Dimensional Data Science of <a href=http://shackett.org/research>Genomics</a> and <a href="http://fightprior.com">Sports</a>'
 description:         '<img src="https://raw.githubusercontent.com/shackett/shackett.github.io/master/public/boarding.jpg" width=200 </img> <br>I spend my days using tools from data science to discover regulation from high-dimensional genomic datasets. Most of my downtime, I spend playing with my one year old daughter.'
-#url:                 'http://127.0.0.1:4000'
+#url:                'http://127.0.0.1:4000'
 paginate:            5
 gems:                [jekyll-paginate]
 excerpt_separator:   <!--more-->
+exclude:             ['*.Rmd', "Gemfile", "Gemfile.lock"]
+encoding:            "utf-8"
 
 # About/contact
 author:

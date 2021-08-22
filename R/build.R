@@ -13,10 +13,10 @@ build_one = function(io) {
 }
 
 # Rmd files under the root directory
-rmds = list.files(".", "[.]Rmd$", recursive = T, full.names = T)
-mds = file.path("./_posts", xfun::with_ext(basename(rmds), ".md"))
+rmds = list.files("_source", "[.]Rmd$", recursive = T, full.names = T)
+mds = file.path("_posts", xfun::with_ext(basename(rmds), ".md"))
 files = cbind(rmds, mds)
 
 for (i in seq_len(nrow(files))) build_one(files[i, ])
 
-system2("bundle", "exec", "jekyll", "build")
+#system2("bundle", "exec", "jekyll", "build")
