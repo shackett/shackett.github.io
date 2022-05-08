@@ -17,6 +17,8 @@ One of the benefits of collecting a time zero measurement is it allows us to rem
 
 Aside from correcting for unwanted variation, the kinetics of timecourses are a rich source of information which can be either a blessing or a curse. With temporal information, ephemeral responses can be observed. We can see both which features are changing and when they are changing. And, the ordering of events can point us towards causality. In practice, each of these goals can be difficult, or impossible to achieve, leaving us with a nagging feeling that we're leaving information on the table. There are many competing options for identifying differences in timecourses, few ways of summarizing dynamics in an intuitive way, and causal inference is often out of reach. In this post, and others to follow, I'll pick apart a few of these limitations, discussing developments that were applied to the IDEA, but will likely be useful for others thinking about biological timeseries analysis (or other timeseries if you are so inclined!). Here, I evaluate a few established methods for identifying features which vary across time and then introduce an alternative approach based on the Multivariate Gaussian distribution and Mahalanobis distance which increases power and does not require any assumptions about responses' kinetics.
 
+<!--more-->
+
 ## Our timecourse experiment
 
 To evaluate methods for detecting temporal dynamics its helpful to use a dataset where there a clear-cut examples of timecourses with and without signal. With such a dataset in hand, we can easily detect signals that we are missing (false negatives), noise that we think is real (false positives) and evaluate overall recall (what fraction of signals are we detecting). We rarely have such positive and negative examples in real timecourses, so instead we can simulate timecourses with and without signal. Going forward I will also use genes as short-hand for whatever features that we might be working with since I've primarily worked with these methods in the context of gene expression data.
@@ -26,7 +28,7 @@ To evaluate methods for detecting temporal dynamics its helpful to use a dataset
 First, I'm going to setup the R environment by loading some bread-and-butter packages and setting the global options for future and ggplot2.
 
 
-```r
+{% highlight r %}
 # general use packages
 suppressPackageStartupMessages(library(dplyr))
 library(future)
@@ -42,7 +44,7 @@ plan("multisession", workers = 4)
 
 # ggplot default theme
 theme_set(theme_bw())
-```
+{% endhighlight %}
 
 ### Simulate timecourses containing signal
 
@@ -55,7 +57,7 @@ To simulate data from these models, we can use the simulate_timecourses() functi
 This function will draw a set of parameters for sigmoidal and impulse from appropriate distributions to define a simulated timecourse. We'll then add independent normally distributed noise to each observation. (For most genomic data types, measurements are log-normal so we could think of these abundance units as already having been log-transformed).
 
 
-```r
+{% highlight r %}
 timepts <- c(0, 5, 10, 20, 30, 40, 60, 90) # time points measured
 measurement_sd <- 0.5 # standard deviation of Gaussian noise added to each observation
 total_measurements <- 10000 # total number of genes
@@ -93,7 +95,7 @@ alt_timecourses <- alt_timecourses %>%
     by = "tc_id")
 
 knitr::kable(alt_timecourses %>% slice(1:length(timepts)))
-```
+{% endhighlight %}
 
 
 
@@ -117,7 +119,7 @@ With timecourses with and without signals in hand, we can combine the two sets t
 Additionally since we are interested in time-dependent changes with respect to time zero, we can transform abundances into fold changes which subtract the initial value of a timecourse from every measurement. We'll work with both the native abundance scale and time-zero normalized fold changes going forward.
 
 
-```r
+{% highlight r %}
 null_timecourses <- crossing(tc_id = seq(max(alt_timecourses$tc_id) + 1,
                                          max(alt_timecourses$tc_id) + total_measurements * (1-signal_frac)),
                              time = timepts) %>%
@@ -130,12 +132,12 @@ simulated_timecourses <- bind_rows(alt_timecourses, null_timecourses) %>%
   group_by(tc_id) %>%
   mutate(fold_change = abundance - abundance[time == 0]) %>%
   ungroup()
-```
+{% endhighlight %}
 
 ### Example timecourses 
 
 
-```r
+{% highlight r %}
 example_tcs <- simulated_timecourses %>%
   distinct(signal, tc_id) %>%
   group_by(signal) %>%
@@ -152,9 +154,9 @@ simulated_timecourses %>%
   scale_color_brewer("Example Timecourse", palette = "Set2") +
   ggtitle("Simulated timecourses with and without signal", "line: true values, points: observed values") +
   theme(legend.position = "bottom")
-```
+{% endhighlight %}
 
-![plot of chunk timecourse_examples](/figure/source/2022-05-09-time_zero_normalization/timecourse_examples-1.png)
+![plot of chunk timecourse_examples](/figure/source/2022-05-08-time_zero_normalization/timecourse_examples-1.png)
 
 ## Models to try
 
@@ -163,14 +165,16 @@ At this point, we want to fit a few flavors of time series models to each gene i
 To make it easy to iterate over features, I like to using the nest function from tidyr to store all the data for a feature in a single row. Here, expression data will be stored as a list of gene-level tables.
 
 
-```r
+{% highlight r %}
 nested_timecourses <- simulated_timecourses %>%
   nest(timecourse_data = -c(signal, tc_id)) 
 
 nested_timecourses
-```
+{% endhighlight %}
 
-```
+
+
+{% highlight text %}
 ## # A tibble: 10,000 × 3
 ##    tc_id signal          timecourse_data 
 ##    <int> <fct>           <list>          
@@ -185,7 +189,7 @@ nested_timecourses
 ##  9    22 contains signal <tibble [8 × 4]>
 ## 10    23 contains signal <tibble [8 × 4]>
 ## # … with 9,990 more rows
-```
+{% endhighlight %}
 
 Having nested one-gene per row, we can apply multiple regression models to each gene, and we'll also do this treating both the fold-change and original expression level as responses to evaluate the effect of time zero normalization. The regression models that we'll try are:
 
@@ -207,7 +211,7 @@ A couple of notes:
 - *future* was used to parallelize over genes; its settings were setup in the "environment setup" section.
 
 
-```r
+{% highlight r %}
 library(broom)
 library(furrr)
 suppressPackageStartupMessages(library(gam))
@@ -250,14 +254,14 @@ standard_models <- nested_timecourses %>%
                                     model_formula = as.formula(abundance ~ s(time))),
          gam_foldchange = future_map(timecourse_data, fit_regression, model_fxn = "gam",
                                      model_formula = as.formula(fold_change ~ s(time) + 0)))
-```
+{% endhighlight %}
 
 Each model x gene can be summarized by a single p-value. We expect the signal-containing timecourses to have relatively low p-values, while the no-signal timecourses' pvalues should be uniformly distributed between 0 and 1.
 
 To correct for multiple tests we can use the Storey q-value approach to control the false discovery rate (FDR). To do this we will estimate q-values separately for each model and select a q-value cutoff of 0.1 as a cutoff for significance. At this level we expect that 1/10 of genes with a q-value of less than 0.1 will be from the no-signal group.
 
 
-```r
+{% highlight r %}
 fdr_control <- function(pvalues) {
   qvalue::qvalue(pvalues)$qvalues 
 }
@@ -275,16 +279,16 @@ ggplot(all_model_fits, aes(x = p.value, fill = signal)) +
   facet_grid(model ~ response) +
   geom_histogram(bins = 25) +
   scale_fill_brewer(palette = "Set1")
-```
+{% endhighlight %}
 
-![plot of chunk fdr_control](/figure/source/2022-05-09-time_zero_normalization/fdr_control-1.png)
+![plot of chunk fdr_control](/figure/source/2022-05-08-time_zero_normalization/fdr_control-1.png)
 
 Visually, there are a large number of no-signal timecourses with small p-values in the fold-change data. This suggests that something pathological is going on.
 
 We can also summarize models based on the FDR that was actually realized given that we were shooting for 0.1, and based on the total recall of signal-containing timecourses at the cutoff of 0.1
 
 
-```r
+{% highlight r %}
 all_model_fits %>%
   count(signal, model, response, discovery) %>%
   mutate(correct = case_when(signal == "no signal" & discovery == "negative" ~ "true negative",
@@ -297,7 +301,7 @@ all_model_fits %>%
   mutate(fdr = `false positive` / (`false positive` + `true positive`),
          recall = `true positive` / (`false negative` + `true positive`)) %>%
   knitr::kable()
-```
+{% endhighlight %}
 
 
 
@@ -315,7 +319,7 @@ In this summary we can see that working with abundances does accurately control 
 To figure out what is going wrong, we can plot examples of false positives (model thinks there is signal when there isn't) and false negatives (model doesn't think there is signal when there really is).
 
 
-```r
+{% highlight r %}
 extreme_false_negatives <- all_model_fits %>%
   filter(signal == "contains signal" & response == "abundance" & model %in% c("cubic", "gam")) %>%
   group_by(model, response) %>%
@@ -348,9 +352,9 @@ simulated_timecourses %>%
   scale_color_brewer("Example Timecourse", palette = "Set2") +
   ggtitle("Timecourses missed by GAM", "line: true values, points: observed values") +
   theme(legend.position = "bottom")
-```
+{% endhighlight %}
 
-![plot of chunk unnamed-chunk-2](/figure/source/2022-05-09-time_zero_normalization/unnamed-chunk-2-1.png)
+![plot of chunk unnamed-chunk-2](/figure/source/2022-05-08-time_zero_normalization/unnamed-chunk-2-1.png)
 
 From this we can say a few things:
 
@@ -379,7 +383,7 @@ Before we posit an appropriate likelihood for fold change, lets figure out why t
 To do this, we can look at how the value at time zero influences fold-change estimates of later timepoints.
 
 
-```r
+{% highlight r %}
 timecourse_spread <- simulated_timecourses %>%
   filter(signal == "no signal") %>%
   group_by(tc_id) %>%
@@ -395,9 +399,9 @@ ggplot(timecourse_spread, aes(x = `5`, y = `10`, color = tzero_value)) + geom_po
   scale_y_continuous("Fold change at 10 minutes") +
   coord_cartesian(xlim = c(-2,2), ylim = c(-2,2)) +
   theme_minimal()
-```
+{% endhighlight %}
 
-![plot of chunk corr_vs_tzero](/figure/source/2022-05-09-time_zero_normalization/corr_vs_tzero-1.png)
+![plot of chunk corr_vs_tzero](/figure/source/2022-05-08-time_zero_normalization/corr_vs_tzero-1.png)
 
 From this plot, a large positive value at time zero (due to noise) results in later timepoints appearing as consistent negative fold changes. Conversely, if the time zero value is negative then later timepoints appear consistently positive.
 
@@ -408,11 +412,13 @@ Based on the value of time zero, which all subsequent time points are normalized
 We can see this dependence using the sample covariance matrix of our null timecourses.
 
 
-```r
+{% highlight r %}
 cov(timecourse_spread[,3:ncol(timecourse_spread)])
-```
+{% endhighlight %}
 
-```
+
+
+{% highlight text %}
 ##            5        10        20        30        40        60        90
 ## 5  0.5141863 0.2514794 0.2583391 0.2533660 0.2557825 0.2539230 0.2559496
 ## 10 0.2514794 0.5076230 0.2605876 0.2536349 0.2504740 0.2512202 0.2540698
@@ -421,7 +427,7 @@ cov(timecourse_spread[,3:ncol(timecourse_spread)])
 ## 40 0.2557825 0.2504740 0.2562055 0.2534935 0.4982398 0.2498487 0.2531005
 ## 60 0.2539230 0.2512202 0.2559705 0.2517957 0.2498487 0.4986771 0.2508796
 ## 90 0.2559496 0.2540698 0.2547911 0.2526950 0.2531005 0.2508796 0.5066272
-```
+{% endhighlight %}
 
 Observations variances are approximately $2\text{Var}(x_t)$ (2 * 0.5) because $\mathcal{N}(\mu_{A}, \sigma^{2}_{A}) - \mathcal{N}(\mu_{B}, \sigma^{2}_{B}) = \mathcal{N}(\mu_{A} - \mu_{B}, \sigma^{2}_{A} + \sigma^{2}_{B})$. Observation covariances are $\text{Var}(\log_2x_t)$ because of the shared normalization to time zero.
 
@@ -440,7 +446,7 @@ $$
 If we expect null fold-change measurements to follow this distribution, then we can sample from a multivariate normal distribution to explore whether this works as a fold-change generative process. We can then assess whether these draws are likely to have come from this distribution as a null hypothesis. For this purpose, we'll use Mahalanobis distance, which is a multivariate generalization of the Wald test that assesses how many standard deviations an observation is from the mean of the distribution. This requires an estimate of the covariance matrix, an assumption that will be discussed below. We expect these statistics to be $\chi^{2}$ distributed with degrees of freedom equal to the number of timepoints that we have.
 
 
-```r
+{% highlight r %}
 timecourse_covariance <- matrix(measurement_sd^2, nrow = length(timepts)-1, ncol = length(timepts)-1)
 diag(timecourse_covariance) <- 2*measurement_sd^2
 
@@ -457,29 +463,29 @@ r_multivariate_mahalanobis_dist <- mahalanobis(r_multivariate_normal,
 
 # test multivariate normality
 hist(pchisq(r_multivariate_mahalanobis_dist, df = n_fold_changes, lower.tail = FALSE), breaks = 50, main = "p-values for MN fold-change generative process")
-```
+{% endhighlight %}
 
-![plot of chunk null_mahalanobis](/figure/source/2022-05-09-time_zero_normalization/null_mahalanobis-1.png)
+![plot of chunk null_mahalanobis](/figure/source/2022-05-08-time_zero_normalization/null_mahalanobis-1.png)
 
 Having taken draws from the Multivariate Gaussian distribution and then used the Mahalanobis distance to calculate p-values, the $\text{Unif}(0,1)$ distribution of these p-values confirms that the Mahalanobis distance is appropriate.
 
 We can now test whether fold-changes are really Multivariate Gaussian distributed by inspecting the distribution of Mahalanobis distance p-values from the no-signal timecourses. 
 
 
-```r
+{% highlight r %}
 # test timecourse samples for multivariate normality
 time_course_mahalanobis_dist <- mahalanobis(timecourse_spread[,-c(1:2)], center = rep(0, n_fold_changes), cov = timecourse_covariance)
 hist(pchisq(time_course_mahalanobis_dist, df = n_fold_changes, lower.tail = FALSE), breaks = 50, main = "p-values for no-signal timecourses using MN fold-change model")
-```
+{% endhighlight %}
 
-![plot of chunk unnamed-chunk-4](/figure/source/2022-05-09-time_zero_normalization/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-4](/figure/source/2022-05-08-time_zero_normalization/unnamed-chunk-4-1.png)
 
 The p-values for the no-signal fold change timecourses are indeed $\text{Unif}(0,1)$ distributed as we hoped.
 
 Now, we can calculate the Mahalanobis distances and their corresponding p-values for the signal-containing timecourses as well. Signal in these timecourses will both increase the overall variance in expression for a feature, and deviations of nearby timepoints may be similar. These factors will make it harder for the Multivariate Gaussian noise model to explain the signal-containing expression vector, resulting in a high Mahalanobis distance and a small p-value.
 
 
-```r
+{% highlight r %}
 timecourse_mvn <- simulated_timecourses %>%
   group_by(tc_id) %>%
   mutate(tzero_value = abundance[time == 0]) %>%
@@ -501,14 +507,14 @@ timecourse_mvn %>%
   ggplot(aes(x = pvalue, fill = signal)) +
   geom_histogram(bins = 100) +
   scale_fill_brewer(palette = "Set1")
-```
+{% endhighlight %}
 
-![plot of chunk signal_mahalanobis](/figure/source/2022-05-09-time_zero_normalization/signal_mahalanobis-1.png)
+![plot of chunk signal_mahalanobis](/figure/source/2022-05-08-time_zero_normalization/signal_mahalanobis-1.png)
 
 Based on the p-value distributions, most of the signal-containing timecourses have small p-values suggesting increased recall. We can verify this as before by summarizing results based on the realized FDR and the overall recall of signal-containing timecourses at this FDR cutoff.
 
 
-```r
+{% highlight r %}
 timecourse_mvn %>%
   count(signal, discovery) %>%
   mutate(correct = case_when(signal == "no signal" & discovery == "negative" ~ "true negative",
@@ -520,7 +526,7 @@ timecourse_mvn %>%
   mutate(fdr = `false positive` / (`false positive` + `true positive`),
          recall = `true positive` / (`false negative` + `true positive`)) %>%
   knitr::kable()
-```
+{% endhighlight %}
 
 
 
