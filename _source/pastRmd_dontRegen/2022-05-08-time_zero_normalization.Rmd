@@ -351,10 +351,14 @@ Based on the value of time zero, which all subsequent time points are normalized
 We can see this dependence using the sample covariance matrix of our null timecourses.
 
 ```{r}
-cov(timecourse_spread[,3:ncol(timecourse_spread)])
+cov(timecourse_spread[,3:ncol(timecourse_spread)]) %>%
+  knitr::kable()
 ```
 
-Observations variances are approximately $2\text{Var}(x_t)$ (2 * `r measurement_sd`) because $\mathcal{N}(\mu_{A}, \sigma^{2}_{A}) - \mathcal{N}(\mu_{B}, \sigma^{2}_{B}) = \mathcal{N}(\mu_{A} - \mu_{B}, \sigma^{2}_{A} + \sigma^{2}_{B})$. Observation covariances are $\text{Var}(\log_2x_t)$ because of the shared normalization to time zero.
+Observations variances are approximately $2\text{Var}(x_t)$ (2 * `r measurement_sd`) because:
+$$\mathcal{N}(\mu_{A}, \sigma^{2}_{A}) - \mathcal{N}(\mu_{B}, \sigma^{2}_{B}) = \mathcal{N}(\mu_{A} - \mu_{B}, \sigma^{2}_{A} + \sigma^{2}_{B})$$
+
+Observation covariances are $\text{Var}(\log_2x_t)$ because the shared normalization to time zero adds the variance of time zero as a covariance to to the later time points.
 
 Normalization of Normal (or log-Normal) observations to a common reference produces a Multivariate Gaussian distribution.
 

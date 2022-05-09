@@ -411,23 +411,26 @@ We can see this dependence using the sample covariance matrix of our null timeco
 
 
 {% highlight r %}
-cov(timecourse_spread[,3:ncol(timecourse_spread)])
+cov(timecourse_spread[,3:ncol(timecourse_spread)]) %>%
+  knitr::kable()
 {% endhighlight %}
 
 
 
-{% highlight text %}
-##            5        10        20        30        40        60        90
-## 5  0.5141863 0.2514794 0.2583391 0.2533660 0.2557825 0.2539230 0.2559496
-## 10 0.2514794 0.5076230 0.2605876 0.2536349 0.2504740 0.2512202 0.2540698
-## 20 0.2583391 0.2605876 0.5131240 0.2505837 0.2562055 0.2559705 0.2547911
-## 30 0.2533660 0.2536349 0.2505837 0.4973020 0.2534935 0.2517957 0.2526950
-## 40 0.2557825 0.2504740 0.2562055 0.2534935 0.4982398 0.2498487 0.2531005
-## 60 0.2539230 0.2512202 0.2559705 0.2517957 0.2498487 0.4986771 0.2508796
-## 90 0.2559496 0.2540698 0.2547911 0.2526950 0.2531005 0.2508796 0.5066272
-{% endhighlight %}
+|   |         5|        10|        20|        30|        40|        60|        90|
+|:--|---------:|---------:|---------:|---------:|---------:|---------:|---------:|
+|5  | 0.5141863| 0.2514794| 0.2583391| 0.2533660| 0.2557825| 0.2539230| 0.2559496|
+|10 | 0.2514794| 0.5076230| 0.2605876| 0.2536349| 0.2504740| 0.2512202| 0.2540698|
+|20 | 0.2583391| 0.2605876| 0.5131240| 0.2505837| 0.2562055| 0.2559705| 0.2547911|
+|30 | 0.2533660| 0.2536349| 0.2505837| 0.4973020| 0.2534935| 0.2517957| 0.2526950|
+|40 | 0.2557825| 0.2504740| 0.2562055| 0.2534935| 0.4982398| 0.2498487| 0.2531005|
+|60 | 0.2539230| 0.2512202| 0.2559705| 0.2517957| 0.2498487| 0.4986771| 0.2508796|
+|90 | 0.2559496| 0.2540698| 0.2547911| 0.2526950| 0.2531005| 0.2508796| 0.5066272|
 
-Observations variances are approximately $2\text{Var}(x_t)$ (2 * 0.5) because $\mathcal{N}(\mu_{A}, \sigma^{2}_{A}) - \mathcal{N}(\mu_{B}, \sigma^{2}_{B}) = \mathcal{N}(\mu_{A} - \mu_{B}, \sigma^{2}_{A} + \sigma^{2}_{B})$. Observation covariances are $\text{Var}(\log_2x_t)$ because of the shared normalization to time zero.
+Observations variances are approximately $2\text{Var}(x_t)$ (2 * 0.5) because:
+$$\mathcal{N}(\mu_{A}, \sigma^{2}_{A}) - \mathcal{N}(\mu_{B}, \sigma^{2}_{B}) = \mathcal{N}(\mu_{A} - \mu_{B}, \sigma^{2}_{A} + \sigma^{2}_{B})$$
+
+Observation covariances are $\text{Var}(\log_2x_t)$ because the shared normalization to time zero adds the variance of time zero as a covariance to to the later time points.
 
 Normalization of Normal (or log-Normal) observations to a common reference produces a Multivariate Gaussian distribution.
 
