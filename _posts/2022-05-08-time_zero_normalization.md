@@ -428,6 +428,7 @@ cov(timecourse_spread[,3:ncol(timecourse_spread)]) %>%
 |90 | 0.2559496| 0.2540698| 0.2547911| 0.2526950| 0.2531005| 0.2508796| 0.5066272|
 
 Observations variances are approximately $2\text{Var}(x_t)$ (2 * 0.5) because:
+
 $$\mathcal{N}(\mu_{A}, \sigma^{2}_{A}) - \mathcal{N}(\mu_{B}, \sigma^{2}_{B}) = \mathcal{N}(\mu_{A} - \mu_{B}, \sigma^{2}_{A} + \sigma^{2}_{B})$$
 
 Observation covariances are $\text{Var}(\log_2x_t)$ because the shared normalization to time zero adds the variance of time zero as a covariance to to the later time points.
