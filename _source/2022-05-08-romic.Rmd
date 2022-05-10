@@ -238,7 +238,7 @@ app_pcs(tidy_omics)
 
 Having interactively explored the relationships between the PCs and our experimental design we may want to summarize our results using a static figure. Since romic's apps call ggplot2-based plotting functions it is easy to recreate dynamically-generated plots. Of course, we could also just save our plot from the Shiny app's interface. 
 
-```{r gasch_pcs, fig.height = 12, fig.width = 12, results = FALSE, message = FALSE, dpi = 300}
+```{r gasch_pcs, fig.height = 9, fig.width = 9, results = FALSE, message = FALSE, dpi = 300}
 samples_with_PCs <- imputed_triple %>%
   add_pca_loadings(npcs = 2) %>%
   # if you aren't used to the {} syntax, it doesn't use the object you
