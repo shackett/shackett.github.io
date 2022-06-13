@@ -14,6 +14,7 @@ build_one = function(io) {
 
 # Rmd files under the root directory
 rmds = list.files("_source", "[.]Rmd$", recursive = T, full.names = T)
+rmds = rmds[!stringr::str_detect(rmds, "pastRmd_dontRegen")]
 mds = file.path("_posts", xfun::with_ext(basename(rmds), ".md"))
 files = cbind(rmds, mds)
 

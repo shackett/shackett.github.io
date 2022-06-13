@@ -7,9 +7,7 @@ comments: true
 tags: [statistics]
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 Coming from a quantitative genetics background, correcting for multiple comparisons meant controlling the family-wise error rate (FWER) using a procedure like Bonferroni correction. This all changed when I took John Storey's "Advanced Statistics for Biology" class in grad school. John is an expert in statistical interpretation of high-dimensional data and literally wrote the book, well paper, on false-discovery rate (FDR) as an author of [Storey & Tibshirani 2006](https://www.pnas.org/content/100/16/9440). His description of the FDR has grounded my interpretation of hundreds of genomic datasets and I've continued to pay this knowledge forward with dozens of white-board style descriptions of the FDR for colleagues. As an interviewer and paper reviewer I still regularly see accomplished individuals and groups where "FDR control" is a clear blind spot. In this post I'll layout how I whiteboard the FDR problem, and then highlight a specialized application of the FDR for "denoising" genomic datasets.
 
@@ -35,7 +33,8 @@ Using the approach of [Storey & Tibshirani](https://www.pnas.org/content/100/16/
 
 To see this visually, we can generate a mini-simulation containing a mixture of negatives and positives.
 
-```{r pvalue_hist_sim, message=FALSE, fig.height = 6, fig.width = 10}
+
+{% highlight r %}
 library(dplyr)
 library(ggplot2)
 library(tidyr)
@@ -68,31 +67,35 @@ pvalues_grob <- ggplot(simple_pvalue_mixture, aes(x = p, fill = truth)) +
   ggtitle("P-values of observations with and without signal")
 
 gridExtra::grid.arrange(observation_grob, pvalues_grob, ncol = 2)
-```
+{% endhighlight %}
+
+![plot of chunk pvalue_hist_sim](/figure/source/2022-06-11-lfdr_shrinkage/pvalue_hist_sim-1.png)
 
 While there is a mixture of positive and negative observations, their values cannot be clearly separated (that would be too easy!) rather noise works against some positives, and some negative observations take on extreme values by chance. This is paralleled by the p-values of positive and negative observations. True positive p-values tend to be small, but may also be large; while true negative p-values are uniformly distributed from 0 to 1 and are as likely to be small as large. 
 
 To control the FDR at a level $\alpha$, the Storey procedure first estimates the fraction of null hypothesis (0.5 in our simulation): $\hat{\pi}_{0}$.
 
-This is done by looking at large p-values (near 1). Because large p-values will rarely be signal-containing positives there will be fewer large p-values than would be expected from the number of tests. For example, there are `r sum(simple_pvalue_mixture$p > 0.9)` p-values > 0.9 in our example, which is close to `r n_sims*pi0*0.1`, the value we would expect from $N\pi_{0}*0.1$ (`r n_sims` * $\pi_{0}$ * 0.1). (I'll use the true value of $\pi_{0}$ (`r pi0`) as a stand-in for the estimate of $\hat{\pi}_{0}$ so the numbers are a little clearer.)
+This is done by looking at large p-values (near 1). Because large p-values will rarely be signal-containing positives there will be fewer large p-values than would be expected from the number of tests. For example, there are 5106 p-values > 0.9 in our example, which is close to 5000, the value we would expect from $N\pi_{0}*0.1$ (10<sup>5</sup> * $\pi_{0}$ * 0.1). (I'll use the true value of $\pi_{0}$ (0.5) as a stand-in for the estimate of $\hat{\pi}_{0}$ so the numbers are a little clearer.)
 
-Just as we expected `r n_sims*pi0*0.1` null p-values on the interval from [0.9,1], we would expect `r n_sims*pi0*0.1` null p-values on the interval [0,0.1]. But, there are actually `r sum(simple_pvalue_mixture$p < 0.1)` with p-values < 0.1 because positives tend have small p-values. If we chose 0.1 as a possible cutoff, then we would expect `r n_sims*pi0*0.1` false positives while the observed number of p-values < 0.1 equals the denominator of the FDR ($\text{FP} + \text{TP}$). The ratio of these two values, `r round(n_sims*pi0*0.1/sum(simple_pvalue_mixture$p < 0.1),3)`, would be the expected FDR at a p-value cutoff of 0.1. Now, we usually don't want to choose a cutoff and then live with the FDR we would get, but rather control the FDR at a level $\alpha$ by tuning the cutoff as a parameter $\lambda$.
+Just as we expected 5000 null p-values on the interval from [0.9,1], we would expect 5000 null p-values on the interval [0,0.1]. But, there are actually 34415 with p-values < 0.1 because positives tend have small p-values. If we chose 0.1 as a possible cutoff, then we would expect 5000 false positives while the observed number of p-values < 0.1 equals the denominator of the FDR ($\text{FP} + \text{TP}$). The ratio of these two values, 0.145, would be the expected FDR at a p-value cutoff of 0.1. Now, we usually don't want to choose a cutoff and then live with the FDR we would get, but rather control the FDR at a level $\alpha$ by tuning the cutoff as a parameter $\lambda$.
 
 To apply q-value based FDR control we can use the q-value package:
 
-```{r estimate_qvalues}
+
+{% highlight r %}
 # install q-value from bioconductor if needed
 # remotes::install_bioc("qvalue")
 
 library(qvalue)
 qvalue_estimates <- qvalue(simple_pvalue_mixture$p)
-```
+{% endhighlight %}
 
-The q-value object contains an estimate of $\pi_{0}$ of `r round(qvalue_estimates$pi0,3)` which is close to the true value of 0.5 It also contains a vector of q-values, lFDR, and other goodies.
+The q-value object contains an estimate of $\pi_{0}$ of 0.496 which is close to the true value of 0.5 It also contains a vector of q-values, lFDR, and other goodies.
 
 The q-values are the quantity that we're usually interested in; if we take all of the q-values less than a target cutoff of say 0.05, then that should give us a set of "discoveries" realizing a 5% FDR.
 
-```{r}
+
+{% highlight r %}
 simple_qvalues <- simple_pvalue_mixture %>%
   mutate(q = qvalue_estimates$qvalues)
 
@@ -113,9 +116,36 @@ FDR <- FP / (TP + FP)
 
 knitr::kable(hypothesis_type_counts) %>%
   kableExtra::kable_styling(full_width = FALSE)
-```
+{% endhighlight %}
 
-In this case, due to our simulation, we know whether individual discoveries are true or false positives. As a result we can determine that the realized FDR is `r round(FDR, 3)`, close to our target of 0.05.
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> hypothesis_type </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> FN </td>
+   <td style="text-align:right;"> 38910 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FP </td>
+   <td style="text-align:right;"> 616 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TN </td>
+   <td style="text-align:right;"> 49384 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TP </td>
+   <td style="text-align:right;"> 11090 </td>
+  </tr>
+</tbody>
+</table>
+
+In this case, due to our simulation, we know whether individual discoveries are true or false positives. As a result we can determine that the realized FDR is 0.053, close to our target of 0.05.
 
 In most cases we would take our discoveries and work with them further, confident that as a population, only ~5% of them are bogus. But, in some cases we care about how likely an individual observation is to be a false positive. In this case we can look at the local density of p-values near an observation of interest to estimate a local version of the FDR, the local FDR (lFDR).
 
@@ -129,7 +159,8 @@ $$
 x_{\text{shrinkage}} = \text{lFDR}\cdot0 + (1-\text{lFDR})\cdot x
 $$
 
-```{r lFDR_shrinkage_ex, fig.height = 6, fig.width = 8}
+
+{% highlight r %}
 true_values <- tribble(~ truth, ~ mu,
                        "Positive", beta,
                        "Negative", 0)
@@ -148,11 +179,14 @@ ggplot(shrinkage_estimates, aes(x = value, fill = processing)) +
   facet_grid(truth ~ ., scale = "free_y") +
   scale_fill_brewer(palette = "Set1") +
   ggtitle("lFDR-based shrinkage improves agreement between observations and the true mean")
-```
+{% endhighlight %}
+
+![plot of chunk lFDR_shrinkage_ex](/figure/source/2022-06-11-lfdr_shrinkage/lFDR_shrinkage_ex-1.png)
 
 Using lFDR-based shrinkage, values which are just noise were aggressively shrunk toward their true mean of 0 such that there is very little remaining variation. Positives were shrunk using the same methodology retaining extreme values near their measured value. We can verify that there is an overall decrease in uncertainty about the true mean reflecting the removal of noise.
 
-```{r shrinkage_summary}
+
+{% highlight r %}
 shrinkage_estimates %>%
   inner_join(true_values, by = "truth") %>%
   mutate(resid = value - mu) %>%
@@ -160,7 +194,26 @@ shrinkage_estimates %>%
   summarize(RMSE = sqrt(mean(resid^2))) %>%
   knitr::kable() %>%
   kableExtra::kable_styling(full_width = FALSE)
-```
+{% endhighlight %}
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> processing </th>
+   <th style="text-align:right;"> RMSE </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> original value </td>
+   <td style="text-align:right;"> 0.9994577 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> shrinkage estimate </td>
+   <td style="text-align:right;"> 0.8103141 </td>
+  </tr>
+</tbody>
+</table>
 
 # Future Work
 
