@@ -1,8 +1,10 @@
 ---
 layout: page
-permalink: /academics/
+permalink: /research/
 title: "Research"
 ---
+
+
 
 ## Identifying Causal Regulation at a Genome-wide Scale
 
