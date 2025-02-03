@@ -9,6 +9,42 @@
 {%- comment %} https://docs.google.com/presentation/d/1rmxwWa9P6_xHqonmh5ONXRS-jPc5XKbnv99Rjkhe04s/present {% endcomment -%}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>
+  {% if page.title == "Home" %}
+    {{ site.title }} &middot; {{ site.tagline }}
+  {% else %}
+    {{ page.title }} &middot; {{ site.title }}
+  {% endif %}
+</title>
+
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<!-- CSS -->
+<link rel="stylesheet" href="{{ site.baseurl }}/public/css/poole.css">
+<link rel="stylesheet" href="{{ site.baseurl }}/public/css/syntax.css">
+<link rel="stylesheet" href="{{ site.baseurl }}/public/css/lanyon.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700%7CPT+Sans:400">
+<link rel="stylesheet" href="{{ site.baseurl }}/public/css/extras.css">
+
+<!-- Icons -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ site.baseurl }}/public/apple-touch-icon-precomposed.png">
+<link rel="shortcut icon" href="{{ site.baseurl }}/public/favicon.ico">
+
+<!-- RSS -->
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
 <script>
   document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
   {% if site.enable_copy_code_button -%}
