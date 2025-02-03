@@ -82,7 +82,7 @@ analytics:
 author:
   name             : "Sean Hackett"
   avatar           : "/public/boarding.jpg"
-  bio              : #"I am an **amazing** person."
+  bio              : "I spend my days using tools from data science to discover regulation from high-dimensional genomic datasets. Most of my downtime, I spend playing with my kids."
   location         : "Brisbane, CA"
   email            : "seanmchackett@gmail.com"
   links:
