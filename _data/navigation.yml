@@ -2,9 +2,11 @@
 main:
   - title: "Research"
     url: /research
-  - title: "Sample Posts"
+  - title: "Posts"
     url: /year-archive/
-  - title: "Sample Collections"
-    url: /collection-archive/
+  - title: "Posts by tag"
+    url: /tag-archive/
+  - title: "Posts by category"
+    url: /category-archive/
   - title: "Sitemap"
     url: /sitemap/

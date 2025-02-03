@@ -1,7 +1,8 @@
 ---
+title: "Research"
 layout: page
 permalink: /research/
-title: "Research"
+author_profile: true
 ---
 
 
