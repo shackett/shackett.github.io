@@ -84,17 +84,16 @@ author:
   avatar           : "/public/boarding.jpg"
   bio              : "I spend my days using tools from data science to discover regulation from high-dimensional genomic datasets. Most of my downtime, I spend playing with my kids."
   location         : "Brisbane, CA"
-  email            : "seanmchackett@gmail.com"
   links:
-    - label: "Email"
-      icon: "fas fa-fw fa-envelope-square"
-      url: "mailto:seanmchackett@gmail.com"
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      url: "https://shackett.org"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/shackett"
+    - label: "Website"
+      icon: "fas fa-fw fa-link"
+      url: "https://shackett.org"
+    - label: "Email"
+      icon: "fas fa-fw fa-envelope-square"
+      url: "mailto:seanmchackett@gmail.com"
     
 # Site Footer
 footer:
