@@ -24,7 +24,7 @@ description              : "I spend my days using tools from data science to dis
 url                      : "https://shackett.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "shackett/shackett.github.io"
-teaser                   : "/public/boarding.jpg"
+teaser                   : "/assets/boarding.jpg"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
 breadcrumbs              : # true, false (default)
@@ -81,7 +81,7 @@ analytics:
 # Site Author
 author:
   name             : "Sean Hackett"
-  avatar           : "/public/boarding.jpg"
+  avatar           : "/assets/boarding.jpg"
   bio              : "I spend my days using tools from data science to discover regulation from high-dimensional genomic datasets. Most of my downtime, I spend playing with my kids."
   location         : "Brisbane, CA"
   links:
