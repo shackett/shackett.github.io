@@ -2,8 +2,7 @@
 title: "Time zero normalization with the Multivariate Gaussian distribution"
 description: "A powerful approaches for identifying signals in genomic time series"
 author: Sean Hackett
-layout: post
-comments: true
+toc: true
 tags: [statistics, idea, dynamics]
 ---
 

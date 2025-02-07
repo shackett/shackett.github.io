@@ -2,8 +2,7 @@
 title: "False Discovery Rate (FDR) Overview and lFDR-Based Shrinkage"
 description: "A review of the False Discovery Rate and its use for shrinkage estimation"
 author: Sean Hackett
-layout: post
-comments: true
+toc: true
 tags: [statistics]
 ---
 
