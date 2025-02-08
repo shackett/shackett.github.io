@@ -262,6 +262,7 @@ defaults:
     values:
       layout: single
       author_profile: true
+      toc: true
       read_time: true
       comments: true
       share: true

@@ -2,7 +2,6 @@
 title: "Research"
 layout: page
 permalink: /research/
-author_profile: true
 ---
 
 
