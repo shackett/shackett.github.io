@@ -25,7 +25,7 @@ url                      : "https://shackett.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "shackett/shackett.github.io"
 teaser                   : "/assets/boarding.jpg"
-logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
+logo                     : "/assets/images/apple-touch-icon-precomposed.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
 breadcrumbs              : # true, false (default)
 words_per_minute         : 200
@@ -35,12 +35,12 @@ copyright_url            : # "copyright" URL, defaults to site.url
 comments:
   provider               : "disqus"
   disqus:
-    shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+    shortname            : "disqus_shortname"
 atom_feed:
   path                   : # blank (default) uses feed.xml
   hide                   : # true, false (default)
-search                   : # true, false (default)
-search_full_content      : # true, false (default)
+search                   : true
+search_full_content      : true
 search_provider          : # lunr (default), algolia, google
 lunr:
   search_within_pages    : # true, false (default)
