@@ -88,9 +88,9 @@ author:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/shackett"
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      url: "https://shackett.org"
+    - label: "LinkedIn"
+      icon: "fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/sean-hackett-53852aaa"
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
       url: "mailto:seanmchackett@gmail.com"
@@ -101,6 +101,9 @@ footer:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/shackett"
+    - label: "LinkedIn"
+      icon: "fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/sean-hackett-53852aaa"
 
 
 # Reading Files
@@ -260,7 +263,7 @@ defaults:
       path: ""
       type: posts
     values:
-      layout: single
+      layout: wide
       author_profile: false
       toc: true
       read_time: true
