@@ -6,12 +6,11 @@ author_profile: true
 ---
 
 
-
 ## Identifying Causal Regulation at a Genome-wide Scale
 
 My research focuses on developing genome-scale, mechanistic models of metabolism and cellular physiology. I approach these problem using large multi-omics datasets that provide complementary views of the systems' states. Using such datasets, allows me to break network-level complexity into simpler sub-questions where novel connections among features can be discovered. To discover these connections I utilize and extend techniques from statistics and machine learning.
 
-A summary of my employment, education and research can be found in my [curriculum vitae]({{ site.url }}/public/shackett_CV.pdf), while my [resume]({{ site.url }}/public/shackett_resume.pdf) provides a more succinct summary work history.
+A summary of my employment, education and research can be found in my [curriculum vitae]({{ site.url }}/files/shackett_CV.pdf), while my [resume]({{ site.url }}/files/shackett_resume.pdf) provides a more succinct summary work history.
 
 <hr>
 
@@ -41,7 +40,7 @@ Published papers from this work are:
 
 <hr>
 
-I completed my PhD in the program of Quantitative and Computational Biology (QCB) at Princeton University, where I was advised by [Josh Rabinowitz](https://www.princeton.edu/genomics/rabinowitz/research/).
+I completed my PhD in the program of Quantitative and Computational Biology (QCB) at Princeton University, where I was advised by [Josh Rabinowitz](https://rabinowitz.scholar.princeton.edu/).
 
 My research primarily focused on:
 
