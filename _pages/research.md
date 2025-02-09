@@ -2,6 +2,11 @@
 title: "Research"
 layout: single
 classes: wide
+header:
+    image: /assets/images/banner.png  
+    caption: "White spots on green background"
+toc: true
+toc_sticky: true
 permalink: /research/
 ---
 

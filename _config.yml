@@ -89,7 +89,7 @@ author:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/shackett"
     - label: "LinkedIn"
-      icon: "fa-fw fa-linkedin"
+      icon: "fas fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/sean-hackett-53852aaa"
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
@@ -102,7 +102,7 @@ footer:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/shackett"
     - label: "LinkedIn"
-      icon: "fa-fw fa-linkedin"
+      icon: "fas fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/sean-hackett-53852aaa"
 
 
@@ -279,3 +279,6 @@ defaults:
     values:
       layout: single
       author_profile: true
+      header:
+        image: /assets/images/banner.png  
+        caption: "White spots on green background"
