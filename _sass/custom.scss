@@ -69,12 +69,15 @@ a {
 }
 
 /* background for mushroom log */
-#site-nav img {
-    background-color: $calico-green
+#masthead #site-nav img {  /* More specific selector */
+background-color:$calico-green;
 }
 
 /* header image (mushroom themed) */
-.page__hero-image {
-    /* stretch image to edge of screen */
-    margin: 0
+.page__hero {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    overflow: hidden; /* Prevent overflow */
 }
