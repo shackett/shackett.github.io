@@ -12,7 +12,7 @@ permalink: /research/
 
 My research focuses on developing genome-scale, mechanistic models of metabolism and cellular physiology. I approach these problem using large multi-omics datasets that provide complementary views of the systems' states. Using such datasets, allows me to break network-level complexity into simpler sub-questions where novel connections among features can be discovered. To discover these connections I utilize and extend techniques from statistics and machine learning.
 
-A summary of my employment, education and research can be found in my {% raw %}![curriculum vitae]({{ site.url }}{{ site.baseurl }}/files/shackett_CV.pdf){% endraw %}, while my {% raw %}![resume]({{ site.url }}{{ site.baseurl }}/files/shackett_resume.pdf){% endraw %} provides a more succinct summary work history.
+A summary of my employment, education and research can be found in my [curriculum vitae]({{ site.url }}{{ site.baseurl }}/files/shackett_CV.pdf), while my [resume]({{ site.url }}{{ site.baseurl }}/files/shackett_resume.pdf) provides a more succinct summary work history.
 
 <hr>
 
