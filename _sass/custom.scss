@@ -57,12 +57,3 @@ a {
     border-radius: 5px; /* Rounded corners */
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
-
-.MathJax {  /* Or .mjx-container */
-    display: inline-block;  /* Important for inline scaling */
-    transform: scale(0.8);  /* Adjust the scaling factor as needed */
-  }
-  
-  mjx-container[jax="SVG"] {
-    overflow-x: auto; /* Ensure equations do not overflow */
-  }
