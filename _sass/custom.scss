@@ -20,6 +20,13 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
 
 #site-nav {
     background-color: $calico-green;
+    img {  
+        background-color:$calico-green;
+    }
+
+    a {
+        color: $light-contrast;
+    }
 }
 
 #footer {
@@ -68,13 +75,8 @@ a {
     color: $light-contrast;
 }
 
-/* background for mushroom log */
-#masthead #site-nav img {  /* More specific selector */
-background-color:$calico-green;
-}
-
 /* header image (mushroom themed) */
-.page__hero {
+.page__hero-image {
     padding-left: 0;
     padding-right: 0;
     margin-left: 0;
