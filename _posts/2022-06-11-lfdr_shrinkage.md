@@ -4,13 +4,11 @@ description: "A review of the False Discovery Rate and its use for shrinkage est
 tags: [statistics]
 ---
 
-
-
 Coming from a quantitative genetics background, correcting for multiple comparisons meant controlling the family-wise error rate (FWER) using a procedure like Bonferroni correction. This all changed when I took John Storey's "Advanced Statistics for Biology" class in grad school. John is an expert in statistical interpretation of high-dimensional data and literally wrote the book, well paper, on false-discovery rate (FDR) as an author of [Storey & Tibshirani 2006](https://www.pnas.org/content/100/16/9440). His description of the FDR has grounded my interpretation of hundreds of genomic datasets and I've continued to pay this knowledge forward with dozens of white-board style descriptions of the FDR for colleagues. As an interviewer and paper reviewer I still regularly see accomplished individuals and groups where "FDR control" is a clear blind spot. In this post I'll layout how I whiteboard the FDR problem, and then highlight a specialized application of the FDR for "denoising" genomic datasets.
 
 <!--more-->
 
-## Multiple Hypothesis Testing
+# Multiple Hypothesis Testing
 
 Statistical tests are designed so that if the null hypothesis is true, observed statistics will follow a defined null distribution, hence an observed statistic can be compared to the quantiles of the null distribution to calculate the p-value. In quantitative biology we are frequently testing hundreds to millions of hypotheses in parallel. The p-value for a single test can be interpreted roughly as: p < 0.05, yay! [only slightly sarcastically]. But, when we have many tests, some will possess small p-values by chance (10,000 tests would have 500 p < 0.05 findings by chance). Controlling for multiple hypotheses acknowledges this challenge with FDR and FWER providing alternative perspectives for winnowing spurious associations to a set of high-confidence "discoveries".
 

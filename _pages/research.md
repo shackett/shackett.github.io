@@ -8,7 +8,7 @@ permalink: /research/
 ---
 
 
-## Identifying Causal Regulation at a Genome-wide Scale
+# Identifying Causal Regulation at a Genome-wide Scale
 
 My research focuses on developing genome-scale, mechanistic models of metabolism and cellular physiology. I approach these problem using large multi-omics datasets that provide complementary views of the systems' states. Using such datasets, allows me to break network-level complexity into simpler sub-questions where novel connections among features can be discovered. To discover these connections I utilize and extend techniques from statistics and machine learning.
 
@@ -16,7 +16,7 @@ A summary of my employment, education and research can be found in my [curriculu
 
 <hr>
 
-### Data Science and Leadership at Calico Life Sciences
+# Data Science and Leadership at Calico Life Sciences
 
 In 2017, I joined Calico Life Sciences, an Alphabet subsidiary focused on improving our understanding of aging and advancing the treatment of diseases of aging. As a Data Scientist, I have developed infrastructure for understanding aging at a systems-level by profiling the molecular state of aging organisms and disentagling the causal inter-dependencies among molecular traits. To generate ever larger and more comprehensive profiles, I have worked closely with experimental researchers, particularly those working on mass spectrometry, to streamline and advance our internal workflows. 
 
@@ -27,7 +27,7 @@ Published papers from my time at Calico include:
 - **Sean R. Hackett**, Edward A. Baltz, Marc Coram, Bernd J. Wranik, Griffin Kim, Adam Baker, Minjie Fan, David G. Hendrickson, Marc Brendl, R. Scott McIsaac. Learning causal networks using inducible transcription factors and transcriptome-wide time serie. **Molecular Systems Biology**, 16 (3), 2020.
 - Sam S. Schoenholz, **Sean Hackett**, Laura Deming, Eugene Melamud, Navdeep Jaitly, Fiona McAllister, Jonathon O’Brien, George Dahl, Bryson Bennett, Andrew Dai, Daphne Kohler. Peptide-spectrum matching from weak supervision. ArXiv.
 
-### PhD and Postdoc at Princeton
+# PhD and Postdoc at Princeton
 
 After finishing my PhD I did a short PostDoc with [John Storey](https://storeylab.org/).
 
@@ -61,7 +61,7 @@ Published papers from this work are:
 
 <hr>
 
-### Undergraduate and post-baccalaureate research at Cornell
+# Undergraduate and post-baccalaureate research at Cornell
 
 After graduating from Cornell, I worked as a research specialist in the laboratory of [Andy Clark](https://blogs.cornell.edu/clarklabblog/) for four years. During that time I worked on a quantitative/population genetics project aimed to determine how heterogeneous metabolic phenotypes were inter-related and dependent on expression and genetic variation using *D. melanogaster* as a model.
 

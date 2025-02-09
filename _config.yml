@@ -21,7 +21,7 @@ title_separator          : "-"
 subtitle                 : 'Finding Causality in High-Dimensional Data'
 name                     : "Sean Hackett"
 description              : "As a Director of Data Science I try to lay the groudwork for organizational change by connecting data collection, organization, and integration. But, I still love getting into the weeds where I can continue developing my statistics and programming skills."
-url                      : "https://shackett.org"
+url                      : "https://www.shackett.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "shackett/shackett.github.io"
 teaser                   : "/assets/images/threading_the_needle.png"
@@ -280,5 +280,4 @@ defaults:
       layout: single
       author_profile: true
       header:
-        image: /assets/images/banner.png  
-        caption: "White spots on green background"
+        image: /assets/images/banner.png
