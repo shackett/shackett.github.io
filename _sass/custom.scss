@@ -1,7 +1,7 @@
 /* Colors (Replicate Old Site) */
 $body-background-color: #f0f8ff; /* Light Blue Background */
 $text-color: #333; /* Dark Gray Text */
-$light-contrast: #f5f5f5
+$light-contrast: #f5f5f5;
 $link-color: #007bff; /* Default Blue Link */
 $masthead-background-color: #6ACC86; /* Light Gray Masthead */
 $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
@@ -13,7 +13,7 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 
     .site-title {
-        color: $light-contrast
+        color: $light-contrast;
     }
 }
 
