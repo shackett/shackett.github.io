@@ -18,9 +18,9 @@ minimal_mistakes_skin    : "mint"
 locale                   : "en-US"
 title                    : "Sean Hackett"
 title_separator          : "-"
-subtitle                 : 'Genome-Scale Systems Biology'
+subtitle                 : 'Finding Causality in High-Dimensional Data'
 name                     : "Sean Hackett"
-description              : "I spend my days using tools from data science to discover regulation from high-dimensional genomic datasets. Most of my downtime, I spend playing with my kids."
+description              : "As a Director of Data Science I try to lay the groudwork for organizational change by connecting data collection, organization, and integration. But, I still love getting into the weeds where I can continue developing my statistics and programming skills."
 url                      : "https://shackett.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "shackett/shackett.github.io"
@@ -82,14 +82,14 @@ analytics:
 author:
   name             : "Sean Hackett"
   avatar           : "/assets/images/boarding.jpg"
-  bio              : "I spend my days using tools from data science to discover regulation from high-dimensional genomic datasets. Most of my downtime, I spend playing with my kids."
+  bio              : "As a Director of Data Science I try to lay the groudwork for organizational change by connecting data collection, organization, and integration. But, I still love getting into the weeds where I can continue developing my statistics and programming skills."
   location         : "Brisbane, CA"
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/shackett"
     - label: "LinkedIn"
-      icon: "fas fa-fw fa-linkedin"
+      icon: "fab fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/sean-hackett-53852aaa"
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
@@ -102,7 +102,7 @@ footer:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/shackett"
     - label: "LinkedIn"
-      icon: "fas fa-fw fa-linkedin"
+      icon: "fab fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/sean-hackett-53852aaa"
 
 
