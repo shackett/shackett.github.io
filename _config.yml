@@ -12,7 +12,7 @@
 
 # theme                  : "minimal-mistakes-jekyll"
 # remote_theme           : "mmistakes/minimal-mistakes"
-minimal_mistakes_skin    : "air"
+minimal_mistakes_skin    : "mint"
 
 # Site Settings
 locale                   : "en-US"
@@ -24,7 +24,7 @@ description              : "I spend my days using tools from data science to dis
 url                      : "https://shackett.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "shackett/shackett.github.io"
-teaser                   : "/assets/images/boarding.jpg"
+teaser                   : "/assets/images/threading_the_needle.png"
 logo                     : "/assets/images/apple-touch-icon-precomposed.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
 breadcrumbs              : # true, false (default)
@@ -35,7 +35,7 @@ copyright_url            : # "copyright" URL, defaults to site.url
 comments:
   provider               : "disqus"
   disqus:
-    shortname            : "disqus_shortname"
+    shortname            : "shackett"
 atom_feed:
   path                   : # blank (default) uses feed.xml
   hide                   : # true, false (default)
