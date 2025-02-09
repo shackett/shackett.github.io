@@ -5,6 +5,8 @@ classes: wide
 toc: true
 toc_sticky: true
 permalink: /research/
+header:
+  image: /assets/images/banner_05.png
 ---
 
 
