@@ -3,7 +3,7 @@ $body-background-color: #f0f8ff; /* Light Blue Background */
 $text-color: #333; /* Dark Gray Text */
 $light-contrast: #f5f5f5;
 $link-color: #007bff; /* Default Blue Link */
-$light-green: #72C340; /* Light Gray Masthead */
+$light-green: #52C518; /* Light Gray Masthead */
 $calico-green: #30BC5B;
 $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
 
@@ -78,4 +78,9 @@ a {
     margin-left: 0;
     margin-right: 0;
     overflow: hidden; /* Prevent overflow */
+}
+
+/* Increase space around content below masthead */
+.page__content {
+    padding: 1rem;
 }
