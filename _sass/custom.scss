@@ -53,15 +53,17 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
 a {
     color: $light-green;
     text-decoration: none; /* Remove underline */
+    &:hover {
+        text-decoration: underline; /* Add underline on hover */
+    }
+}
 
+.no_toc a {
     &:link {
         color: $light-green;
     }
     &:visited {
         color: $light-green;
-    }
-    &:hover {
-        text-decoration: underline; /* Add underline on hover */
     }
 }
 
