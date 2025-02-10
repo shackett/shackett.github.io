@@ -38,7 +38,7 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
     overflow: hidden; /* Prevent overflow */
   }
 
-  .page__hero img {
+.page__hero img {
     width: 100%;
     height: auto;
   }
@@ -47,20 +47,6 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
     background-color: $light-green;
     padding: 1rem 0; /* Adjust padding as needed */
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
- /* Sidebar (Replicate Old Site) */
-.sidebar {
-    background-color: $sidebar-background-color;
-    border-right: 1px solid #ddd; /* Replicate border */
-    padding: 1rem;
-
-    .nav__list .nav__item a { /* Style sidebar links */
-        color: $link-color; /* Match link color */
-        &:hover {
-            text-decoration: underline; /* Add underline on hover */
-        }
-    }
 }
 
 /* Link Styles (Example) */
