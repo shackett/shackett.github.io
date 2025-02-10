@@ -54,6 +54,12 @@ a {
     color: $light-green;
     text-decoration: none; /* Remove underline */
 
+    &:link {
+        color: $light-green;
+    }
+    &:visited {
+        color: $light-green;
+    }
     &:hover {
         text-decoration: underline; /* Add underline on hover */
     }
