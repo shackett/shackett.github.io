@@ -94,3 +94,7 @@ a {
     overflow-x: auto; /* Ensure equations do not overflow */
   }
 
+.MathJax {  /* Or .mjx-container */
+    display: inline;  /* Important for inline scaling */
+}
+
