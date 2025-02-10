@@ -84,17 +84,14 @@ a {
     padding: 1rem;
 }
 
-.MathJax {  /* Or .mjx-container */
-    display: block;  /* Important for inline scaling */
-    transform: scale(0.8);  /* Adjust the scaling factor as needed */
-    transform-origin: 0% 70%; /* To keep equation aligned on the left */
-  }
-  
-  mjx-container[jax="SVG"] {
-    overflow-x: auto; /* Ensure equations do not overflow */
-  }
-
-.MathJax {  /* Or .mjx-container */
-    display: inline;  /* Important for inline scaling */
+/* MathJax Equations */
+.mjx-display {
+    display: block;
+    transform: scale(0.7);
+    transform-origin: 50% 50%;
 }
 
+.mjx-inline {
+    display: inline-block;
+    transform: scale(1);
+}
