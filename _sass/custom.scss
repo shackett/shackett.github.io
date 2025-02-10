@@ -75,8 +75,8 @@ a {
 
 /* table of contents */
 .nav__title {
-    color: $light-contrast;
-    background-color:$light-green;
+    color: $light-contrast !important; 
+    background-color:$light-green !important;
 }
 
 /* Increase space around content below masthead */
