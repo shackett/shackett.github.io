@@ -25,7 +25,7 @@ url                      : "https://www.shackett.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "shackett/shackett.github.io"
 teaser                   : "/assets/images/threading_the_needle.png"
-logo                     : "/assets/images/apple-touch-icon-precomposed.png"
+logo                     : "/assets/images/mushroom.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
 breadcrumbs              : # true, false (default)
 words_per_minute         : 200
