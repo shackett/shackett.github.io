@@ -4,7 +4,7 @@ $text-color: #333; /* Dark Gray Text */
 $light-contrast: #f5f5f5;
 $link-color: #007bff; /* Default Blue Link */
 $light-green: #52C518; /* Light Gray Masthead */
-$calico-green: #30BC5B;
+$calico-green: #30BC5B; /* Calico green (not used now) */
 $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
 
 /* Masthead */
@@ -28,6 +28,20 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
         color: $light-contrast;
     }
 }
+
+/* header image (mushroom themed) */
+.page__hero {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    overflow: hidden; /* Prevent overflow */
+  }
+
+  .page__hero img {
+    width: 100%;
+    height: auto;
+  }
 
 #footer {
     background-color: $light-green;
@@ -69,15 +83,6 @@ a {
 .nav__title {
     color: $light-contrast;
     background-color:$light-green;
-}
-
-/* header image (mushroom themed) */
-.page__hero-image {
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: 0;
-    margin-right: 0;
-    overflow: hidden; /* Prevent overflow */
 }
 
 /* Increase space around content below masthead */
