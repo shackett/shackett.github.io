@@ -1,8 +1,5 @@
 ---
 title: "Test R Markdown"
-date: 2024-06-09
-author: Sean Hackett
-layout: post
 tags: [test, r]
 ---
 

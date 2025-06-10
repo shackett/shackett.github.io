@@ -1,0 +1,112 @@
+---
+title: "R Quarto Test"
+date: 2025-06-09
+author: Sean Hackett
+layout: post
+categories: [r, statistics]
+engine: knitr
+---
+
+A comprehensive test of Quarto with R processing using knitr.
+
+<!--more-->
+
+## Data Analysis
+
+```{r}
+library(ggplot2)
+library(knitr)
+data(mtcars)
+
+# Basic summary
+summary(mtcars$mpg)
+```
+
+## Data Table with kable
+
+```{r}
+# Create a nice table with kable
+kable(head(mtcars[, c("mpg", "hp", "wt", "cyl")]), 
+      caption = "First 6 rows of mtcars dataset",
+      digits = 1)
+```
+
+## Simple Data Table
+
+```{r}
+# Show first few rows without kable
+head(mtcars[, c("mpg", "hp", "wt", "cyl")])
+```
+
+## Visualization
+
+```{r}
+#| label: fig-mpg-hp
+#| fig-cap: "MPG vs Horsepower"
+ggplot(mtcars, aes(x = mpg, y = hp)) + 
+  geom_point(color = "blue") + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  ggtitle("MPG vs Horsepower") +
+  theme_minimal()
+```
+
+## Inline Results
+
+The dataset contains `r nrow(mtcars)` cars. The average MPG is `r round(mean(mtcars$mpg), 1)` miles per gallon.
+
+## Math Expression
+
+Here's a mathematical formula: $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$
+
+## Simple Plot
+
+```{r}
+#| label: fig-simple
+#| fig-cap: "Simple scatter plot"
+plot(mtcars$mpg, mtcars$hp, 
+     main = "Simple Plot", 
+     xlab = "MPG", 
+     ylab = "Horsepower",
+     pch = 16, 
+     col = "darkblue")
+```
+
+## Debug Figure Paths - ABSOLUTE PATHS
+
+```{r}
+# Let's see what the current working directory and figure path are
+cat("Working directory (absolute):", normalizePath(getwd()), "\n")
+cat("Knitr figure path:", knitr::opts_chunk$get("fig.path"), "\n")
+
+# List files in current directory to see where figures are being saved
+if (dir.exists("figure")) {
+  cat("Contents of figure directory (absolute paths):\n")
+  fig_files <- list.files("figure", recursive = TRUE, full.names = TRUE)
+  for (f in fig_files) {
+    cat("  ", normalizePath(f), "\n")
+  }
+}
+
+# Check if there are any other figure directories with absolute paths
+fig_dirs <- list.files(".", pattern = "fig", recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
+if (length(fig_dirs) > 0) {
+  cat("Other potential figure directories (absolute paths):\n")
+  for (f in fig_dirs) {
+    if (file.exists(f)) {
+      cat("  ", normalizePath(f), "\n")
+    }
+  }
+}
+
+# Check what's in the _files directory
+files_dir <- paste0("2025-06-09-test_r_qmd_files")
+if (dir.exists(files_dir)) {
+  cat("Contents of _files directory:\n")
+  files_content <- list.files(files_dir, recursive = TRUE, full.names = TRUE)
+  for (f in files_content) {
+    if (file.exists(f)) {
+      cat("  ", normalizePath(f), "\n")
+    }
+  }
+}
+```
