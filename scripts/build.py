@@ -7,16 +7,7 @@ from pathlib import Path
 import re
 import logging
 
-# Configure logging
-def setup_logging():
-    """Set up logging configuration with debug level"""
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(levelname)s: %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+from utils import setup_logging
 
 def check_working_directory():
     """Ensure we're running from the shackett.github.io directory"""

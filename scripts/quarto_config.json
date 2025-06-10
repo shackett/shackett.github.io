@@ -1,7 +1,6 @@
 {
   "format": {
-    "gfm": {
-      "variant": "+yaml_metadata_block",
+    "markdown": {
       "fig-width": 8,
       "fig-height": 6,
       "fig-dpi": 200,
@@ -13,7 +12,10 @@
   },
   "execute": {
     "freeze": "auto",
-    "cache": true
+    "cache": true,
+    "echo": true,
+    "output": true,
+    "enabled": true
   },
   "project": {
     "type": "default"
