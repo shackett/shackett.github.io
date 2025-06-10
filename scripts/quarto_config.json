@@ -1,0 +1,21 @@
+{
+  "format": {
+    "gfm": {
+      "variant": "+yaml_metadata_block",
+      "fig-width": 8,
+      "fig-height": 6,
+      "fig-dpi": 200,
+      "fig-format": "png",
+      "keep-md": false,
+      "preserve-yaml": true,
+      "standalone": false
+    }
+  },
+  "execute": {
+    "freeze": "auto",
+    "cache": true
+  },
+  "project": {
+    "type": "default"
+  }
+}

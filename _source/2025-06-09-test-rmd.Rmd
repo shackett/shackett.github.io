@@ -1,0 +1,18 @@
+---
+title: "Test R Markdown"
+date: 2024-06-09
+author: Sean Hackett
+layout: post
+tags: [test, r]
+---
+
+# Simple R Test
+
+Here's a basic R chunk:
+
+```{r}
+# Simple calculation
+x <- 1:10
+y <- x^2
+plot(x, y, main = "Simple Plot", type = "b")
+```

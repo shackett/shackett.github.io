@@ -136,8 +136,18 @@ exclude:
   - README
   - tmp
   - "*.Rmd"
-  - /docs # ignore Minimal Mistakes /docs
-  - /test # ignore Minimal Mistakes /test
+  - "*.qmd"
+  -  .Rproj.user/
+  - "*.Rproj"
+  - .Rhistory
+  - .RData
+  - .Ruserdata
+  - _source/
+  - scripts/
+  - build.py
+  - cache/
+  - renv/
+  - renv.lock
 keep_files:
   - .git
   - .svn
