@@ -1,23 +1,55 @@
 #!/usr/bin/env python3
+"""
+Quarto Document Builder for Jekyll
+
+This module renders Quarto (.qmd) documents to Jekyll-compatible markdown.
+It handles both R and Python code execution via knitr engine.
+"""
+
 import sys
 import os
 import subprocess
-from pathlib import Path
 import tempfile
 import shutil
 import json
 import logging
-from utils import setup_logging
+from pathlib import Path
+from typing import Dict, Any
 
-def load_quarto_config():
-    """Load the base Quarto configuration from JSON file"""
+from utils import setup_logging
+from clean_qmd_markdown import clean_jekyll_output
+
+
+def load_quarto_config() -> Dict[str, Any]:
+    """
+    Load the base Quarto configuration from JSON file.
+    
+    Returns:
+        Dict[str, Any]: Quarto configuration dictionary
+        
+    Raises:
+        FileNotFoundError: If quarto_config.json is not found
+        json.JSONDecodeError: If JSON is malformed
+    """
     config_path = Path(__file__).parent / "quarto_config.json"
-    with open(config_path, 'r') as f:
+    with open(config_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def config_to_yaml_string(config):
-    """Convert config dict to YAML string manually (avoiding pyyaml dependency)"""
-    def dict_to_yaml(d, indent=0):
+
+def config_to_yaml_string(config: Dict[str, Any]) -> str:
+    """
+    Convert config dictionary to YAML string manually.
+    
+    This avoids the pyyaml dependency by implementing basic YAML serialization.
+    
+    Args:
+        config: Configuration dictionary to convert
+        
+    Returns:
+        str: YAML-formatted string
+    """
+    def dict_to_yaml(d: Dict[str, Any], indent: int = 0) -> str:
+        """Recursively convert dictionary to YAML format."""
         yaml_str = ""
         for key, value in d.items():
             spaces = "  " * indent
@@ -32,162 +64,19 @@ def config_to_yaml_string(config):
     
     return dict_to_yaml(config)
 
-def process_quarto_table(content):
-    """Process Quarto table output for Jekyll compatibility"""
-    import re
-    
-    # Handle kable tables wrapped in cell-output-display
-    def replace_table_section(match):
-        table_content = match.group(1)
-        
-        # If it's a markdown table (contains | and ---), keep as-is
-        if '|' in table_content and '---' in table_content:
-            return table_content.strip()
-        
-        # Check if it's a text table format (with dashes for table structure)
-        if '---' in table_content and ('  ' in table_content or '\n' in table_content):
-            # It's likely a text-formatted table, wrap in code block
-            return f"```\n{table_content.strip()}\n```"
-        
-        # Otherwise, wrap in code block for now
-        return f"```\n{table_content.strip()}\n```"
-    
-    # Pattern to match ::: cell-output-display ... :::
-    pattern = r'::: cell-output-display\s*\n(.*?)\n:::'
-    content = re.sub(pattern, replace_table_section, content, flags=re.DOTALL)
-    
-    # Fix orphaned table captions (lines starting with ": " that are alone)
-    content = re.sub(r'\n\s*:\s+([^\n]+)\n##', r'\n\n**\1**\n\n##', content)
-    
-    return content
 
-def process_quarto_figures(content, filename_stem):
-    """Process figure paths and display blocks"""
-    import re
+def copy_figures_to_jekyll_location(temp_dir: str, filename_stem: str) -> None:
+    """
+    Copy generated figures from temporary directory to Jekyll location.
     
-    # Fix figure paths - convert Quarto's figure-markdown paths to our expected paths
-    content = re.sub(
-        rf'{re.escape(filename_stem)}_files/figure-markdown/',
-        f'figure/source/{filename_stem}/',
-        content
-    )
+    Quarto generates figures in various locations within the temp directory.
+    This function searches for all figure files and copies them to the
+    appropriate Jekyll figure directory.
     
-    # Handle figure display blocks - remove the wrapper but keep the image
-    # Pattern: ::: cell-output-display\n![caption](path)\n:::
-    def replace_figure_display(match):
-        figure_content = match.group(1).strip()
-        # If it's an image, keep just the image
-        if figure_content.startswith('!['):
-            return figure_content
-        return figure_content
-    
-    pattern = r'::: cell-output-display\s*\n(!\[.*?\].*?)\s*\n:::'
-    content = re.sub(pattern, replace_figure_display, content, flags=re.DOTALL)
-    
-    # Also handle cases where cell-output-display appears as a standalone line
-    content = re.sub(r'\n::: cell-output-display\s*\n', '\n', content)
-    content = re.sub(r'``` cell-output-display\s*\n', '', content)
-    content = re.sub(r'``` \{\.cell-output-display\}\s*\n', '', content)
-    
-    # Convert absolute figure paths to Jekyll-relative paths
-    # The key insight: Jekyll serves from the root, so /figure/... is correct
-    # But our markdown has figure/... (relative), which Jekyll interprets relative to the post URL
-    # We need to change figure/source/... to /figure/source/...
-    content = re.sub(r'!\[([^\]]*)\]\(figure/source/', r'![\1](/figure/source/', content)
-    
-    return content
-
-def process_code_blocks_and_output(content):
-    """Process code blocks and their output with proper spacing"""
-    lines = content.split('\n')
-    cleaned_lines = []
-    i = 0
-    
-    while i < len(lines):
-        line = lines[i]
-        
-        # Handle code blocks
-        if line.strip() == '```python' or line.strip() == '```r':
-            # Add the opening code block
-            cleaned_lines.append(line)
-            i += 1
-            
-            # Add all lines until closing ```
-            while i < len(lines) and lines[i].strip() != '```':
-                cleaned_lines.append(lines[i])
-                i += 1
-            
-            # Add closing ```
-            if i < len(lines):
-                cleaned_lines.append(lines[i])
-                i += 1
-            
-            # Check if next non-empty line is output (starts with spaces)
-            next_line_idx = i
-            while next_line_idx < len(lines) and not lines[next_line_idx].strip():
-                next_line_idx += 1
-            
-            if (next_line_idx < len(lines) and 
-                lines[next_line_idx].startswith('    ') and 
-                not lines[next_line_idx].strip().startswith('```')):
-                
-                # Add blank line before output
-                cleaned_lines.append('')
-                
-                # Convert output to proper Jekyll format
-                cleaned_lines.append('```')  # Start output block
-                
-                # Add the output line(s) without leading spaces
-                while (next_line_idx < len(lines) and 
-                       lines[next_line_idx].startswith('    ')):
-                    # Remove leading 4 spaces from output
-                    output_line = lines[next_line_idx][4:] if len(lines[next_line_idx]) > 4 else lines[next_line_idx].strip()
-                    cleaned_lines.append(output_line)
-                    next_line_idx += 1
-                
-                cleaned_lines.append('```')  # End output block
-                i = next_line_idx
-                
-                # Add blank line after output if there's more content
-                if i < len(lines):
-                    cleaned_lines.append('')
-            else:
-                # Add blank line after code block if no output follows
-                if i < len(lines):
-                    cleaned_lines.append('')
-        else:
-            # Regular content - add as-is but handle spacing
-            if line.strip() or (cleaned_lines and cleaned_lines[-1].strip()):
-                cleaned_lines.append(line)
-            i += 1
-    
-    return '\n'.join(cleaned_lines)
-
-def remove_quarto_artifacts(content):
-    """Remove basic Quarto cell artifacts"""
-    import re
-    
-    # Replace cell dividers and convert to Jekyll format
-    content = re.sub(r'::+\s*cell\s*\n', '', content)
-    content = re.sub(r'::+\s*\n', '', content)
-    
-    # Convert ``` {.python .cell-code} to ```python
-    content = re.sub(r'``` \{\.python \.cell-code\}', '```python', content)
-    content = re.sub(r'``` \{\.r \.cell-code\}', '```r', content)
-    
-    # Remove cell output wrappers (including stderr)
-    content = re.sub(r'``` \{\.cell-output \.cell-output-stdout\}\s*\n', '', content)
-    content = re.sub(r'``` \{\.cell-output \.cell-output-stderr\}\s*\n', '', content)
-    content = re.sub(r'::: \{\.cell-output \.cell-output-stdout\}\s*\n', '', content)
-    content = re.sub(r'::: \{\.cell-output \.cell-output-stderr\}\s*\n', '', content)
-    
-    return content
-
-def copy_figures_to_jekyll_location(temp_dir, filename_stem):
-    """Copy generated figures from temp directory to Jekyll location"""
-    import shutil
-    import os
-    
+    Args:
+        temp_dir: Path to temporary rendering directory
+        filename_stem: Base filename without extension (used for figure path)
+    """
     logger = logging.getLogger(__name__)
     
     # Source paths in temp directory
@@ -207,6 +96,7 @@ def copy_figures_to_jekyll_location(temp_dir, filename_stem):
     logger.debug(f"Checking temp files directory: {os.path.abspath(temp_files_dir)}")
     logger.debug(f"Destination directory: {os.path.abspath(dest_figure_dir)}")
     
+    # Check primary figure location
     if os.path.exists(temp_figure_dir):
         logger.debug(f"Found temp figure dir: {temp_figure_dir}")
         files_in_dir = os.listdir(temp_figure_dir)
@@ -222,6 +112,7 @@ def copy_figures_to_jekyll_location(temp_dir, filename_stem):
     else:
         logger.debug(f"Temp figure directory does not exist: {temp_figure_dir}")
     
+    # Check alternative files location
     if os.path.exists(temp_files_dir):
         logger.debug(f"Found temp files dir: {temp_files_dir}")
         files_in_dir = os.listdir(temp_files_dir)
@@ -237,7 +128,7 @@ def copy_figures_to_jekyll_location(temp_dir, filename_stem):
     else:
         logger.debug(f"Temp files directory does not exist: {temp_files_dir}")
     
-    # Also check for any other figure files in the temp directory
+    # Search entire temp directory for any other figure files
     logger.debug("Searching for all figure files in temp directory...")
     for root, dirs, files in os.walk(temp_dir):
         for file in files:
@@ -261,47 +152,31 @@ def copy_figures_to_jekyll_location(temp_dir, filename_stem):
     else:
         logger.warning(f"Destination directory was not created: {dest_figure_dir}")
 
-def clean_jekyll_output(file_path):
-    """Clean up the output file for Jekyll compatibility"""
-    logger = logging.getLogger(__name__)
-    
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    filename_stem = Path(file_path).stem
-    
-    # Process in stages
-    logger.debug("Processing Quarto artifacts...")
-    content = remove_quarto_artifacts(content)
-    
-    logger.debug("Processing tables...")
-    content = process_quarto_table(content)
-    
-    logger.debug("Processing figures...")
-    content = process_quarto_figures(content, filename_stem)
-    
-    logger.debug("Processing code blocks...")
-    content = process_code_blocks_and_output(content)
-    
-    # Remove trailing empty lines
-    lines = content.split('\n')
-    while lines and not lines[-1].strip():
-        lines.pop()
-    content = '\n'.join(lines)
-    
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    
-    logger.debug(f"Cleaned Jekyll output: {file_path}")
-    logger.debug(f"Cleaned content preview:\n{content[:500]}")
 
-def build_one_qmd(input_file, output_file):
-    """Render a single .qmd file to Jekyll-compatible markdown"""
+def build_one_qmd(input_file: str, output_file: str) -> None:
+    """
+    Render a single .qmd file to Jekyll-compatible markdown.
+    
+    This function:
+    1. Creates a temporary directory for rendering
+    2. Configures Quarto with appropriate figure and cache paths
+    3. Renders the document using Quarto
+    4. Copies generated figures to Jekyll location
+    5. Cleans the output markdown for Jekyll compatibility
+    
+    Args:
+        input_file: Path to input .qmd file
+        output_file: Path where output .md file should be saved
+        
+    Raises:
+        subprocess.CalledProcessError: If Quarto rendering fails
+        FileNotFoundError: If expected output file is not generated
+    """
     logger = logging.getLogger(__name__)
     
     logger.info(f"Rendering {input_file}")
     
-    # Get the base name for figure paths (matching your R setup)
+    # Get the base name for figure paths (matching R setup)
     filename_stem = Path(input_file).stem
     base_name = f"source/{filename_stem}"
     
@@ -321,7 +196,7 @@ def build_one_qmd(input_file, output_file):
     yaml_config = config_to_yaml_string(config)
     logger.debug(f"Generated YAML config:\n{yaml_config}")
     
-    with open(temp_yml, 'w') as f:
+    with open(temp_yml, 'w', encoding='utf-8') as f:
         f.write(yaml_config)
     
     # Create a temporary copy of the input file in temp_dir
@@ -337,14 +212,12 @@ def build_one_qmd(input_file, output_file):
         ]
         
         logger.debug(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, cwd=temp_dir, check=True, capture_output=True, text=True)
-        
-        logger.debug(f"Quarto stdout: {result.stdout}")
+        subprocess.run(cmd, cwd=temp_dir, check=True, capture_output=True, text=True)
         logger.debug(f"Files in temp_dir after render: {os.listdir(temp_dir)}")
         
         if os.path.exists(temp_output):
             # Debug: show what Quarto produced
-            with open(temp_output, 'r') as f:
+            with open(temp_output, 'r', encoding='utf-8') as f:
                 raw_content = f.read()
                 logger.debug(f"Raw Quarto output (first 1000 chars):\n{raw_content[:1000]}")
             
@@ -356,7 +229,7 @@ def build_one_qmd(input_file, output_file):
             os.makedirs(os.path.dirname(output_file), exist_ok=True)
             shutil.move(temp_output, output_file)
             
-            # Clean the output file
+            # Clean the output file using the cleaning module
             clean_jekyll_output(output_file)
             
             logger.debug(f"Successfully built {input_file}")
@@ -377,11 +250,12 @@ def build_one_qmd(input_file, output_file):
             os.unlink(output_file)
         sys.exit(1)
     finally:
-        # Temporarily disable cleanup for debugging
-        logger.info(f"DEBUGGING: Temp directory preserved at: {temp_dir}")
-        # shutil.rmtree(temp_dir, ignore_errors=True)
+        # Clean up temp directory
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
-if __name__ == "__main__":
+
+def main() -> None:
+    """Main entry point for the script."""
     setup_logging()
     
     if len(sys.argv) != 3:
@@ -389,3 +263,7 @@ if __name__ == "__main__":
         sys.exit(1)
     
     build_one_qmd(sys.argv[1], sys.argv[2])
+
+
+if __name__ == "__main__":
+    main()

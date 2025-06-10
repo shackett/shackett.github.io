@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
+"""
+Jekyll Blog Build System
+
+This script builds Jekyll blog posts from source files in multiple formats:
+- R Markdown (.Rmd) files using knitr
+- Quarto (.qmd) files using Quarto with knitr/jupyter engines
+
+The script processes files in the _source directory that have proper
+YYYY-MM-DD date prefixes and outputs them to the _posts directory.
+"""
+
 import os
 import glob
 import subprocess
 import sys
-from pathlib import Path
 import re
 import logging
+from pathlib import Path
+from typing import List, Tuple
 
 from utils import setup_logging
 
-def check_working_directory():
-    """Ensure we're running from the shackett.github.io directory"""
+
+def check_working_directory() -> None:
+    """
+    Ensure we're running from the shackett.github.io directory.
+    
+    Raises:
+        SystemExit: If not in the correct directory
+    """
     logger = logging.getLogger(__name__)
     
     cwd = Path.cwd()
@@ -25,22 +43,34 @@ def check_working_directory():
     
     if missing_markers:
         logger.error(f"Missing expected files/directories: {missing_markers}")
-        logger.error(f"Please run this script from the shackett.github.io root directory")
+        logger.error("Please run this script from the shackett.github.io root directory")
         sys.exit(1)
     
     logger.debug(f"Working directory confirmed: {cwd}")
 
-def has_date_prefix(filename):
-    """Check if filename starts with YYYY-MM-DD pattern"""
+
+def has_date_prefix(filename: str) -> bool:
+    """
+    Check if filename starts with YYYY-MM-DD pattern.
+    
+    Args:
+        filename: Filename to check
+        
+    Returns:
+        bool: True if filename has proper date prefix
+    """
     basename = os.path.basename(filename)
     # Match YYYY-MM-DD at start of filename
     date_pattern = r'^\d{4}-\d{2}-\d{2}-'
     return bool(re.match(date_pattern, basename))
 
-def get_files_to_process():
+
+def get_files_to_process() -> Tuple[List[str], List[str]]:
     """
     Get list of source files to process, filtering by date prefix.
-    Returns tuple of (files_to_process, skipped_files)
+    
+    Returns:
+        Tuple[List[str], List[str]]: (files_to_process, skipped_files)
     """
     logger = logging.getLogger(__name__)
     
@@ -70,8 +100,17 @@ def get_files_to_process():
     return files_to_process, skipped_files
 
 
-def build_one(input_file, output_file):
-    """Build a single file using the appropriate renderer"""
+def build_one(input_file: str, output_file: str) -> None:
+    """
+    Build a single file using the appropriate renderer.
+    
+    Args:
+        input_file: Path to source file (.Rmd or .qmd)
+        output_file: Path where output .md file should be saved
+        
+    Raises:
+        subprocess.CalledProcessError: If build process fails
+    """
     logger = logging.getLogger(__name__)
     
     logger.info(f"Building {input_file}")
@@ -82,13 +121,13 @@ def build_one(input_file, output_file):
     try:
         if file_ext == ".rmd":
             # Use R build process
-            result = subprocess.run([
+            subprocess.run([
                 "Rscript", "scripts/build_one_Rmd.R", input_file, output_file
             ], check=True, capture_output=True, text=True)
             
         elif file_ext == ".qmd":
             # Use Quarto build process
-            result = subprocess.run([
+            subprocess.run([
                 "python3", "scripts/build_one_quarto.py", input_file, output_file
             ], check=True, capture_output=True, text=True)
             
@@ -111,8 +150,14 @@ def build_one(input_file, output_file):
             logger.error(f"Stderr: {e.stderr}")
         sys.exit(1)
 
-def main():
-    """Main build function"""
+
+def main() -> None:
+    """
+    Main build function.
+    
+    Processes all source files with proper date prefixes and builds them
+    into Jekyll-compatible markdown in the _posts directory.
+    """
     logger = logging.getLogger(__name__)
     
     # Check we're in the right directory
@@ -154,6 +199,7 @@ def main():
         build_one(input_file, output_file)
     
     logger.info("Build completed successfully!")
+
 
 if __name__ == "__main__":
     setup_logging()

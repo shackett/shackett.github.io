@@ -1,8 +1,8 @@
 {
   "format": {
     "markdown": {
-      "fig-width": 8,
-      "fig-height": 6,
+      "fig-width": 4,
+      "fig-height": 3,
       "fig-dpi": 200,
       "fig-format": "png",
       "keep-md": false,
