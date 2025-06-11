@@ -1,0 +1,15 @@
+---
+title: "Test R Markdown"
+tags: [test, r]
+---
+
+# Simple R Test
+
+Here's a basic R chunk:
+
+```{r}
+# Simple calculation
+x <- 1:10
+y <- x^2
+plot(x, y, main = "Simple Plot", type = "b")
+```

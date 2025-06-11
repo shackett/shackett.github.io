@@ -1,0 +1,23 @@
+{
+  "format": {
+    "markdown": {
+      "fig-width": 4,
+      "fig-height": 3,
+      "fig-dpi": 200,
+      "fig-format": "png",
+      "keep-md": false,
+      "preserve-yaml": true,
+      "standalone": false
+    }
+  },
+  "execute": {
+    "freeze": "auto",
+    "cache": true,
+    "echo": true,
+    "output": true,
+    "enabled": true
+  },
+  "project": {
+    "type": "default"
+  }
+}
