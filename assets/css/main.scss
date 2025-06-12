@@ -7,3 +7,83 @@ search: false
 
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
+
+// Only import Crimson Text for biology sections
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+// Custom content sections
+.content-section {
+  margin: 2rem 0;
+  border-radius: 6px;
+  
+  .section-content {
+    padding: 1.5rem;
+    
+    > *:first-child {
+      margin-top: 0;
+    }
+    
+    > *:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Biology section - Google Font for academic feel
+.bio-section {
+  border-left: 4px solid #2E8B57;
+  background: linear-gradient(135deg, #f9fff9 0%, #f0fff0 100%);
+  box-shadow: 0 2px 4px rgba(46, 139, 87, 0.1);
+  
+  font-family: 'Crimson Text', 'Times New Roman', serif;
+  line-height: 1.6;
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Crimson Text', 'Times New Roman', serif;
+    font-weight: 600;
+  }
+  
+  h1:before, h2:before {
+    content: "🧬 ";
+    margin-right: 0.5rem;
+  }
+  
+  code, pre {
+    font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+  }
+}
+
+// AI section - System fonts for speed and native feel
+.ai-aside {
+  border-left: 4px solid #4169E1;
+  background: linear-gradient(135deg, #f8fbff 0%, #f0f8ff 100%);
+  box-shadow: 0 2px 4px rgba(65, 105, 225, 0.1);
+  
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 0.95em;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  
+  h1:before, h2:before {
+    content: "⚙️ ";
+    margin-right: 0.5rem;
+  }
+  
+  code, pre {
+    font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.9em;
+  }
+  
+  p code, li code {
+    background: rgba(65, 105, 225, 0.1);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+}

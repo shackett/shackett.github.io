@@ -56,6 +56,26 @@ bundle exec jekyll serve
 2. `bundle exec jekyll serve` to create static site in the _site directory
 3. Fix LaTeX errors (using packages which aren't recognized by MathJaX may throw errors in build.R, while rendering mistakes are also common)
 
+## Special features
+
+### Markdown emphasis
+
+**bio sections**
+
+```markdown
+{% include bio-section.html content="
+markdown here
+" %}
+```
+
+**technical asides**
+
+```markdown
+{% include ai-aside.html content="
+markdown here
+" %}
+```
+
 # Site Template
 
 - Forked from [Minimal Mistakes](https://github.com/mmistakes/minimal-mistakes):
