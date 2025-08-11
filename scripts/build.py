@@ -100,13 +100,14 @@ def get_files_to_process() -> Tuple[List[str], List[str]]:
     return files_to_process, skipped_files
 
 
-def build_one(input_file: str, output_file: str) -> None:
+def build_one(input_file: str, output_file: str, verbose: bool = False) -> None:
     """
     Build a single file using the appropriate renderer.
     
     Args:
         input_file: Path to source file (.Rmd or .qmd)
         output_file: Path where output .md file should be saved
+        verbose: If True, show subprocess output; if False, capture it
         
     Raises:
         subprocess.CalledProcessError: If build process fails
@@ -123,13 +124,13 @@ def build_one(input_file: str, output_file: str) -> None:
             # Use R build process
             subprocess.run([
                 "Rscript", "scripts/build_one_Rmd.R", input_file, output_file
-            ], check=True, capture_output=True, text=True)
+            ], check=True, capture_output=not verbose, text=True)
             
         elif file_ext == ".qmd":
             # Use Quarto build process
             subprocess.run([
                 "python3", "scripts/build_one_quarto.py", input_file, output_file
-            ], check=True, capture_output=True, text=True)
+            ], check=True, capture_output=not verbose, text=True)
             
         else:
             logger.warning(f"Unknown file type {file_ext} for {input_file}")
