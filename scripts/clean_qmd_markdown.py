@@ -11,6 +11,8 @@ import re
 import logging
 from pathlib import Path
 
+from utils import find_code_block_pairs
+
 logger = logging.getLogger(__name__)
 
 def clean_jekyll_output(file_path: str) -> None:
@@ -351,7 +353,7 @@ def _align_text_tables(content: str) -> str:
     logger.debug("align_text_tables called")
     
     lines = content.split('\n')
-    code_blocks = _find_code_block_pairs(lines)
+    code_blocks = find_code_block_pairs(lines)
     
     if not code_blocks:
         logger.debug("No code block pairs found")
@@ -429,24 +431,6 @@ def _remove_table_stylers(content: str) -> str:
     
     return content
   
-  
-def _find_code_block_pairs(lines: List[str]) -> List[Tuple[int, int]]:
-    """
-    Find pairs of ``` lines that form code blocks.
-    
-    Returns:
-        List of (start_line, end_line) tuples
-    """
-    tick_lines = []
-    for i, line in enumerate(lines):
-        if line.strip().startswith('```'):
-            tick_lines.append(i)
-    
-    if len(tick_lines) % 2 != 0:
-        return []  # Can't pair odd number of ticks
-    
-    return [(tick_lines[i], tick_lines[i + 1]) for i in range(0, len(tick_lines), 2)]
-
 
 def _find_dash_positions(separator_line: str) -> List[int]:
     """

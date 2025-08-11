@@ -19,7 +19,7 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
-from utils import setup_logging
+from utils import setup_logging, patch_markdown
 
 
 def check_working_directory() -> None:
@@ -136,7 +136,10 @@ def build_one(input_file: str, output_file: str, verbose: bool = False) -> None:
             logger.warning(f"Unknown file type {file_ext} for {input_file}")
             return
             
-        logger.debug(f"Successfully built {input_file}")
+        logger.debug(f"Successfully built {input_file} as {output_file}")
+        logger.debug(f"Patching {output_file}")
+        patch_markdown(output_file)
+        logger.debug(f"Done patching {output_file}")
             
     except subprocess.CalledProcessError as e:
         # Clean up failed output file

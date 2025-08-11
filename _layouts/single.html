@@ -85,3 +85,57 @@ layout: default
     {% include page__related.html posts=site.posts %}
   {% endif %}
 </div>
+
+{% if page.jekyll-code-fold %}
+<meta name="jekyll-code-fold" content="{{ page.jekyll-code-fold }}">
+<script>
+// Simple Code Folding
+(function() {
+    // Check for jekyll-code-fold in frontmatter
+    const shouldFold = document.querySelector('meta[name="jekyll-code-fold"]')?.content === 'true';
+    if (!shouldFold) return;
+    
+    // Find all code blocks, but avoid duplicates
+    const processedBlocks = new Set();
+    
+    document.querySelectorAll('.highlight').forEach(block => {
+        // Skip output blocks
+        const codeElement = block.querySelector('code');
+        if (codeElement && (codeElement.classList.contains('language-text') || codeElement.classList.contains('language-output'))) {
+            return;
+        }
+        
+        // For Quarto blocks, target the parent div.highlighter-rouge instead
+        let targetBlock = block;
+        const parentDiv = block.closest('div.highlighter-rouge');
+        if (parentDiv) {
+            targetBlock = parentDiv;
+        }
+        
+        // Skip if we've already processed this block
+        if (processedBlocks.has(targetBlock)) {
+            return;
+        }
+        processedBlocks.add(targetBlock);
+        
+        // Create button
+        const btn = document.createElement('button');
+        btn.textContent = '▶ Show Code';
+        btn.className = 'code-fold-btn';
+        
+        // Hide code initially
+        targetBlock.style.display = 'none';
+        
+        // Insert button
+        targetBlock.parentNode.insertBefore(btn, targetBlock);
+        
+        // Toggle on click
+        btn.onclick = () => {
+            const isHidden = targetBlock.style.display === 'none';
+            targetBlock.style.display = isHidden ? 'block' : 'none';
+            btn.textContent = isHidden ? '▼ Hide Code' : '▶ Show Code';
+        };
+    });
+})();
+</script>
+{% endif %}
