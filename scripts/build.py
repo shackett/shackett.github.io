@@ -100,7 +100,7 @@ def get_files_to_process() -> Tuple[List[str], List[str]]:
     return files_to_process, skipped_files
 
 
-def build_one(input_file: str, output_file: str, verbose: bool = False) -> None:
+def build_one(input_file: str, output_file: str, verbose: bool = True) -> None:
     """
     Build a single file using the appropriate renderer.
     

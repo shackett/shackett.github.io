@@ -64,9 +64,59 @@ def clean_jekyll_output(file_path: str) -> None:
     logger.debug(f"Cleaned Jekyll output: {file_path}")
     logger.debug(f"Cleaned content preview:\n{content[:500]}")
 
+
+def find_colon_block_pairs(lines: List[str]) -> List[Tuple[int, int, str]]:
+    """
+    Find pairs of ::: lines that form Quarto output blocks.
+    Only processes ::: blocks that contain cell-output, ignores plain cell containers.
+    
+    Returns:
+        List of (start_line, end_line, block_type) tuples
+    """
+    pairs = []
+    stack = []
+    
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        
+        # Check for cell-output openers (handle both formats: with and without braces)
+        if (stripped.startswith(':::') and 
+            not stripped.startswith('::::') and 
+            'cell-output' in stripped):
+            
+            # Extract block type from opener lines
+            if 'cell-output-stdout' in stripped:
+                block_type = 'stdout'
+            elif 'cell-output-display' in stripped:
+                block_type = 'display'
+            elif 'cell-output-stderr' in stripped:
+                block_type = 'stderr'
+            else:
+                block_type = 'unknown'
+            stack.append((i, block_type))
+            logger.debug(f"Found opener at line {i+1}, type='{block_type}': {stripped}")
+            
+        elif stripped == ':::' and stack:
+            # This is a closer and we have an open block
+            start_line, start_type = stack.pop()
+            pairs.append((start_line, i, start_type))
+            logger.debug(f"Paired opener at line {start_line+1} with closer at line {i+1}")
+    
+    # Check for unpaired blocks and raise error
+    if stack:
+        unpaired_lines = [line_idx + 1 for line_idx, _ in stack]  # +1 for human-readable line numbers
+        print("DEBUG: Unpaired openers:")
+        for line_idx, block_type in stack:
+            print(f"  Line {line_idx+1}: {lines[line_idx].strip()}")
+        raise ValueError(f"Unpaired Quarto colon blocks found at lines: {unpaired_lines}. "
+                        f"This typically indicates malformed Quarto output or explicit ':::' in the original document.")
+    
+    return pairs
+
+
 def remove_quarto_artifacts(content: str) -> str:
     """
-    Remove basic Quarto cell artifacts including Jupyter-specific headers.
+    Remove Quarto cell artifacts using a pairing approach.
     
     Args:
         content: Raw markdown content from Quarto
@@ -76,28 +126,38 @@ def remove_quarto_artifacts(content: str) -> str:
     """
     
     # Convert code block headers to simple format first
-    # ``` {.python .cell-code} -> ```python
-    content = re.sub(r'``` \{\.python[^}]*\}', '```python', content)
-    content = re.sub(r'``` \{\.r[^}]*\}', '```r', content)
+    # ``` {.python .cell-code} -> ```python, ``` {.r .cell-code} -> ```r, etc.
+    content = re.sub(r'``` \{\.(\w+)[^}]*\}', r'```\1', content)
     
-    # Remove ALL Quarto cell divider blocks (general approach)
-    # This catches any ::: {...} or :::: {...} blocks that contain cell-related classes
-    # Pattern: one or more colons, optional whitespace, {anything with "cell" in it}, optional whitespace, newline
-    content = re.sub(r'^:::+\s*\{[^}]*\.cell[^}]*\}\s*$', '', content, flags=re.MULTILINE)
+    lines = content.split('\n')
     
-    # Remove general cell output blocks
-    # Pattern: ::: {anything with "cell-output"} 
-    content = re.sub(r'^:::+\s*\{[^}]*cell-output[^}]*\}\s*$', '', content, flags=re.MULTILINE)
+    # 1. Find and process cell-output block pairs FIRST (before removing containers)
+    colon_pairs = find_colon_block_pairs(lines)
     
-    # Remove code block output wrappers
-    # ``` {.cell-output...} 
-    content = re.sub(r'^``` \{[^}]*cell-output[^}]*\}\s*$', '', content, flags=re.MULTILINE)
+    # Process pairs in reverse order to avoid index shifting
+    for start_line, end_line, block_type in reversed(colon_pairs):
+        if block_type == 'stdout':
+            # Replace opener with ```output, remove closer
+            lines[start_line] = '```output'
+            lines[end_line] = '```'
+        elif block_type == 'display':
+            # Remove both opener and closer, keep content
+            lines[start_line] = ''
+            lines[end_line] = ''
+        elif block_type == 'stderr':
+            # Handle stderr as warning blocks
+            lines[start_line] = '```warning'
+            lines[end_line] = '```'
+        else:
+            # Unknown type, just remove the markers
+            lines[start_line] = ''
+            lines[end_line] = ''
     
-    # Remove simple cell dividers (::::: cell, etc.)
-    content = re.sub(r'^:::+\s*cell\s*$', '', content, flags=re.MULTILINE)
+    # 2. NOW remove all remaining cell container lines (3+ colons)
+    lines = [line for line in lines if not re.match(r'^:{3,}', line.strip())]
     
-    # Clean up orphaned ::: markers (any standalone colons that might be left)
-    content = re.sub(r'^:::+\s*$', '', content, flags=re.MULTILINE)
+    # Rejoin and clean up
+    content = '\n'.join(lines)
     
     # Remove excessive blank lines that might result from the cleanup
     content = re.sub(r'\n\s*\n\s*\n', '\n\n', content)
@@ -122,8 +182,6 @@ def process_quarto_table(content: str) -> str:
     """
     
     # Process different table types in order
-    content = _process_kable_tables(content)            # Handle R kable in cell blocks
-    content = _process_table_captions(content)          # Fix caption formatting
     content = _process_jupyter_display_tables(content)  # Cleanup: wrap unwrapped tables
     content = _remove_table_stylers(content)            # remove styler CSS
     content = _align_text_tables(content)               # Fix alignment of markdown titles
@@ -255,71 +313,6 @@ def process_code_blocks_and_output(content: str) -> str:
     return '\n'.join(cleaned_lines)
   
   
-def _process_kable_tables(content: str) -> str:
-    """
-    Process R kable tables wrapped in cell-output-display blocks.
-    
-    Args:
-        content: Markdown content containing kable table output
-        
-    Returns:
-        str: Content with kable tables properly formatted
-    """
-    
-    def replace_table_section(match):
-        table_content = match.group(1)
-        
-        # If it's already a markdown table, keep as-is
-        if '|' in table_content and '---' in table_content:
-            return table_content.strip()
-        
-        # If it's a text table format, wrap in code block
-        if '---' in table_content and ('  ' in table_content or '\n' in table_content):
-            return f"```\n{table_content.strip()}\n```"
-        
-        # Default: wrap in code block
-        return f"```\n{table_content.strip()}\n```"
-    
-    # Match ::: cell-output-display ... :::
-    pattern = r'::: cell-output-display\s*\n(.*?)\n:::'
-    content = re.sub(pattern, replace_table_section, content, flags=re.DOTALL)
-    
-    return content
-
-
-def _process_table_captions(content: str) -> str:
-    """
-    Fix orphaned table captions and ensure proper code block closure.
-    
-    Args:
-        content: Markdown content that may have caption formatting issues
-        
-    Returns:
-        str: Content with properly formatted table captions
-    """
-    
-    # Fix orphaned captions after code blocks
-    def fix_table_caption(match):
-        caption_text = match.group(1)
-        return f"\n```\n\n**Table: {caption_text}**\n\n##"
-    
-    # Pattern: caption after content without proper code block closure
-    pattern = r'\n\s*:\s+([^\n]+)\s*\n##'
-    content = re.sub(pattern, fix_table_caption, content)
-    
-    # Fix incomplete table blocks with captions
-    def fix_incomplete_table_block(match):
-        table_content = match.group(1)
-        caption_text = match.group(2)
-        return f"{table_content}\n```\n\n**Table: {caption_text}**\n\n"
-    
-    # Pattern: table content + caption without proper closure
-    pattern = r'(\n[^\n]*(?:---+[^\n]*\n[^\n]*)+)\s*:\s+([^\n]+)\s*\n'
-    content = re.sub(pattern, fix_incomplete_table_block, content, flags=re.MULTILINE)
-    
-    return content
-
-  
 def _process_jupyter_display_tables(content: str) -> str:
     """
     Wrap unwrapped Jupyter text-based table displays in code blocks.
@@ -333,14 +326,14 @@ def _process_jupyter_display_tables(content: str) -> str:
     
     def wrap_text_table(match):
         table_text = match.group(1)
-        return f"```\n{table_text.strip()}\n```"
+        return f"\n```\n{table_text.strip()}\n```"
     
     # Pattern for text tables:
     # - Header line 
     # - Separator line with dashes
     # - Data rows (but stop at empty lines or ```python/```r)
     # - Not already in code blocks
-    pattern = r'(?<!```\n)(\s*\S+.*\n\s*[-=\s]{10,}\n(?:\s*\S+.*\n)*?)(?=\n\s*```|\n\s*$|\Z)'
+    pattern = r'(?<!```\n)(\s*\S+.*\n\s*[-=\s]{10,}\n(?:\s*\S+.*\n)*?)(?=\n[^\s]|\n\s*```|\n\s*$|\Z)'
     content = re.sub(pattern, wrap_text_table, content, flags=re.MULTILINE)
     
     return content
