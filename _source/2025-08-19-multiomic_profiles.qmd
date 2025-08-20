@@ -1,7 +1,6 @@
 ---
 title: "Network Biology with Napistu, Part 1: Creating Multimodal Disease Profiles"
 date: 2025-08-19
-author: Sean Hackett
 tags: [napistu, genomics, python]
 jekyll-code-fold: true
 jupyter: forny-2023
