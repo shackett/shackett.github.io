@@ -14,7 +14,7 @@ header:
 
 My research focuses on developing genome-scale, mechanistic models of metabolism and cellular physiology. I approach these problem using large multi-omics datasets that provide complementary views of the systems' states. Using such datasets, allows me to break network-level complexity into simpler sub-questions where novel connections among features can be discovered. To discover these connections I utilize and extend techniques from statistics and machine learning.
 
-A summary of my employment, education and research can be found in my [curriculum vitae]({{ site.url }}{{ site.baseurl }}/files/shackett_CV.pdf), while my [resume]({{ site.url }}{{ site.baseurl }}/files/shackett_resume.pdf) provides a more succinct summary work history.
+A summary of my employment, education and research can be found in my [curriculum vitae]({{ site.url }}{{ site.baseurl }}/files/shackett_CV.pdf).
 
 <hr>
 
@@ -22,11 +22,13 @@ A summary of my employment, education and research can be found in my [curriculu
 
 In 2017, I joined Calico Life Sciences, an Alphabet subsidiary focused on improving our understanding of aging and advancing the treatment of diseases of aging. As a Data Scientist, I have developed infrastructure for understanding aging at a systems-level by profiling the molecular state of aging organisms and disentagling the causal inter-dependencies among molecular traits. To generate ever larger and more comprehensive profiles, I have worked closely with experimental researchers, particularly those working on mass spectrometry, to streamline and advance our internal workflows. 
 
-In January of 2018 my role expanded into managing a team of data scientists. Adopting this role, I received management training so that I could better understand my role as a manager and a leader in our organization. I soon put this training to work, by contributing to a re-organization of the Computing team, and by representing my team to the executive team and in all-company formats. As a manager, I've hired six researchers into diverse, specialized roles, and helped them maintain effectiveness amidst a problem-rich environment. As a leader, I've helped individual's align their work with their personal, and the companies long-term goals, and initiated new directions, of increasingly strategic importance, for the company.
+In January of 2018 my role expanded into managing a team of data scientists. Adopting this role, I received management training so that I could better understand my role as a manager and a leader in our organization. I soon put this training to work, by contributing to a re-organization of the Computing team, and by representing my team to the executive team and in all-company formats. As a manager, I hired many researchers into diverse, specialized roles, and helped them maintain effectiveness amidst a problem-rich environment. As a leader, I've helped individual's align their work with their personal, and the companies long-term goals, and initiated new directions, of increasingly strategic importance, for the company.
 
 Published papers from my time at Calico include:
 
-- **Sean R. Hackett**, Edward A. Baltz, Marc Coram, Bernd J. Wranik, Griffin Kim, Adam Baker, Minjie Fan, David G. Hendrickson, Marc Brendl, R. Scott McIsaac. Learning causal networks using inducible transcription factors and transcriptome-wide time serie. **Molecular Systems Biology**, 16 (3), 2020.
+- **Sean R. Hackett**, Majed Mohamed Magzoub, Tobias M Maile, Ngoc Vu, Kevin M Wright, Eugene Melamud, Wilhelm Haas, Fiona E McAllister, Gary A Churchill, Bryson D Bennett. The Molecular Architecture of Variable Lifespan in Diversity Outbred Mice. **bioRxiv**, 2023.
+- Kevin G Hicks, Ahmad A Cluntun, Heidi L Schubert, **Sean R. Hackett**, ..., Jared Rutter. Protein-metabolite interactomics of carbohydrate metabolism reveal regulation of lactate dehydrogenase. **Science**, 379 (6636), 2023.
+- **Sean R. Hackett**, Edward A. Baltz, Marc Coram, Bernd J. Wranik, Griffin Kim, Adam Baker, Minjie Fan, David G. Hendrickson, Marc Brendl, R. Scott McIsaac. Learning causal networks using inducible transcription factors and transcriptome-wide time series. **Molecular Systems Biology**, 16 (3), 2020.
 - Sam S. Schoenholz, **Sean Hackett**, Laura Deming, Eugene Melamud, Navdeep Jaitly, Fiona McAllister, Jonathon O’Brien, George Dahl, Bryson Bennett, Andrew Dai, Daphne Kohler. Peptide-spectrum matching from weak supervision. ArXiv.
 
 # PhD and Postdoc at Princeton
