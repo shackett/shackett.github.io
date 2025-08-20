@@ -2,7 +2,6 @@
 title: "R Quarto Test"
 date: 2025-06-09
 author: Sean Hackett
-layout: post
 categories: [r, statistics]
 engine: knitr
 ---

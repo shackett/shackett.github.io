@@ -1,6 +1,7 @@
 ---
 title: "Test R Markdown"
 tags: [test, r]
+jekyll-code-fold: true
 ---
 
 # Simple R Test
@@ -11,5 +12,15 @@ Here's a basic R chunk:
 # Simple calculation
 x <- 1:10
 y <- x^2
+
+summary(mtcars$mpg)
+
 plot(x, y, main = "Simple Plot", type = "b")
+```
+
+
+```{r}
+knitr::kable(head(mtcars, 5))
+
+print(head(mtcars, 5))
 ```

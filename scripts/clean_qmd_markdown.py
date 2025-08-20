@@ -211,6 +211,9 @@ def process_quarto_figures(content: str, filename_stem: str) -> str:
         content
     )
     
+    # Remove Quarto figure labels that follow images
+    content = re.sub(r'(!\[[^\]]*\]\([^)]+\))\{[^}]*\}', r'\1', content)
+    
     # Handle figure display blocks - remove the wrapper but keep the image
     # Pattern: ::: cell-output-display\n![caption](path)\n:::
     def replace_figure_display(match):
