@@ -1,0 +1,106 @@
+---
+title: "Test Quarto with Python and Knitr" 
+date: 2025-06-09
+author: Sean Hackett
+tags: [test, python, quarto]
+engine: knitr
+jekyll-code-fold: true
+---
+
+A simple test of Quarto with Python processing using knitr + reticulate.
+
+<!--more-->
+
+# Quarto + Knitr Python Test
+
+```{r}
+reticulate::use_python("/usr/bin/python3")
+```
+
+```{python}
+import math
+import random
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+
+# Simple calculations
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+squares = [x**2 for x in numbers]
+
+print("Numbers:", numbers)
+print("Squares:", squares)
+print("Sum of squares:", sum(squares))
+
+# Generate some random data
+random.seed(42)
+random_data = [random.randint(1, 100) for _ in range(10)]
+print("Random data:", random_data)
+print("Average:", sum(random_data) / len(random_data))
+
+# Show some calculated values
+print(f"The value of π is approximately {math.pi:.3f}")
+print(f"Simple calculation: 2 + 2 = {2 + 2}")
+```
+
+```{python}
+# Simple text-based "visualization"
+data = [3, 7, 2, 9, 1, 5, 8, 4, 6]
+
+print("Simple bar chart using text:")
+for i, val in enumerate(data):
+    bar = "#" * val
+    print(f"{i+1}: {bar} ({val})")
+```
+
+
+```{python}
+# Create a sample DataFrame
+data = {
+    'Name': ['Alice', 'Bob', 'Charlie', 'Diana'],
+    'Age': [25, 30, 35, 28],
+    'Score': [85.5, 92.3, 78.1, 96.7],
+    'Grade': ['B', 'A', 'C', 'A']
+}
+
+df = pd.DataFrame(data)
+
+print(df)
+
+# Apply styling to the DataFrame
+styled_df = df.style.highlight_max(subset=['Age', 'Score'], color='lightgreen') \
+              .highlight_min(subset=['Age', 'Score'], color='lightcoral') \
+              .format({'Score': '{:.1f}'}) \
+              .set_caption("Student Performance Data")
+
+# Display the styled DataFrame
+display(styled_df)
+```
+
+
+```{python}
+# multiple tables from out code block
+
+display(styled_df)
+print("foo, bar")
+display(styled_df)
+display(styled_df)
+```
+
+```{python}
+# Simple matplotlib plot
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+plt.figure(figsize=(8, 5))
+plt.plot(x, y, 'b-', linewidth=2, label='sin(x)')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+plt.title('Simple Sine Wave Plot')
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
+```

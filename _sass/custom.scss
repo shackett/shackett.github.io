@@ -3,7 +3,9 @@ $body-background-color: #f0f8ff; /* Light Blue Background */
 $text-color: #333; /* Dark Gray Text */
 $light-contrast: #f5f5f5;
 $link-color: #007bff; /* Default Blue Link */
-$light-green: #52C518; /* Light Gray Masthead */
+/* $light-green: #52C518; */
+$light-green: #228B22; /* Forest Green - classic, readable */
+
 $calico-green: #30BC5B; /* Calico green (not used now) */
 $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
 
@@ -26,6 +28,65 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
     a {
         color: $light-contrast;
     }
+}
+
+/* Output code blocks - for code execution results */
+.language-output,
+.language-text {
+  background: $body-background-color !important;
+  border-radius: 5px;
+  
+  /* Override default code block styling */
+  code {
+    background: transparent !important;
+    color: $text-color !important;
+    font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+  
+  pre {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+  }
+  
+  /* Force visibility of all child elements */
+  * {
+    background: transparent !important;
+    color: $text-color !important;
+  }
+}
+
+/* Clean, consolidated approach for Rmd output blocks */
+/* Only target figure.highlight that contains language-text */
+figure.highlight:has(.language-text),
+figure.highlight:has(.language-text) pre {
+  background: $body-background-color !important;
+}
+
+figure.highlight .language-text,
+figure.highlight .language-text code {
+  background: transparent !important;
+  color: $text-color !important;
+}
+
+/* Simple Code Folding Button */
+.code-fold-btn {
+  background: $light-green;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  margin-bottom: 0.5rem;
+  margin-right: 0.5rem; /* Add small right margin for any side-by-side cases */
+  display: block; /* Force buttons to stack vertically */
+  
+  &:hover {
+    background: darken($light-green, 10%);
+  }
 }
 
 /* header image (mushroom themed) */

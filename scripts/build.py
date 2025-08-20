@@ -19,7 +19,7 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
-from utils import setup_logging
+from utils import setup_logging, patch_markdown
 
 
 def check_working_directory() -> None:
@@ -100,13 +100,14 @@ def get_files_to_process() -> Tuple[List[str], List[str]]:
     return files_to_process, skipped_files
 
 
-def build_one(input_file: str, output_file: str) -> None:
+def build_one(input_file: str, output_file: str, verbose: bool = True) -> None:
     """
     Build a single file using the appropriate renderer.
     
     Args:
         input_file: Path to source file (.Rmd or .qmd)
         output_file: Path where output .md file should be saved
+        verbose: If True, show subprocess output; if False, capture it
         
     Raises:
         subprocess.CalledProcessError: If build process fails
@@ -123,19 +124,22 @@ def build_one(input_file: str, output_file: str) -> None:
             # Use R build process
             subprocess.run([
                 "Rscript", "scripts/build_one_Rmd.R", input_file, output_file
-            ], check=True, capture_output=True, text=True)
+            ], check=True, capture_output=not verbose, text=True)
             
         elif file_ext == ".qmd":
             # Use Quarto build process
             subprocess.run([
                 "python3", "scripts/build_one_quarto.py", input_file, output_file
-            ], check=True, capture_output=True, text=True)
+            ], check=True, capture_output=not verbose, text=True)
             
         else:
             logger.warning(f"Unknown file type {file_ext} for {input_file}")
             return
             
-        logger.debug(f"Successfully built {input_file}")
+        logger.debug(f"Successfully built {input_file} as {output_file}")
+        logger.debug(f"Patching {output_file}")
+        patch_markdown(output_file)
+        logger.debug(f"Done patching {output_file}")
             
     except subprocess.CalledProcessError as e:
         # Clean up failed output file

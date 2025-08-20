@@ -52,7 +52,7 @@ bundle exec jekyll serve
     
 ## Converting notebooks to markdown
 
-1. Source scripts/build.py to knit .Rmd and .qmd documents in _source into .md documents in _posts
+1. Source `scripts/build.py` to knit .Rmd and .qmd documents in _source into .md documents in _posts
 2. `bundle exec jekyll serve` to create static site in the _site directory
 3. Fix LaTeX errors (using packages which aren't recognized by MathJaX may throw errors in build.R, while rendering mistakes are also common)
 
