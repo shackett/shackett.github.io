@@ -1,34 +1,181 @@
-/* Colors (Replicate Old Site) */
+/* ==========================================================================
+   CUSTOM STYLES - Sean Hackett's Jekyll Site
+   ========================================================================== */
+
+/* ==========================================================================
+   COLOR VARIABLES
+   ========================================================================== */
 $body-background-color: #f0f8ff; /* Light Blue Background */
 $text-color: #333; /* Dark Gray Text */
-$light-contrast: #f5f5f5;
+$light-contrast: #f5f5f5; /* Light Gray/White */
 $link-color: #007bff; /* Default Blue Link */
-/* $light-green: #52C518; */
 $light-green: #228B22; /* Forest Green - classic, readable */
-
 $calico-green: #30BC5B; /* Calico green (not used now) */
 $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
 
-/* Masthead */
+/* ==========================================================================
+   HEADER & NAVIGATION
+   ========================================================================== */
+
+/* Main masthead styling */
 .masthead {
-    background-color: $light-green;
-    padding: 0.5rem 0; /* Adjust padding as needed */
-    
-    .site-title {
-        color: $light-contrast;
-    }
+  background-color: $light-green;
+  padding: 0.5rem 0;
+  
+  .site-title {
+    color: $light-contrast;
+  }
 }
 
+/* Site navigation */
 #site-nav {
+  background-color: $light-green;
+  
+  img {  
     background-color: $light-green;
-    img {  
-        background-color:$light-green;
-    }
-
-    a {
-        color: $light-contrast;
-    }
+  }
+  
+  a {
+    color: $light-contrast;
+  }
 }
+
+/* Mobile navigation controls (hamburger menu & search toggle) */
+.greedy-nav__toggle,
+.search__toggle {
+  color: $light-contrast !important;
+  
+  &:hover {
+    filter: brightness(0.8); /* Darken on hover */
+  }
+  
+  /* Ensure icons inherit the button color */
+  i {
+    color: inherit !important;
+  }
+}
+
+/* Hamburger menu specific styling */
+.greedy-nav__toggle {
+  .navicon,
+  .navicon::before,
+  .navicon::after {
+    background: $light-contrast !important;
+    transition: all 0.2s ease; /* Smooth transition */
+  }
+  
+  &:hover {
+    .navicon,
+    .navicon::before,
+    .navicon::after {
+      filter: brightness(0.8); /* Darken hamburger lines on hover */
+    }
+  }
+}
+
+/* Mobile dropdown menu styling */
+.hidden-links {
+  background-color: $light-green !important;
+  
+  .masthead__menu-item a {
+    color: $light-contrast !important;
+    
+    &:visited {
+      color: $light-contrast !important;
+    }
+    
+    /* Remove default hover background and let universal link hover handle it */
+    &:hover {
+      background-color: transparent !important;
+    }
+  }
+}
+
+/* Table of contents */
+.nav__title {
+  color: $light-contrast !important; 
+  background-color: $light-green !important;
+}
+
+/* ==========================================================================
+   HERO IMAGE & HEADER
+   ========================================================================== */
+
+.page__hero {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
+#footer {
+  background-color: $light-green;
+  padding: 1rem 0;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   LINKS & BUTTONS
+   ========================================================================== */
+
+/* General link styles with universal hover darkening */
+a {
+  color: $light-green;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    filter: brightness(0.8);
+    text-decoration: underline;
+  }
+}
+
+/* Table of contents links */
+.no_toc a {
+  &:link,
+  &:visited {
+    color: $light-green;
+  }
+}
+
+/* Button styling */
+.btn {
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Code folding button */
+.code-fold-btn {
+  background: $light-green;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  margin-bottom: 0.5rem;
+  margin-right: 0.5rem;
+  display: block;
+  
+  &:hover {
+    background: darken($light-green, 10%);
+  }
+}
+
+/* ==========================================================================
+   CODE BLOCKS & OUTPUT
+   ========================================================================== */
 
 /* Output code blocks - for code execution results */
 .language-output,
@@ -36,7 +183,6 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
   background: $body-background-color !important;
   border-radius: 5px;
   
-  /* Override default code block styling */
   code {
     background: transparent !important;
     color: $text-color !important;
@@ -58,8 +204,7 @@ $sidebar-background-color: #f5f5f5; /* Lighter Gray Sidebar */
   }
 }
 
-/* Clean, consolidated approach for Rmd output blocks */
-/* Only target figure.highlight that contains language-text */
+/* R Markdown output blocks */
 figure.highlight:has(.language-text),
 figure.highlight:has(.language-text) pre {
   background: $body-background-color !important;
@@ -71,88 +216,27 @@ figure.highlight .language-text code {
   color: $text-color !important;
 }
 
-/* Simple Code Folding Button */
-.code-fold-btn {
-  background: $light-green;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85em;
-  margin-bottom: 0.5rem;
-  margin-right: 0.5rem; /* Add small right margin for any side-by-side cases */
-  display: block; /* Force buttons to stack vertically */
-  
-  &:hover {
-    background: darken($light-green, 10%);
-  }
-}
+/* ==========================================================================
+   LAYOUT & SPACING
+   ========================================================================== */
 
-/* header image (mushroom themed) */
-.page__hero {
-    margin: 0 !important;             /* Override any parent margins */
-    padding: 0 !important;            /* Override any parent padding */
-    overflow: hidden;                 /* Prevent overflow */
-    width: 100%;                      /* Ensure it takes full width */
-    max-width: 100%;                  /* Prevent it from exceeding container width */
-  }
-
-.page__hero img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
-
-#footer {
-    background-color: $light-green;
-    padding: 1rem 0; /* Adjust padding as needed */
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-/* Link Styles (Example) */
-a {
-    color: $light-green;
-    text-decoration: none; /* Remove underline */
-    &:hover {
-        text-decoration: underline; /* Add underline on hover */
-    }
-}
-
-.no_toc a {
-    &:link {
-        color: $light-green;
-    }
-    &:visited {
-        color: $light-green;
-    }
-}
-
-/* Rounded Corners and Shadows (Example) */
-.btn {
-    border-radius: 5px; /* Rounded corners */
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-/* table of contents */
-.nav__title {
-    color: $light-contrast !important; 
-    background-color:$light-green !important;
-}
-
-/* Increase space around content below masthead */
+/* Content spacing */
 .page__content {
-    padding: 1rem;
+  padding: 1rem;
 }
 
-/* MathJax Equations */
+/* ==========================================================================
+   MATHEMATICAL CONTENT
+   ========================================================================== */
+
+/* MathJax equations */
 .mjx-display {
-    display: block;
-    transform: scale(0.7);
-    transform-origin: 50% 50%;
+  display: block;
+  transform: scale(0.7);
+  transform-origin: 50% 50%;
 }
 
 .mjx-inline {
-    display: inline-block;
-    transform: scale(1);
+  display: inline-block;
+  transform: scale(1);
 }
