@@ -1,5 +1,7 @@
-{% if post.header.teaser %}
-  {% capture teaser %}{{ post.header.teaser }}{% endcapture %}
+{% if post.header.teaser_archive %}
+  {% assign teaser = post.header.teaser_archive %}
+{% elsif post.header.teaser %}
+  {% assign teaser = post.header.teaser %}
 {% else %}
   {% assign teaser = site.teaser %}
 {% endif %}
@@ -12,7 +14,7 @@
 
 <div class="{{ include.type | default: 'list' }}__item">
   <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork"{% if post.locale %} lang="{{ post.locale }}"{% endif %}>
-    {% if include.type == "grid" and teaser %}
+    {% if teaser and include.type == "grid" %}
       <div class="archive__item-teaser">
         <img src="{{ teaser | relative_url }}" alt="">
       </div>
@@ -25,6 +27,19 @@
       {% endif %}
     </h2>
     {% include page__meta.html type=include.type %}
-    {% if post.excerpt %}<p class="archive__item-excerpt" itemprop="description">{{ post.excerpt | markdownify | strip_html | truncate: 160 }}</p>{% endif %}
+    {% if post.excerpt %}
+      <div class="archive__item-excerpt" itemprop="description">
+        {% if include.type != "grid" and post.content contains '<!--more-->' %}
+          {{ post.excerpt }}
+        {% else %}
+          {{ post.excerpt | strip_html | truncate: 160 }}
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if teaser and include.type != "grid" and post.header.teaser_archive %}
+      <div class="archive__item-teaser archive__item-teaser--bottom">
+        <img src="{{ teaser | relative_url }}" alt="">
+      </div>
+    {% endif %}
   </article>
 </div>
