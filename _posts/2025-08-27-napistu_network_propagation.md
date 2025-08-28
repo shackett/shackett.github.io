@@ -24,7 +24,7 @@ dataset as a case study, I'll demonstrate how to distill
 disease-relevant signals into mechanistic insights through network-based
 analysis.
 
-### From statistical associations to biological mechanisms
+**From statistical associations to biological mechanisms**
 
 Modern genomics excels at identifying disease-associated genes and
 proteins through statistical analysis. Methods like Gene Set Enrichment
@@ -46,7 +46,7 @@ upstream mechanisms driving coordinated molecular changes.
 
 <!--more-->
 
-### Napistu's implementation
+**Napistu's implementation**
 
 Napistu makes network biology practical through three core capabilities:
 
@@ -103,7 +103,7 @@ nulls. Plus, I'll share firsthand insights on leveraging AI to develop
 complex scientific software --- tackling challenges that often lie
 beyond the reach of large language models (LLMs). " %}
 
-### Series overview
+**Series overview**
 
 **[Part 1: Creating Multimodal Disease
 Profiles](https://shackett.org/multiomic_profiles/)** established the
