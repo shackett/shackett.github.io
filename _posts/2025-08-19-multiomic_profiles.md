@@ -5,9 +5,10 @@ tags:
   - napistu
   - genomics
   - python
-header:
-  image: "/assets/images/banner_07.png"
 jekyll-code-fold: true
+header:
+  image: /assets/images/banners/banner_03.png
+  teaser_archive: /assets/images/teasers/napistu_blog_post_part1.png
 jupyter: forny-2023
 engine: jupyter
 ---
@@ -34,6 +35,8 @@ Throughout this post, I'll use two types of asides to provide additional
 context without disrupting the main analytical flow. Green boxes contain
 biological details, while blue boxes reflect on the computational
 workflow and AI-assisted development process.
+
+<!--more-->
 
 {% include bio-section.html content=" **For biologists**: I identify a
 previously unreported batch effect related to sample freezing dates that
@@ -179,18 +182,23 @@ If you'd like to reproduce this analysis, follow these steps:
     source .venv/bin/activate
 
     # Core dependencies
-    uv pip install napistu'[scverse]'
+    uv pip install "napistu[scverse]==0.5.4"
     # Personal utilities package with genomics analysis functions
-    uv pip install "git+https://github.com/shackett/shackett-utils.git[all]" 
+    uv pip install "git+https://github.com/shackett/shackett-utils.git@v0.1.2[all]" 
     # Additional dependencies
-    uv pip install openpyxl scikit-learn mofapy2 ipykernel
+    uv pip install openpyxl scikit-learn mofapy2 ipykernel nbformat nbclient
     python -m ipykernel install --user --name=forny-2023
     ```
 
 3.  Download `Source Data Fig.1` and `Source Data Fig.2` from [Forny et
     al., 2023](https://www.nature.com/articles/s42255-022-00720-8#Sec39)
 
-4.  Set the paths in the following code block:
+4.  Download the
+    [`creating_multimodal_profiles.qmd`](https://github.com/shackett/shackett/blob/master/posts/posted/creating_multimodal_profiles.qmd)
+    notebook
+
+5.  Modify the following code block in your copy of the notebook to set
+    appropriate paths:
 
     a.  `SUPPLEMENTAL_DATA_DIR` should point to the directory containing
         the download from step 3 ("42255_2022_720_MOESM3_ESM.xlsx" and
@@ -198,7 +206,8 @@ If you'd like to reproduce this analysis, follow these steps:
     b.  `CACHE_DIR` should point to a location where intermediate
         results and outputs can be saved
 
-5.  Run the notebook and render an html output:
+6.  Run the notebook and render an html output (or just open the
+    notebook in your browser):
 
     ``` bash
     quarto render creating_multimodal_profiles.qmd
@@ -220,7 +229,6 @@ import pandas as pd
 import scanpy as sc
 import seaborn as sns
 from sklearn.impute import KNNImputer
-from IPython.display import display, HTML
 
 # this analysis is largely upstream of Napistu but we can use some of its utils
 from napistu import utils as napistu_utils
@@ -233,6 +241,8 @@ from shackett_utils.genomics import mdata_eda
 from shackett_utils.genomics import mdata_factor_analysis
 from shackett_utils.statistics import stats_viz
 from shackett_utils.statistics import transform
+from shackett_utils.blog.html_utils import display_tabulator
+from shackett_utils.utils.pd_utils import format_numeric_columns
 
 # File paths and data organization
 # All input data should be placed in the SUPPLEMENTAL_DATA_DIR
@@ -878,36 +888,35 @@ PHENOTYPE_EXAMPLE = ["MMA_urine", "OHCblPlus"]
 
 for phenotype in PHENOTYPE_EXAMPLE:
     example_stat_summaries = mdata["proteomics"].var.loc[:, mdata["proteomics"].var.columns.str.contains(phenotype)].sort_values(f"log10p_{phenotype}").head()
+    format_numeric_columns(example_stat_summaries, inplace = True)
     
-    display(HTML(f"<h4>Top associations with {phenotype}</h4>"))
-    display(napistu_utils.style_df(example_stat_summaries))
+    display_tabulator(
+        example_stat_summaries,
+        caption=f"Top associations with {phenotype}",
+        layout="fitDataStretch",
+        width = "auto"
+    )
 ```
 
-<h4>Top associations with MMA_urine</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Top associations with MMA_urine
+</figcaption>
 
-```output
-            est_MMA_urine   p_MMA_urine   log10p_MMA_urine   q_MMA_urine   stat_MMA_urine   stderr_MMA_urine
-  --------- --------------- ------------- ------------------ ------------- ---------------- ------------------
-  uniprot                                                                                    
-  P22033    -0.207          0.000         -8.239             0.000         -6.077           0.034
-  O43617    0.072           0.000         -6.295             0.001         5.187            0.014
-  O75976    -0.135          0.000         -5.239             0.009         -4.655           0.029
-  Q9UJW0    0.086           0.000         -5.061             0.010         4.561            0.019
-  O43237    0.057           0.000         -4.999             0.010         4.528            0.013
-```
+<div class="data-table" style="width: auto; display: inline-block;"
+    data-table='[{"uniprot": "P22033", "est_MMA_urine": "-0.207", "p_MMA_urine": "0.000", "log10p_MMA_urine": "-8.239", "q_MMA_urine": "0.000", "stat_MMA_urine": "-6.077", "stderr_MMA_urine": "0.034"}, {"uniprot": "O43617", "est_MMA_urine": "0.072", "p_MMA_urine": "0.000", "log10p_MMA_urine": "-6.295", "q_MMA_urine": "0.001", "stat_MMA_urine": "5.187", "stderr_MMA_urine": "0.014"}, {"uniprot": "O75976", "est_MMA_urine": "-0.135", "p_MMA_urine": "0.000", "log10p_MMA_urine": "-5.239", "q_MMA_urine": "0.009", "stat_MMA_urine": "-4.655", "stderr_MMA_urine": "0.029"}, {"uniprot": "Q9UJW0", "est_MMA_urine": "0.086", "p_MMA_urine": "0.000", "log10p_MMA_urine": "-5.061", "q_MMA_urine": "0.010", "stat_MMA_urine": "4.561", "stderr_MMA_urine": "0.019"}, {"uniprot": "O43237", "est_MMA_urine": "0.057", "p_MMA_urine": "0.000", "log10p_MMA_urine": "-4.999", "q_MMA_urine": "0.010", "stat_MMA_urine": "4.528", "stderr_MMA_urine": "0.013"}]'
+    data-columns='[{"title": "uniprot", "field": "uniprot"}, {"title": "est_MMA_urine", "field": "est_MMA_urine"}, {"title": "p_MMA_urine", "field": "p_MMA_urine"}, {"title": "log10p_MMA_urine", "field": "log10p_MMA_urine"}, {"title": "q_MMA_urine", "field": "q_MMA_urine"}, {"title": "stat_MMA_urine", "field": "stat_MMA_urine"}, {"title": "stderr_MMA_urine", "field": "stderr_MMA_urine"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
-<h4>Top associations with OHCblPlus</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Top associations with OHCblPlus
+</figcaption>
 
-```output
-            est_OHCblPlus   p_OHCblPlus   log10p_OHCblPlus   q_OHCblPlus   stat_OHCblPlus   stderr_OHCblPlus
-  --------- --------------- ------------- ------------------ ------------- ---------------- ------------------
-  uniprot                                                                                    
-  P61106    0.070           0.000         -5.308             0.014         4.691            0.015
-  P22033    0.283           0.000         -5.221             0.014         4.645            0.061
-  Q13428    0.123           0.000         -4.033             0.090         3.987            0.031
-  P32119    -0.099          0.000         -3.939             0.090         -3.931           0.025
-  Q7L0Y3    0.224           0.000         -3.849             0.090         3.877            0.058
-```
+<div class="data-table" style="width: auto; display: inline-block;"
+    data-table='[{"uniprot": "P61106", "est_OHCblPlus": "0.070", "p_OHCblPlus": "0.000", "log10p_OHCblPlus": "-5.308", "q_OHCblPlus": "0.014", "stat_OHCblPlus": "4.691", "stderr_OHCblPlus": "0.015"}, {"uniprot": "P22033", "est_OHCblPlus": "0.283", "p_OHCblPlus": "0.000", "log10p_OHCblPlus": "-5.221", "q_OHCblPlus": "0.014", "stat_OHCblPlus": "4.645", "stderr_OHCblPlus": "0.061"}, {"uniprot": "Q13428", "est_OHCblPlus": "0.123", "p_OHCblPlus": "0.000", "log10p_OHCblPlus": "-4.033", "q_OHCblPlus": "0.090", "stat_OHCblPlus": "3.987", "stderr_OHCblPlus": "0.031"}, {"uniprot": "P32119", "est_OHCblPlus": "-0.099", "p_OHCblPlus": "0.000", "log10p_OHCblPlus": "-3.939", "q_OHCblPlus": "0.090", "stat_OHCblPlus": "-3.931", "stderr_OHCblPlus": "0.025"}, {"uniprot": "Q7L0Y3", "est_OHCblPlus": "0.224", "p_OHCblPlus": "0.000", "log10p_OHCblPlus": "-3.849", "q_OHCblPlus": "0.090", "stat_OHCblPlus": "3.877", "stderr_OHCblPlus": "0.058"}]'
+    data-columns='[{"title": "uniprot", "field": "uniprot"}, {"title": "est_OHCblPlus", "field": "est_OHCblPlus"}, {"title": "p_OHCblPlus", "field": "p_OHCblPlus"}, {"title": "log10p_OHCblPlus", "field": "log10p_OHCblPlus"}, {"title": "q_OHCblPlus", "field": "q_OHCblPlus"}, {"title": "stat_OHCblPlus", "field": "stat_OHCblPlus"}, {"title": "stderr_OHCblPlus", "field": "stderr_OHCblPlus"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
 ```python
 GENE_ASSOCIATIONS = {
@@ -930,38 +939,36 @@ for modality, identifier in GENE_ASSOCIATIONS.items():
 
     # Pivot to get prefixes as columns and terms as rows
     df_pivoted = df_transposed.pivot(index='term', columns='prefix', values='value')
+    format_numeric_columns(df_pivoted, inplace = True)
+    df_pivoted = df_pivoted.fillna(".")
 
-    display(HTML(f"<h4>Top associations with {modality} {identifier}</h4>"))
-    display(napistu_utils.style_df(df_pivoted))
+    display_tabulator(
+        df_pivoted,
+        caption=f"Top associations with {modality} {identifier}",
+        layout="fitDataStretch",
+        width = "auto"
+    )
 ```
 
-<h4>Top associations with transcriptomics ENSG00000146085</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Top associations with transcriptomics ENSG00000146085
+</figcaption>
 
-```output
-  prefix                          est      log10p   p       q       stat     stderr
-  ------------------------------- -------- -------- ------- ------- -------- --------
-  term                                                                        
-  MMA_urine                       -0.038   -0.378   0.418   0.873   -0.811   0.046
-  OHCblPlus                       0.383    -6.451   0.000   0.003   5.261    0.073
-  case                            -0.606   -1.622   0.024   0.627   -2.275   0.266
-  date_freezing                   nan      nan      0.922   0.927   nan      nan
-  proteomics_runorder             nan      nan      0.820   0.973   nan      nan
-  responsive_to_acute_treatment   -0.210   -0.666   0.216   0.756   -1.242   0.169
-```
+<div class="data-table" style="width: auto; display: inline-block;"
+    data-table='[{"term": "MMA_urine", "est": "-0.038", "log10p": "-0.378", "p": "0.418", "q": "0.873", "stat": "-0.811", "stderr": "0.046"}, {"term": "OHCblPlus", "est": "0.383", "log10p": "-6.451", "p": "0.000", "q": "0.003", "stat": "5.261", "stderr": "0.073"}, {"term": "case", "est": "-0.606", "log10p": "-1.622", "p": "0.024", "q": "0.627", "stat": "-2.275", "stderr": "0.266"}, {"term": "date_freezing", "est": "nan", "log10p": "nan", "p": "0.922", "q": "0.927", "stat": "nan", "stderr": "nan"}, {"term": "proteomics_runorder", "est": "nan", "log10p": "nan", "p": "0.820", "q": "0.973", "stat": "nan", "stderr": "nan"}, {"term": "responsive_to_acute_treatment", "est": "-0.210", "log10p": "-0.666", "p": "0.216", "q": "0.756", "stat": "-1.242", "stderr": "0.169"}]'
+    data-columns='[{"title": "term", "field": "term"}, {"title": "est", "field": "est"}, {"title": "log10p", "field": "log10p"}, {"title": "p", "field": "p"}, {"title": "q", "field": "q"}, {"title": "stat", "field": "stat"}, {"title": "stderr", "field": "stderr"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
-<h4>Top associations with proteomics P22033</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Top associations with proteomics P22033
+</figcaption>
 
-```output
-  prefix                          est      log10p   p       q       stat     stderr
-  ------------------------------- -------- -------- ------- ------- -------- --------
-  term                                                                        
-  MMA_urine                       -0.207   -8.239   0.000   0.000   -6.077   0.034
-  OHCblPlus                       0.283    -5.221   0.000   0.014   4.645    0.061
-  case                            -0.187   -0.423   0.378   0.895   -0.884   0.211
-  date_freezing                   nan      nan      0.560   0.667   nan      nan
-  proteomics_runorder             nan      nan      0.013   0.022   nan      nan
-  responsive_to_acute_treatment   -0.349   -2.067   0.009   0.512   -2.654   0.131
-```
+<div class="data-table" style="width: auto; display: inline-block;"
+    data-table='[{"term": "MMA_urine", "est": -0.2065000018988299, "log10p": -8.238681857784085, "p": 5.77189129824518e-09, "q": 2.763581553599792e-05, "stat": -6.076596915972019, "stderr": 0.033982836899392715}, {"term": "OHCblPlus", "est": 0.2825622666318544, "log10p": -5.220589590447866, "p": 6.0174211693464486e-06, "q": 0.014405706279415398, "stat": 4.645306202223956, "stderr": 0.06082747925133046}, {"term": "case", "est": -0.18656270778825215, "log10p": -0.4229257203603832, "p": 0.37763677458004863, "q": 0.8947809783310032, "stat": -0.8841481557356449, "stderr": 0.21100842271511033}, {"term": "date_freezing", "est": ".", "log10p": ".", "p": 0.5597588049122902, "q": 0.6666978004776233, "stat": ".", "stderr": "."}, {"term": "proteomics_runorder", "est": ".", "log10p": ".", "p": 0.01337735789196437, "q": 0.022497642987961152, "stat": ".", "stderr": "."}, {"term": "responsive_to_acute_treatment", "est": -0.3485970720865991, "log10p": -2.067490616237422, "p": 0.008560702085537941, "q": 0.5123580198194458, "stat": -2.6543371299990586, "stderr": 0.13133112148671286}]'
+    data-columns='[{"title": "term", "field": "term"}, {"title": "est", "field": "est"}, {"title": "log10p", "field": "log10p"}, {"title": "p", "field": "p"}, {"title": "q", "field": "q"}, {"title": "stat", "field": "stat"}, {"title": "stderr", "field": "stderr"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
 The regression analysis successfully identified expected biological
 relationships, providing confidence in my approach. As anticipated,
@@ -1148,73 +1155,55 @@ for formula_name, formula in REGRESSION_FORMULAS["proteomics"].items():
 
     if summary_table.shape[0] > 0:
 
-        display(HTML(f"\n<h4>Factors associated with {formula_name}</h4>\n"))
-        display(napistu_utils.style_df(summary_table))
+        display_tabulator(
+            summary_table,
+            caption=f"Factors associated with {formula_name}",
+            layout="fitDataStretch"
+        )
 
 factor_regressions_df = pd.concat(factor_regressions)
 optimal_model.uns["factor_regressions"] = factor_regressions_df
 ```
 
-<h4>Factors associated with case</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Factors associated with case
+</figcaption>
 
-```output
-       factor_name   term   estimate   standard_error   statistic   p_value    q_value
-  ---- ------------- ------ ---------- ---------------- ----------- ---------- ----------
-  36   Factor_10     case   0.207      0.052            3.992       9.22e-05   2.77e-03
-  32   Factor_9      case   -0.650     0.236            -2.756      6.39e-03   9.58e-02
-```
+<div class="data-table" style=""
+    data-table='[{"index": 36, "factor_name": "Factor_10", "term": "case", "estimate": "0.207", "standard_error": "0.052", "statistic": 3.991545478953449, "p_value": "9.22e-05", "q_value": "2.77e-03"}, {"index": 32, "factor_name": "Factor_9", "term": "case", "estimate": "-0.650", "standard_error": "0.236", "statistic": -2.7563012075787734, "p_value": "6.39e-03", "q_value": "9.58e-02"}]'
+    data-columns='[{"title": "index", "field": "index"}, {"title": "factor_name", "field": "factor_name"}, {"title": "term", "field": "term"}, {"title": "estimate", "field": "estimate"}, {"title": "standard_error", "field": "standard_error"}, {"title": "statistic", "field": "statistic"}, {"title": "p_value", "field": "p_value"}, {"title": "q_value", "field": "q_value"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
-<h4>Factors associated with MMA_urine</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Factors associated with MMA_urine
+</figcaption>
 
-```output
-       factor_name   term        estimate   standard_error   statistic   p_value    q_value
-  ---- ------------- ----------- ---------- ---------------- ----------- ---------- ----------
-  28   Factor_8      MMA_urine   -0.150     0.045            -3.342      9.92e-04   2.98e-02
-  8    Factor_3      MMA_urine   0.040      0.014            2.814       5.38e-03   5.94e-02
-  36   Factor_10     MMA_urine   0.025      0.009            2.781       5.94e-03   5.94e-02
-  60   Factor_16     MMA_urine   0.038      0.015            2.600       1.00e-02   7.51e-02
-```
+<div class="data-table" style=""
+    data-table='[{"index": 28, "factor_name": "Factor_8", "term": "MMA_urine", "estimate": "-0.150", "standard_error": "0.045", "statistic": -3.342278260663408, "p_value": "9.92e-04", "q_value": "2.98e-02"}, {"index": 8, "factor_name": "Factor_3", "term": "MMA_urine", "estimate": "0.040", "standard_error": "0.014", "statistic": 2.814093785284151, "p_value": "5.38e-03", "q_value": "5.94e-02"}, {"index": 36, "factor_name": "Factor_10", "term": "MMA_urine", "estimate": "0.025", "standard_error": "0.009", "statistic": 2.7808623950226816, "p_value": "5.94e-03", "q_value": "5.94e-02"}, {"index": 60, "factor_name": "Factor_16", "term": "MMA_urine", "estimate": "0.038", "standard_error": "0.015", "statistic": 2.6002535780948643, "p_value": "1.00e-02", "q_value": "7.51e-02"}]'
+    data-columns='[{"title": "index", "field": "index"}, {"title": "factor_name", "field": "factor_name"}, {"title": "term", "field": "term"}, {"title": "estimate", "field": "estimate"}, {"title": "standard_error", "field": "standard_error"}, {"title": "statistic", "field": "statistic"}, {"title": "p_value", "field": "p_value"}, {"title": "q_value", "field": "q_value"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
-<h4>Factors associated with proteomics_runorder</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Factors associated with proteomics_runorder
+</figcaption>
 
-```output
-       factor_name   term                  p_value    q_value
-  ---- ------------- --------------------- ---------- ----------
-  6    Factor_3      proteomics_runorder   1.11e-16   1.67e-15
-  27   Factor_10     proteomics_runorder   1.11e-16   1.67e-15
-  39   Factor_14     proteomics_runorder   3.37e-07   3.37e-06
-  21   Factor_8      proteomics_runorder   5.79e-04   4.34e-03
-  69   Factor_24     proteomics_runorder   1.51e-02   7.87e-02
-  12   Factor_5      proteomics_runorder   1.57e-02   7.87e-02
-```
+<div class="data-table" style=""
+    data-table='[{"index": 6, "factor_name": "Factor_3", "term": "proteomics_runorder", "p_value": "1.11e-16", "q_value": "1.67e-15"}, {"index": 27, "factor_name": "Factor_10", "term": "proteomics_runorder", "p_value": "1.11e-16", "q_value": "1.67e-15"}, {"index": 39, "factor_name": "Factor_14", "term": "proteomics_runorder", "p_value": "3.37e-07", "q_value": "3.37e-06"}, {"index": 21, "factor_name": "Factor_8", "term": "proteomics_runorder", "p_value": "5.79e-04", "q_value": "4.34e-03"}, {"index": 69, "factor_name": "Factor_24", "term": "proteomics_runorder", "p_value": "1.51e-02", "q_value": "7.87e-02"}, {"index": 12, "factor_name": "Factor_5", "term": "proteomics_runorder", "p_value": "1.57e-02", "q_value": "7.87e-02"}]'
+    data-columns='[{"title": "index", "field": "index"}, {"title": "factor_name", "field": "factor_name"}, {"title": "term", "field": "term"}, {"title": "p_value", "field": "p_value"}, {"title": "q_value", "field": "q_value"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
-<h4>Factors associated with date_freezing</h4>
+<figcaption style='font-weight:bold; margin-bottom:0.5em'>
+    Factors associated with date_freezing
+</figcaption>
 
-```output
-       factor_name   term            p_value    q_value
-  ---- ------------- --------------- ---------- ----------
-  1    Factor_1      date_freezing   6.29e-13   1.89e-11
-  88   Factor_30     date_freezing   2.52e-05   3.41e-04
-  22   Factor_8      date_freezing   3.41e-05   3.41e-04
-  49   Factor_17     date_freezing   1.13e-04   8.48e-04
-  55   Factor_19     date_freezing   2.69e-04   1.62e-03
-  31   Factor_11     date_freezing   4.07e-04   2.03e-03
-  46   Factor_16     date_freezing   8.81e-04   3.77e-03
-  37   Factor_13     date_freezing   6.41e-03   2.40e-02
-  64   Factor_22     date_freezing   9.81e-03   3.27e-02
-  28   Factor_10     date_freezing   1.22e-02   3.51e-02
-  52   Factor_18     date_freezing   1.36e-02   3.51e-02
-  43   Factor_15     date_freezing   1.40e-02   3.51e-02
-  25   Factor_9      date_freezing   1.79e-02   4.13e-02
-  13   Factor_5      date_freezing   2.03e-02   4.35e-02
-  67   Factor_23     date_freezing   2.17e-02   4.35e-02
-  58   Factor_20     date_freezing   3.15e-02   5.90e-02
-  10   Factor_4      date_freezing   4.45e-02   7.85e-02
-  85   Factor_29     date_freezing   5.24e-02   8.73e-02
-  79   Factor_27     date_freezing   5.64e-02   8.91e-02
-  40   Factor_14     date_freezing   6.13e-02   9.08e-02
-  61   Factor_21     date_freezing   6.36e-02   9.08e-02
-```
+<div class="data-table" style=""
+    data-table='[{"index": 1, "factor_name": "Factor_1", "term": "date_freezing", "p_value": "6.29e-13", "q_value": "1.89e-11"}, {"index": 88, "factor_name": "Factor_30", "term": "date_freezing", "p_value": "2.52e-05", "q_value": "3.41e-04"}, {"index": 22, "factor_name": "Factor_8", "term": "date_freezing", "p_value": "3.41e-05", "q_value": "3.41e-04"}, {"index": 49, "factor_name": "Factor_17", "term": "date_freezing", "p_value": "1.13e-04", "q_value": "8.48e-04"}, {"index": 55, "factor_name": "Factor_19", "term": "date_freezing", "p_value": "2.69e-04", "q_value": "1.62e-03"}, {"index": 31, "factor_name": "Factor_11", "term": "date_freezing", "p_value": "4.07e-04", "q_value": "2.03e-03"}, {"index": 46, "factor_name": "Factor_16", "term": "date_freezing", "p_value": "8.81e-04", "q_value": "3.77e-03"}, {"index": 37, "factor_name": "Factor_13", "term": "date_freezing", "p_value": "6.41e-03", "q_value": "2.40e-02"}, {"index": 64, "factor_name": "Factor_22", "term": "date_freezing", "p_value": "9.81e-03", "q_value": "3.27e-02"}, {"index": 28, "factor_name": "Factor_10", "term": "date_freezing", "p_value": "1.22e-02", "q_value": "3.51e-02"}, {"index": 52, "factor_name": "Factor_18", "term": "date_freezing", "p_value": "1.36e-02", "q_value": "3.51e-02"}, {"index": 43, "factor_name": "Factor_15", "term": "date_freezing", "p_value": "1.40e-02", "q_value": "3.51e-02"}, {"index": 25, "factor_name": "Factor_9", "term": "date_freezing", "p_value": "1.79e-02", "q_value": "4.13e-02"}, {"index": 13, "factor_name": "Factor_5", "term": "date_freezing", "p_value": "2.03e-02", "q_value": "4.35e-02"}, {"index": 67, "factor_name": "Factor_23", "term": "date_freezing", "p_value": "2.17e-02", "q_value": "4.35e-02"}, {"index": 58, "factor_name": "Factor_20", "term": "date_freezing", "p_value": "3.15e-02", "q_value": "5.90e-02"}, {"index": 10, "factor_name": "Factor_4", "term": "date_freezing", "p_value": "4.45e-02", "q_value": "7.85e-02"}, {"index": 85, "factor_name": "Factor_29", "term": "date_freezing", "p_value": "5.24e-02", "q_value": "8.73e-02"}, {"index": 79, "factor_name": "Factor_27", "term": "date_freezing", "p_value": "5.64e-02", "q_value": "8.91e-02"}, {"index": 40, "factor_name": "Factor_14", "term": "date_freezing", "p_value": "6.13e-02", "q_value": "9.08e-02"}, {"index": 61, "factor_name": "Factor_21", "term": "date_freezing", "p_value": "6.36e-02", "q_value": "9.08e-02"}]'
+    data-columns='[{"title": "index", "field": "index"}, {"title": "factor_name", "field": "factor_name"}, {"title": "term", "field": "term"}, {"title": "p_value", "field": "p_value"}, {"title": "q_value", "field": "q_value"}]'
+    data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
+</div>
 
 While I generally like this approach and have seen it successfully
 applied to single-cell RNA-seq data using

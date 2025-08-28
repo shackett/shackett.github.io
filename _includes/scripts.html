@@ -44,3 +44,31 @@
     <script src="{{ script | relative_url }}"></script>
   {% endfor %}
 {% endif %}
+
+<!-- Tabulator JS -->
+<script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".data-table").forEach(function (el) {
+    try {
+      const data = JSON.parse(el.dataset.table);
+      const columns = el.dataset.columns ? JSON.parse(el.dataset.columns) : null;
+      const options = el.dataset.options ? JSON.parse(el.dataset.options) : {};
+
+      const config = Object.assign(
+        {
+          data: data,
+          autoColumns: columns ? false : true,
+        },
+        columns ? { columns } : {},
+        options
+      );
+
+      new Tabulator(el, config);
+    } catch (e) {
+      console.error("Tabulator init error:", e);
+    }
+  });
+});
+</script>

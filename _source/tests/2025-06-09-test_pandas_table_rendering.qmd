@@ -1,0 +1,77 @@
+---
+title: "Test Pandas Table Rendering" 
+date: 2025-08-27
+author: Sean Hackett
+tags: [test, python, quarto, pandas]
+jupyter: forny-2023
+engine: jupyter
+---
+
+```{python}
+import pandas as pd
+import numpy as np
+from shackett_utils.blog.html_utils import display_tabulator
+```
+
+```{python}
+# Create a sample DataFrame
+data = {
+    'Name': ['Alice', 'Bob', 'Charlie', 'Diana'],
+    'Age': [25, 30, 35, 28],
+    'Score': [85.5, 92.3, 78.1, 96.7],
+    'Grade': ['B', 'A', 'C', 'A']
+}
+
+df = pd.DataFrame(data)
+```
+
+```{python}
+display_tabulator(df)
+display_tabulator(df, layout = "fitData", width="auto%")
+display_tabulator(df, layout = "fitData", width="50%")
+display_tabulator(df, layout = "fitDataStretch", width="300px")
+```
+
+```{python}
+# MultiIndex DataFrame with row multiindex
+import pandas as pd
+
+# Create sample data with hierarchical index
+data = {
+    'Q1': [100, 150, 120, 180],
+    'Q2': [110, 160, 130, 190],
+    'Q3': [120, 170, 125, 195],
+    'Q4': [130, 180, 135, 200]
+}
+
+# Create MultiIndex for rows
+row_index = pd.MultiIndex.from_tuples([
+    ('North', 'ProductA'), ('North', 'ProductB'), 
+    ('South', 'ProductA'), ('South', 'ProductB')
+], names=['Region', 'Product'])
+
+df_row_multi = pd.DataFrame(data, index=row_index)
+display_tabulator(df_row_multi)
+
+display_tabulator(df_row_multi, include_index=False, caption="No row index here")
+```
+
+```{python}
+# Transpose to create column multiindex
+df_col_multi = df_row_multi.T
+display_tabulator(df_col_multi, layout = "fitDataStretch")
+```
+
+```{python}
+# Complex case: both row and column multiindex
+# Create more complex data
+complex_data = np.random.randint(10, 100, (4, 4))
+row_idx = pd.MultiIndex.from_product([['Group1', 'Group2'], ['ItemA', 'ItemB']], 
+                                     names=['Group', 'Item'])
+col_idx = pd.MultiIndex.from_product([['Metric1', 'Metric2'], ['Val1', 'Val2']], 
+                                     names=['Metric', 'Value'])
+
+df_both_multi = pd.DataFrame(complex_data, index=row_idx, columns=col_idx)
+
+display_tabulator(df_both_multi, caption="Nested region/product breakdown")
+```

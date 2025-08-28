@@ -11,7 +11,7 @@ import re
 import logging
 from pathlib import Path
 
-from utils import find_code_block_pairs
+from utils import find_code_block_pairs, unindent_html_output
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,12 @@ def clean_jekyll_output(file_path: str) -> None:
     
     logger.debug("Processing code blocks...")
     content = process_code_blocks_and_output(content)
+    
+    logger.debug("Restoring liquid tags...")
+    content = _fix_jekyll_liquid_syntax(content)
+    
+    logger.debug("Restoring raw HTML formatting")
+    content = _fix_raw_html(content)
     
     # Remove trailing empty lines
     lines = content.split('\n')
@@ -144,6 +150,8 @@ def remove_quarto_artifacts(content: str) -> str:
             # Remove both opener and closer, keep content
             lines[start_line] = ''
             lines[end_line] = ''
+            # Remove indentation from HTML content
+            unindent_html_output(lines, start_line, end_line)
         elif block_type == 'stderr':
             # Handle stderr as warning blocks
             lines[start_line] = '```warning'
@@ -463,3 +471,63 @@ def _align_header_to_positions(header_parts: List[str], positions: List[int], se
                 new_header[pos + i] = char
     
     return ''.join(new_header).rstrip()
+
+
+def _fix_jekyll_liquid_syntax(content: str) -> str:
+    """
+    Fix URL-encoded Jekyll Liquid syntax in markdown.
+    
+    Converts URL-encoded Jekyll syntax back to proper Liquid tags:
+    %7B%7B%20site.url%20%7D%7D -> {{ site.url }}
+    %7B%7B%20site.baseurl%20%7D%7D -> {{ site.baseurl }}
+    
+    Uses a tight regex to match common Jekyll variables and avoid
+    overly broad matching.
+    
+    Args:
+        content: Markdown content with URL-encoded Jekyll syntax
+        
+    Returns:
+        str: Content with Jekyll Liquid syntax restored
+    """
+    
+    # Pattern explanation:
+    # %7B%7B%20 = "{{ "  (opening braces + space)
+    # ([a-zA-Z_][a-zA-Z0-9_.]*) = Jekyll variable name (letters, digits, dots, underscores)
+    # %20%7D%7D = " }}" (space + closing braces)
+    
+    pattern = r'%7B%7B%20([a-zA-Z_][a-zA-Z0-9_.]{0,30})%20%7D%7D'
+    
+    def replace_liquid(match):
+        variable_name = match.group(1)
+        return f"{{{{ {variable_name} }}}}"
+    
+    return re.sub(pattern, replace_liquid, content)
+
+
+def _fix_raw_html(content: str) -> str:
+    """
+    Fix various HTML formatting issues from Quarto output.
+    
+    Handles two main issues:
+    1. Converts HTML code spans back to proper HTML: `<tag>`{=html} -> <tag>
+    2. Fixes backslash-escaped HTML tags: \<tag\> -> <tag>
+    
+    Args:
+        content: Markdown content with mangled HTML
+        
+    Returns:
+        str: Content with properly formatted HTML
+    """
+    
+    # Fix HTML code spans with {=html} suffix
+    # Pattern for: `<tag>`{=html} -> <tag>
+    code_span_pattern = r'`(</?[a-zA-Z][^>]*>)`\{=html\}'
+    content = re.sub(code_span_pattern, r'\1', content)
+    
+    # Fix backslash-escaped HTML tags  
+    # Pattern for: \<tag\> -> <tag>
+    escaped_pattern = r'\\<([^>]+)\\>'
+    content = re.sub(escaped_pattern, r'<\1>', content)
+    
+    return content

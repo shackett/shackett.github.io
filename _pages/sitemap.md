@@ -4,7 +4,7 @@ layout: archive
 permalink: /sitemap/
 author_profile: false
 header:
-  image: /assets/images/banner_04.png
+  image: /assets/images/banners/banner_04.png
 ---
 
 A list of all the posts and pages found on the site. For you robots out there is an [XML version]({{ "sitemap.xml" | relative_url }}) available for digesting as well.

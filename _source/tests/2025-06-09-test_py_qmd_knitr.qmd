@@ -104,3 +104,47 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 ```
+
+### Maintaining liquid tags
+
+<div align="center">
+<img src="{{ site.url }}/assets/images/mushroom.png" alt="Mushroom 2" width="300">
+</div>
+
+### Test Various HTML Elements
+
+#### Simple img tag
+
+<img src="{{ site.url }}/assets/images/mushroom.png" alt="Test image">
+
+#### img with multiple attributes
+
+<img src="{{ site.url }}/assets/images/mushroom.png" alt="Test image" width="300" height="200" class="center">
+
+#### Self-closing tags
+
+<br/>
+<hr/>
+
+#### Tags with content
+
+<div class="highlight">This is a div with content</div>
+<p style="color: red;">Red paragraph</p>
+<span class="small">Small text</span> (TO DO - no actual logic for [Small text]{.small} to <span class="small">Small text</span>) conversion.
+
+#### Nested HTML
+
+<div class="container">
+  <p>Paragraph in div</p>
+  <img src="{{ site.url }}/assets/images/mushroom.png" alt="Nested image">
+</div>
+
+#### Mixed content
+
+Some text before <strong>bold text</strong> and after.
+HTML with Jekyll syntax
+
+<a href="{{ site.baseurl }}/about/">About page</a>
+<div data-url="{{ site.url }}">Dynamic content</div>
+
+Ending

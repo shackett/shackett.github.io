@@ -13,6 +13,8 @@ Using methylmalonic acidemia (MMA) as my test case, I'll demonstrate how to syst
 
 Throughout this post, I'll use two types of asides to provide additional context without disrupting the main analytical flow. Green boxes contain biological details, while blue boxes reflect on the computational workflow and AI-assisted development process.
 
+<!--more-->
+
 {% include bio-section.html content="
 **For biologists**: I identify a previously unreported batch effect related to sample freezing dates that impacts both data modalities. By accounting for this and other technical covariates, I demonstrate improved power to detect disease-relevant associations in the proteomics dataset. I also show that urine MMA levels exhibit stronger statistical associations with molecular features than traditional enzyme activity measures in this dataset. In part two, I will link these statistical associations to upstream regulators using a genome-scale mechanistic network, enabling me to define a regulon underlying the molecular pathophysiology of MMA.
 " %}
@@ -24,8 +26,6 @@ Throughout this post, I'll use two types of asides to provide additional context
 ## What is Methylmalonic acidemia?
 
 Methylmalonic acidemia (MMA) — not to be confused with mixed martial arts (which I used to blog about at [Fight Prior](https://www.fightprior.com/)) — is an inborn error of metabolism characterized by the buildup of methylmalonic acid.
-
-
 
 {% include bio-section.html content='
 MMA is genetically heterogeneous, caused by defects in approximately 20 genes involved in propionate metabolism. Classical isolated MMA is primarily due to autosomal recessive mutations in the enzyme methylmalonyl-CoA mutase (*MMUT*), which converts methylmalonyl-CoA to succinyl-CoA as part of the propionate catabolic pathway. This pathway processes metabolites derived from odd-chain fatty acids, cholesterol, and certain amino acids. When disrupted, methylmalonic acid accumulates, leading to metabolic acidosis and multi-organ dysfunction, including neurological abnormalities, kidney failure, and growth impairment.
@@ -74,19 +74,20 @@ If you'd like to reproduce this analysis, follow these steps:
     source .venv/bin/activate
     
     # Core dependencies
-    uv pip install napistu'[scverse]'
+    uv pip install "napistu[scverse]==0.5.4"
     # Personal utilities package with genomics analysis functions
-    uv pip install "git+https://github.com/shackett/shackett-utils.git[all]" 
+    uv pip install "git+https://github.com/shackett/shackett-utils.git@v0.1.2[all]" 
     # Additional dependencies
-    uv pip install openpyxl scikit-learn mofapy2 ipykernel
+    uv pip install openpyxl scikit-learn mofapy2 ipykernel nbformat nbclient
     python -m ipykernel install --user --name=forny-2023
     ```
 
 3. Download `Source Data Fig.1` and `Source Data Fig.2` from [Forny et al., 2023](https://www.nature.com/articles/s42255-022-00720-8#Sec39)
-4. Set the paths in the following code block:
+4. Download the [`creating_multimodal_profiles.qmd`](https://github.com/shackett/shackett/blob/master/posts/posted/creating_multimodal_profiles.qmd) notebook
+5. Modify the following code block in your copy of the notebook to set appropriate paths:
     a. `SUPPLEMENTAL_DATA_DIR` should point to the directory containing the download from step 3 ("42255_2022_720_MOESM3_ESM.xlsx" and "42255_2022_720_MOESM4_ESM.xlsx")
     b. `CACHE_DIR` should point to a location where intermediate results and outputs can be saved
-5. Run the notebook and render an html output:
+6. Run the notebook and render an html output (or just open the notebook in your browser):
     
     ```bash
     quarto render creating_multimodal_profiles.qmd
@@ -110,7 +111,6 @@ import pandas as pd
 import scanpy as sc
 import seaborn as sns
 from sklearn.impute import KNNImputer
-from IPython.display import display, HTML
 
 # this analysis is largely upstream of Napistu but we can use some of its utils
 from napistu import utils as napistu_utils
@@ -123,6 +123,8 @@ from shackett_utils.genomics import mdata_eda
 from shackett_utils.genomics import mdata_factor_analysis
 from shackett_utils.statistics import stats_viz
 from shackett_utils.statistics import transform
+from shackett_utils.blog.html_utils import display_tabulator
+from shackett_utils.utils.pd_utils import format_numeric_columns
 
 # File paths and data organization
 # All input data should be placed in the SUPPLEMENTAL_DATA_DIR
@@ -606,9 +608,14 @@ PHENOTYPE_EXAMPLE = ["MMA_urine", "OHCblPlus"]
 
 for phenotype in PHENOTYPE_EXAMPLE:
     example_stat_summaries = mdata["proteomics"].var.loc[:, mdata["proteomics"].var.columns.str.contains(phenotype)].sort_values(f"log10p_{phenotype}").head()
+    format_numeric_columns(example_stat_summaries, inplace = True)
     
-    display(HTML(f"<h4>Top associations with {phenotype}</h4>"))
-    display(napistu_utils.style_df(example_stat_summaries))
+    display_tabulator(
+        example_stat_summaries,
+        caption=f"Top associations with {phenotype}",
+        layout="fitDataStretch",
+        width = "auto"
+    )
 ```
 
 ```{python}
@@ -635,9 +642,15 @@ for modality, identifier in GENE_ASSOCIATIONS.items():
 
     # Pivot to get prefixes as columns and terms as rows
     df_pivoted = df_transposed.pivot(index='term', columns='prefix', values='value')
+    format_numeric_columns(df_pivoted, inplace = True)
+    df_pivoted = df_pivoted.fillna(".")
 
-    display(HTML(f"<h4>Top associations with {modality} {identifier}</h4>"))
-    display(napistu_utils.style_df(df_pivoted))
+    display_tabulator(
+        df_pivoted,
+        caption=f"Top associations with {modality} {identifier}",
+        layout="fitDataStretch",
+        width = "auto"
+    )
 ```
 
 The regression analysis successfully identified expected biological relationships, providing confidence in my approach. As anticipated, *MMUT* showed strong associations with both the *MMA_urine* and *OHCblPlus* biomarkers. Notably, *MMUT* exhibited stronger associations with protein levels for *MMA_urine*, but with both transcript and protein levels for *OHCblPlus*, suggesting different underlying biological mechanisms.
@@ -755,8 +768,11 @@ for formula_name, formula in REGRESSION_FORMULAS["proteomics"].items():
 
     if summary_table.shape[0] > 0:
 
-        display(HTML(f"\n<h4>Factors associated with {formula_name}</h4>\n"))
-        display(napistu_utils.style_df(summary_table))
+        display_tabulator(
+            summary_table,
+            caption=f"Factors associated with {formula_name}",
+            layout="fitDataStretch"
+        )
 
 factor_regressions_df = pd.concat(factor_regressions)
 optimal_model.uns["factor_regressions"] = factor_regressions_df

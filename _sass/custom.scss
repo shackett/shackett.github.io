@@ -240,3 +240,93 @@ figure.highlight .language-text code {
   display: inline-block;
   transform: scale(1);
 }
+
+/* ==========================================================================
+   TABULATOR TABLES
+   ========================================================================== */
+
+.data-table.tabulator {
+  border: 1px solid darken($light-green, 10%);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+
+  /* Header styling — force dark green on all header pieces */
+  /* Force dark green headers */
+  .data-table.tabulator .tabulator-header,
+  .data-table.tabulator .tabulator-headers,
+  .data-table.tabulator .tabulator-col,
+  .data-table.tabulator .tabulator-col-content {
+    background-color: #006400 !important; /* override inline */
+    color: #fff !important;
+  }
+  
+  /* Title text */
+  .data-table.tabulator .tabulator-col .tabulator-col-title {
+    color: #fff !important;
+    font-weight: 600;
+  }
+  
+  /* Sort arrows */
+  .data-table.tabulator .tabulator-arrow {
+    border-top-color: #fff !important;
+    border-bottom-color: #fff !important;
+  }
+
+  /* Row styling with alternating colors */
+  .tabulator-row {
+    border-bottom: 1px solid rgba(darken($light-green, 10%), 0.1);
+
+    &.tabulator-row-even {
+      background-color: lighten($light-green, 60%); // lighter green
+    }
+
+    &.tabulator-row-odd {
+      background-color: #ffffff;
+    }
+
+    /* Hover effect */
+    &:hover {
+      background-color: lighten($light-green, 50%) !important;
+    }
+  }
+
+  /* Cell styling */
+  .tabulator-cell {
+    border-right: 1px solid rgba(darken($light-green, 10%), 0.1);
+    padding: 8px 12px;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  /* Column resize handles */
+  .tabulator-col-resize-handle {
+    background-color: rgba(darken($light-green, 10%), 0.3);
+
+    &:hover {
+      background-color: darken($light-green, 10%);
+    }
+  }
+
+  .tabulator-header-contents,
+  .tabulator-tableholder {
+    background: transparent;
+  }
+}
+
+/* Responsive collapse styling */
+.tabulator-responsive-collapse {
+  background-color: lighten($light-green, 50%);
+  border: 1px solid rgba(darken($light-green, 10%), 0.2);
+  border-radius: 4px;
+
+  .tabulator-responsive-collapse-toggle {
+    color: $light-green;
+
+    &:hover {
+      color: darken($light-green, 15%);
+    }
+  }
+}

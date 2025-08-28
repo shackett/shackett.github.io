@@ -51,8 +51,11 @@ for i, val in enumerate(data):
     print(f"{i+1}: {bar} ({val})")
 ```
 
+### Tables
 
 ```{python}
+#| output: asis
+
 # Create a sample DataFrame
 data = {
     'Name': ['Alice', 'Bob', 'Charlie', 'Diana'],
@@ -62,8 +65,24 @@ data = {
 }
 
 df = pd.DataFrame(data)
+```
 
+```{python}
+df.to_json(orient="records")
+```
+
+<div class="data-table" data-table='[
+  {"Name":"Alice","Age":25,"Score":85.5,"Grade":"B"},
+  {"Name":"Bob","Age":30,"Score":92.3,"Grade":"A"},
+  {"Name":"Charlie","Age":35,"Score":78.1,"Grade":"C"},
+  {"Name":"Diana","Age":28,"Score":96.7,"Grade":"A"}
+]'></div>
+
+```{python}
 print(df)
+display(df)
+HTML(df.to_html())
+display(HTML(df.to_html()))
 
 # Apply styling to the DataFrame
 styled_df = df.style.highlight_max(subset=['Age', 'Score'], color='lightgreen') \
@@ -72,7 +91,7 @@ styled_df = df.style.highlight_max(subset=['Age', 'Score'], color='lightgreen') 
               .set_caption("Student Performance Data")
 
 # Display the styled DataFrame
-display(styled_df)
+display(HTML(styled_df.to_html()))
 ```
 
 ```{python}
@@ -105,6 +124,57 @@ for i in range(3):
     print(f"Text output {i}")
 ```
 
+#### Row and column multiindexes
+
+```{python}
+# MultiIndex DataFrame with row multiindex
+import pandas as pd
+
+# Create sample data with hierarchical index
+data = {
+    'Q1': [100, 150, 120, 180],
+    'Q2': [110, 160, 130, 190],
+    'Q3': [120, 170, 125, 195],
+    'Q4': [130, 180, 135, 200]
+}
+
+# Create MultiIndex for rows
+row_index = pd.MultiIndex.from_tuples([
+    ('North', 'ProductA'), ('North', 'ProductB'), 
+    ('South', 'ProductA'), ('South', 'ProductB')
+], names=['Region', 'Product'])
+
+df_row_multi = pd.DataFrame(data, index=row_index)
+print("DataFrame with Row MultiIndex:")
+print(df_row_multi)
+display(df_row_multi)
+```
+
+```{python}
+# Transpose to create column multiindex
+df_col_multi = df_row_multi.T
+print("\nTransposed DataFrame with Column MultiIndex:")
+print(df_col_multi)
+display(df_col_multi)
+```
+
+```{python}
+# Complex case: both row and column multiindex
+# Create more complex data
+complex_data = np.random.randint(10, 100, (4, 4))
+row_idx = pd.MultiIndex.from_product([['Group1', 'Group2'], ['ItemA', 'ItemB']], 
+                                     names=['Group', 'Item'])
+col_idx = pd.MultiIndex.from_product([['Metric1', 'Metric2'], ['Val1', 'Val2']], 
+                                     names=['Metric', 'Value'])
+
+df_both_multi = pd.DataFrame(complex_data, index=row_idx, columns=col_idx)
+print("\nDataFrame with Both Row and Column MultiIndex:")
+print(df_both_multi)
+display(df_both_multi)
+```
+
+
+### Plotting
 
 ```{python}
 # Simple matplotlib plot
@@ -121,5 +191,47 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 ```
+
+### Maintaining liquid tags
+
+<div align="center">
+<img src="{{ site.url }}/assets/images/mushroom.png" alt="Mushroom 2" width="300">
+</div>
+
+### Test Various HTML Elements
+
+#### Simple img tag
+
+<img src="{{ site.url }}/assets/images/mushroom.png" alt="Test image">
+
+#### img with multiple attributes
+
+<img src="{{ site.url }}/assets/images/mushroom.png" alt="Test image" width="300" height="200" class="center">
+
+#### Self-closing tags
+
+<br/>
+<hr/>
+
+#### Tags with content
+
+<div class="highlight">This is a div with content</div>
+<p style="color: red;">Red paragraph</p>
+<span class="small">Small text</span> (TO DO - no actual logic for [Small text]{.small} to <span class="small">Small text</span>) conversion.
+
+#### Nested HTML
+
+<div class="container">
+  <p>Paragraph in div</p>
+  <img src="{{ site.url }}/assets/images/mushroom.png" alt="Nested image">
+</div>
+
+#### Mixed content
+
+Some text before <strong>bold text</strong> and after.
+HTML with Jekyll syntax
+
+<a href="{{ site.baseurl }}/about/">About page</a>
+<div data-url="{{ site.url }}">Dynamic content</div>
 
 Ending
