@@ -7,7 +7,7 @@ toc_sticky: true
 permalink: /research/
 sitemap: true
 header:
-  image: /assets/images/banner_05.png
+  image: /assets/images/banners/banner_05.png
 ---
 
 

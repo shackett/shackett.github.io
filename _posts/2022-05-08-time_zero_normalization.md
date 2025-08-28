@@ -3,7 +3,8 @@ title: "Time zero normalization with the Multivariate Gaussian distribution"
 description: "A powerful approaches for identifying signals in genomic time series"
 tags: [statistics, idea, dynamics]
 header:
-  image: /assets/images/banner_09.png
+  image: /assets/images/banners/banner_09.png
+  teaser_archive: /figure/source/2022-05-08-time_zero_normalization/corr_vs_tzero-1.png
 ---
 
 Timecourses are a powerful experimental design for evaluating the impact of a perturbation. These perturbations are usually chemicals because chemicals, such as a drug, can be introduced quickly and with high temporal precision. Although, with some technologies, such as the estradiol-driven promoters that I used in the induction dynamics expression atlas ([IDEA](https://idea.research.calicolabs.com)), it is possible to rapidly perturb a single gene further increasing specificity and broadening applicability. By rapidly perturbing individuals, they can be synchronized based on the time when dosing began. We often call this point when dosing begins "time zero" while all subsequent measurements correspond to the time post perturbation. (Since time zero corresponds to a point when a perturbation is applied, but will not yet impact the system, this measurement is usually taken before adding the perturbation.)

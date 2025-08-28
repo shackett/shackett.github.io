@@ -81,7 +81,7 @@ analytics:
 # Site Author
 author:
   name             : "Sean Hackett"
-  avatar           : "/assets/images/boarding.jpg"
+  avatar           : "/assets/images/sean_headshot.jpeg"
   bio              : "As a Director of Data Science I lay the groudwork for organizational change by connecting data collection, organization, and synthesis. But, I still love getting into the weeds on technical problems where I can continue developing my statistics and programming skills."
   location         : "Brisbane, CA"
   links:
@@ -289,4 +289,4 @@ defaults:
       layout: single
       author_profile: true
       header:
-        image: /assets/images/banner_01.png
+        image: /assets/images/banners/banner_01.png

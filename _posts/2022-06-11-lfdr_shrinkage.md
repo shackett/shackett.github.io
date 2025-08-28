@@ -3,7 +3,8 @@ title: "False Discovery Rate (FDR) Overview and lFDR-Based Shrinkage"
 description: "A review of the False Discovery Rate and its use for shrinkage estimation"
 tags: [statistics]
 header:
-  image: /assets/images/banner_08.png
+  image: /assets/images/banners/banner_08.png
+  teaser_archive: /figure/source/2022-06-11-lfdr_shrinkage/lFDR_shrinkage_ex-1.png
 ---
 
 Coming from a quantitative genetics background, correcting for multiple comparisons meant controlling the family-wise error rate (FWER) using a procedure like Bonferroni correction. This all changed when I took John Storey's "Advanced Statistics for Biology" class in grad school. John is an expert in statistical interpretation of high-dimensional data and literally wrote the book, well paper, on false-discovery rate (FDR) as an author of [Storey & Tibshirani 2006](https://www.pnas.org/content/100/16/9440). His description of the FDR has grounded my interpretation of hundreds of genomic datasets and I've continued to pay this knowledge forward with dozens of white-board style descriptions of the FDR for colleagues. As an interviewer and paper reviewer I still regularly see accomplished individuals and groups where "FDR control" is a clear blind spot. In this post I'll layout how I whiteboard the FDR problem, and then highlight a specialized application of the FDR for "denoising" genomic datasets.

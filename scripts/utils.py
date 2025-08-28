@@ -5,6 +5,7 @@ This module provides common utility functions used across the build system,
 primarily for logging configuration and shared helper functions.
 """
 
+import re
 import os
 import logging
 import sys
@@ -198,3 +199,49 @@ def ensure_code_block_spacing(lines: List[str]) -> List[str]:
     
     logger.debug(f"Code block spacing: {len(lines)} -> {len(final_result)} lines")
     return final_result
+
+
+def unindent_html_output(lines: List[str], start_line: int, end_line: int) -> None:
+    """
+    Remove indentation from HTML content within display blocks.
+    
+    Detects HTML content and removes the minimum indentation level from all lines
+    in the block. This handles both direct display() calls (4 spaces) and nested
+    calls from within functions (8+ spaces).
+    
+    Args:
+        lines: List of all lines in the content
+        start_line: Starting line index of the block content (after opener)
+        end_line: Ending line index of the block content (before closer)
+        
+    Modifies:
+        lines: Removes indentation from HTML content in-place
+    """
+    content_lines = lines[start_line + 1:end_line]
+    
+    # Check if content contains HTML tags
+    contains_html = any(
+        re.search(r'<(div|table|span|p|h[1-6]|style|figcaption|img|a)\b', line, re.IGNORECASE) 
+        for line in content_lines if line.strip()
+    )
+    
+    if not contains_html:
+        return  # Not HTML content, leave indentation intact
+    
+    # Find non-empty lines to calculate minimum indentation
+    non_empty_lines = [line for line in content_lines if line.strip()]
+    if not non_empty_lines:
+        return  # No content to process
+    
+    # Calculate minimum indentation level
+    min_indent = min(len(line) - len(line.lstrip()) for line in non_empty_lines)
+    
+    if min_indent == 0:
+        return  # Already unindented
+    
+    # Remove the detected indentation from all lines
+    for i in range(start_line + 1, end_line):
+        if lines[i].startswith(' ' * min_indent):
+            lines[i] = lines[i][min_indent:]
+        elif lines[i].strip():  # Non-empty line with less indentation
+            lines[i] = lines[i].lstrip()  # Remove all leading whitespace

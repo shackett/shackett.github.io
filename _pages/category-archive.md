@@ -5,5 +5,5 @@ permalink: /categories/
 sitemap: false
 author_profile: true
 header:
-  image: /assets/images/banner_06.png
+  image: /assets/images/banners/banner_06.png
 ---
