@@ -75,3 +75,29 @@ df_both_multi = pd.DataFrame(complex_data, index=row_idx, columns=col_idx)
 
 display_tabulator(df_both_multi, caption="Nested region/product breakdown")
 ```
+
+## Tables with large cells
+
+```{python}
+from lorem_text import lorem
+
+data = {
+    'Col1': [lorem.words(1), lorem.words(1)],
+    'Col2': [lorem.sentence(), lorem.sentence()],
+    'Col3': [lorem.sentence(), lorem.sentence()],
+    'Col4': [lorem.paragraph(), lorem.paragraph()]
+}
+
+df = pd.DataFrame(data)
+display_tabulator(df, wrap_columns = True)
+```
+
+
+## Specifying column widths
+
+```{python}
+display_tabulator(df, wrap_columns = True, column_widths={"Col3" : 100, "Col4" : "30%"})
+display_tabulator(df, wrap_columns = True, column_widths=[100, 100, "30%", "30%"])
+
+display_tabulator(df_row_multi, column_widths = {"index" : "50%"})
+```

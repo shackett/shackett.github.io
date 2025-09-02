@@ -9,9 +9,6 @@ tags:
   - python
   - networks
 jekyll-code-fold: true
-header:
-  image: /assets/images/banners/banner_14.png
-  teaser_archive: /assets/images/teasers/napistu_blog_post_part2.png
 jupyter: forny-2023
 engine: jupyter
 ---
@@ -24,7 +21,7 @@ dataset as a case study, I'll demonstrate how to distill
 disease-relevant signals into mechanistic insights through network-based
 analysis.
 
-**From statistical associations to biological mechanisms**
+### From statistical associations to biological mechanisms
 
 Modern genomics excels at identifying disease-associated genes and
 proteins through statistical analysis. Methods like Gene Set Enrichment
@@ -46,7 +43,7 @@ upstream mechanisms driving coordinated molecular changes.
 
 <!--more-->
 
-**Napistu's implementation**
+### Napistu's implementation
 
 Napistu makes network biology practical through three core capabilities:
 
@@ -103,7 +100,7 @@ nulls. Plus, I'll share firsthand insights on leveraging AI to develop
 complex scientific software --- tackling challenges that often lie
 beyond the reach of large language models (LLMs). " %}
 
-**Series overview**
+### Series overview
 
 **[Part 1: Creating Multimodal Disease
 Profiles](https://shackett.org/multiomic_profiles/)** established the
@@ -176,6 +173,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from IPython.display import display, HTML
 
 from napistu import utils as napistu_utils
 from napistu.sbml_dfs_core import SBML_dfs
@@ -214,6 +212,7 @@ CACHE_DIR = os.path.join(PROJECT_DIR, "cache")
 # inputs
 # model to download from GCS and store in NAPISTU_DATA_DIR
 NAPISTU_ASSET = "human_consensus"
+NAPISTU_ASSET_VERSION = "20250901"
 # H5Mu file containing the optimal model from MOFA+ and regression summaries
 OPTIMAL_MODEL_H5MU_OUTFILE = "mofa_optimal_model.h5mu"
 
@@ -501,19 +500,22 @@ identifiers, by running:
 sbml_dfs_path = downloads.load_public_napistu_asset(
     asset = NAPISTU_ASSET,
     data_dir = INPUT_DATA_DIR,
-    subasset = "sbml_dfs"
+    subasset = "sbml_dfs",
+    version = NAPISTU_ASSET_VERSION
 )
 
 napistu_graph_path = downloads.load_public_napistu_asset(
     asset = NAPISTU_ASSET,
     data_dir = INPUT_DATA_DIR,
-    subasset = "napistu_graph"
+    subasset = "napistu_graph",
+    version = NAPISTU_ASSET_VERSION
 )
 
 species_identifiers_path = downloads.load_public_napistu_asset(
     asset = NAPISTU_ASSET,
     data_dir = INPUT_DATA_DIR,
-    subasset = "species_identifiers"
+    subasset = "species_identifiers",
+    version = NAPISTU_ASSET_VERSION
 )
 
 # ~2 min load
@@ -743,12 +745,20 @@ modality:
 ```python
 for modality in MODALITIES:
   
-    mofa_lfs_examples = mofa_lfs[modality].drop(columns = MUDATA_ONTOLOGIES[modality]["index_which_ontology"]).sample(5).copy()
+    systematic_id_column = MUDATA_ONTOLOGIES[modality]["index_which_ontology"]
+  
+    mofa_lfs_examples = (
+        mofa_lfs[modality]
+        .drop(columns = systematic_id_column)
+        .sample(5)
+        .copy()
+    )
     format_numeric_columns(mofa_lfs_examples, inplace = True)
   
     display_tabulator(
         mofa_lfs_examples,
-        caption = f"Extracted latent factors for {modality}"
+        caption = f"Extracted latent factors for {modality}",
+        column_widths={systematic_id_column : "25%"}
     )
 ```
 
@@ -757,8 +767,8 @@ for modality in MODALITIES:
 </figcaption>
 
 <div class="data-table" style=""
-    data-table='[{"ensembl_gene": "ENSG00000023318", "LF1": "0.054", "LF2": "0.004", "LF3": "-0.000", "LF4": "-0.001", "LF5": "0.002"}, {"ensembl_gene": "ENSG00000115170", "LF1": "0.054", "LF2": "0.005", "LF3": "0.000", "LF4": "0.106", "LF5": "-0.002"}, {"ensembl_gene": "ENSG00000143549", "LF1": "-0.114", "LF2": "0.088", "LF3": "-0.001", "LF4": "-0.086", "LF5": "-0.025"}, {"ensembl_gene": "ENSG00000110719", "LF1": "-0.033", "LF2": "0.044", "LF3": "0.000", "LF4": "-0.139", "LF5": "-0.065"}, {"ensembl_gene": "ENSG00000107959", "LF1": "-0.108", "LF2": "0.002", "LF3": "0.000", "LF4": "-0.035", "LF5": "-0.051"}]'
-    data-columns='[{"title": "ensembl_gene", "field": "ensembl_gene"}, {"title": "LF1", "field": "LF1"}, {"title": "LF2", "field": "LF2"}, {"title": "LF3", "field": "LF3"}, {"title": "LF4", "field": "LF4"}, {"title": "LF5", "field": "LF5"}]'
+    data-table='[{"ensembl_gene": "ENSG00000164543", "LF1": "-0.095", "LF2": "-0.077", "LF3": "-0.000", "LF4": "0.035", "LF5": "0.070"}, {"ensembl_gene": "ENSG00000228049", "LF1": "-0.003", "LF2": "-0.064", "LF3": "0.000", "LF4": "-0.100", "LF5": "-0.001"}, {"ensembl_gene": "ENSG00000147548", "LF1": "0.004", "LF2": "0.019", "LF3": "0.000", "LF4": "0.082", "LF5": "-0.047"}, {"ensembl_gene": "ENSG00000164008", "LF1": "-0.000", "LF2": "-0.027", "LF3": "-0.000", "LF4": "-0.069", "LF5": "0.034"}, {"ensembl_gene": "ENSG00000120948", "LF1": "-0.033", "LF2": "0.034", "LF3": "-0.000", "LF4": "0.012", "LF5": "0.002"}]'
+    data-columns='[{"title": "ensembl_gene", "field": "ensembl_gene", "width": "25%"}, {"title": "LF1", "field": "LF1"}, {"title": "LF2", "field": "LF2"}, {"title": "LF3", "field": "LF3"}, {"title": "LF4", "field": "LF4"}, {"title": "LF5", "field": "LF5"}]'
     data-options='{"layout": "fitColumns", "responsiveLayout": "collapse"}'>
 </div>
 
@@ -767,8 +777,8 @@ for modality in MODALITIES:
 </figcaption>
 
 <div class="data-table" style=""
-    data-table='[{"uniprot": "Q9H773", "LF1": "-0.096", "LF2": "0.035", "LF3": "0.352", "LF4": "0.000", "LF5": "0.002"}, {"uniprot": "Q15007", "LF1": "-0.002", "LF2": "0.052", "LF3": "0.020", "LF4": "0.005", "LF5": "-0.003"}, {"uniprot": "P33527", "LF1": "0.087", "LF2": "-0.058", "LF3": "0.055", "LF4": "-0.003", "LF5": "0.046"}, {"uniprot": "P98172", "LF1": "0.110", "LF2": "-0.058", "LF3": "-0.104", "LF4": "0.002", "LF5": "0.079"}, {"uniprot": "Q8IXM3", "LF1": "0.024", "LF2": "0.078", "LF3": "-0.007", "LF4": "0.000", "LF5": "-0.025"}]'
-    data-columns='[{"title": "uniprot", "field": "uniprot"}, {"title": "LF1", "field": "LF1"}, {"title": "LF2", "field": "LF2"}, {"title": "LF3", "field": "LF3"}, {"title": "LF4", "field": "LF4"}, {"title": "LF5", "field": "LF5"}]'
+    data-table='[{"uniprot": "Q13426", "LF1": "-0.007", "LF2": "-0.000", "LF3": "-0.146", "LF4": "-0.004", "LF5": "-0.004"}, {"uniprot": "Q5JU69;Q8N2E6", "LF1": "-0.001", "LF2": "0.041", "LF3": "0.096", "LF4": "-0.000", "LF5": "-0.005"}, {"uniprot": "Q7Z7H5", "LF1": "0.033", "LF2": "-0.037", "LF3": "0.196", "LF4": "-0.006", "LF5": "-0.062"}, {"uniprot": "Q16774", "LF1": "0.026", "LF2": "0.008", "LF3": "0.281", "LF4": "0.002", "LF5": "0.005"}, {"uniprot": "O14548", "LF1": "-0.033", "LF2": "0.136", "LF3": "0.004", "LF4": "0.001", "LF5": "-0.007"}]'
+    data-columns='[{"title": "uniprot", "field": "uniprot", "width": "25%"}, {"title": "LF1", "field": "LF1"}, {"title": "LF2", "field": "LF2"}, {"title": "LF3", "field": "LF3"}, {"title": "LF4", "field": "LF4"}, {"title": "LF5", "field": "LF5"}]'
     data-options='{"layout": "fitColumns", "responsiveLayout": "collapse"}'>
 </div>
 
@@ -978,7 +988,7 @@ display_tabulator(edges_df, caption="Edges", width="auto", layout="fitDataStretc
 </figcaption>
 
 <div class="data-table" style="width: auto; display: inline-block;"
-    data-table='[{"name": "SC00027383", "node_name": "yippee like 4 [cellular_component]", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "R00093335", "node_name": "ATF1 modifier of USP7", "node_type": "reaction", "sc_Source": ".", "species_type": "."}, {"name": "R00754913", "node_name": "NR5A2 stimulator of NR5A2", "node_type": "reaction", "sc_Source": ".", "species_type": "."}, {"name": "SC00036555", "node_name": "C20:4-CoA", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "SC00024380", "node_name": "DDB1 and CUL4 associated factor 10 [cellular_component]", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "R00037611", "node_name": "Demethylation of cyclosporine to AM4N in hepatocytes", "node_type": "reaction", "sc_Source": ".", "species_type": "."}, {"name": "SC00012613", "node_name": "SIRT6:Nucleosome:NOTCH1,NOTCH4 gene", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "R01141329", "node_name": "PITX1 inhibitor of TERT", "node_type": "reaction", "sc_Source": ".", "species_type": "."}, {"name": "SC00038694", "node_name": "Ibuprofen-CoA-S form", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "SC00021260", "node_name": "ZBTB14", "node_type": "species", "sc_Source": ".", "species_type": "protein"}]'
+    data-table='[{"name": "SC00000539", "node_name": "GlcNAc-GlcA-GlcNAc", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "R00389169", "node_name": "RELA modifier of HMOX1", "node_type": "reaction", "sc_Source": ".", "species_type": "."}, {"name": "SC00027413", "node_name": "solute carrier family 25 member 47 [cellular_component]", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "SC00026835", "node_name": "GDNF family receptor alpha like [cellular_component]", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "SC00022715", "node_name": "dipeptidyl peptidase 8 [cellular_component]", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "SC00021226", "node_name": "olfactory receptor family 1 subfamily C member 1 [cellular_component]", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "SC00022708", "node_name": "CA4", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "SC00014948", "node_name": "SLC9B2 dimer", "node_type": "species", "sc_Source": ".", "species_type": "protein"}, {"name": "R00065224", "node_name": "CEBPB modifier of F8", "node_type": "reaction", "sc_Source": ".", "species_type": "."}, {"name": "SC00018803", "node_name": "THOC5", "node_type": "species", "sc_Source": ".", "species_type": "protein"}]'
     data-columns='[{"title": "name", "field": "name"}, {"title": "node_name", "field": "node_name"}, {"title": "node_type", "field": "node_type"}, {"title": "sc_Source", "field": "sc_Source"}, {"title": "species_type", "field": "species_type"}]'
     data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
 </div>
@@ -988,7 +998,7 @@ display_tabulator(edges_df, caption="Edges", width="auto", layout="fitDataStretc
 </figcaption>
 
 <div class="data-table" style="width: auto; display: inline-block;"
-    data-table='[{"index": "SC00015349 / SC00025669", "r_id": "R01804213", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 6.25, "weight": 6.25, "upstream_weight": 6.25, "source_wt": 10}, {"index": "SC00024219 / SC00029495", "r_id": "R02833896", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 2.331002331002331, "weight": 2.331002331002331, "upstream_weight": 2.331002331002331, "source_wt": 10}, {"index": "SC00027680 / SC00025466", "r_id": "R03061762", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "reverse", "string_wt": 1.1061946902654867, "weight": 1.1061946902654867, "upstream_weight": 1.1061946902654867, "source_wt": 10}, {"index": "SC00016096 / SC00007547", "r_id": "R01184619", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "reverse", "string_wt": 2.3866348448687353, "weight": 2.3866348448687353, "upstream_weight": 2.3866348448687353, "source_wt": 10}, {"index": "SC00023063 / SC00031570", "r_id": "R02588420", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 4.405286343612334, "weight": 4.405286343612334, "upstream_weight": 4.405286343612334, "source_wt": 10}, {"index": "SC00021805 / SC00022159", "r_id": "R02306354", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 5.714285714285714, "weight": 5.714285714285714, "upstream_weight": 5.714285714285714, "source_wt": 10}, {"index": "SC00033875 / SC00030659", "r_id": "R03733633", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "reverse", "string_wt": 5.0, "weight": 5.0, "upstream_weight": 5.0, "source_wt": 10}, {"index": "SC00001782 / SC00003902", "r_id": "R00368885", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 3.8910505836575875, "weight": 3.8910505836575875, "upstream_weight": 3.8910505836575875, "source_wt": 10}, {"index": "SC00030973 / SC00001899", "r_id": "R00399731", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "reverse", "string_wt": 5.376344086021505, "weight": 5.376344086021505, "upstream_weight": 5.376344086021505, "source_wt": 10}, {"index": "SC00028394 / SC00023486", "r_id": "R02685005", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "reverse", "string_wt": 3.64963503649635, "weight": 3.64963503649635, "upstream_weight": 3.64963503649635, "source_wt": 10}]'
+    data-table='[{"index": "SC00030954 / SC00035419", "r_id": "R03757688", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 6.329113924050633, "weight": 6.329113924050633, "upstream_weight": 6.329113924050633, "source_wt": 10}, {"index": "SC00032212 / SC00033302", "r_id": "R03840042", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 6.410256410256411, "weight": 6.410256410256411, "upstream_weight": 6.410256410256411, "source_wt": 10}, {"index": "SC00031764 / SC00033418", "r_id": "R03813825", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 3.058103975535168, "weight": 3.058103975535168, "upstream_weight": 3.058103975535168, "source_wt": 10}, {"index": "SC00034806 / SC00029555", "r_id": "R03631600", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "reverse", "string_wt": 3.4602076124567476, "weight": 3.4602076124567476, "upstream_weight": 3.4602076124567476, "source_wt": 10}, {"index": "SC00006965 / SC00031210", "r_id": "R01149106", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 3.745318352059925, "weight": 3.745318352059925, "upstream_weight": 3.745318352059925, "source_wt": 10}, {"index": "SC00032461 / SC00034934", "r_id": "R03853793", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 3.4843205574912894, "weight": 3.4843205574912894, "upstream_weight": 3.4843205574912894, "source_wt": 10}, {"index": "SC00011294 / SC00033161", "r_id": "R01452767", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 5.208333333333333, "weight": 5.208333333333333, "upstream_weight": 5.208333333333333, "source_wt": 10}, {"index": "SC00028387 / SC00027845", "r_id": "R03432647", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "reverse", "string_wt": 1.081081081081081, "weight": 1.081081081081081, "upstream_weight": 1.081081081081081, "source_wt": 10}, {"index": "SC00030930 / SC00031882", "r_id": "R03755607", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 2.8490028490028494, "weight": 2.8490028490028494, "upstream_weight": 2.8490028490028494, "source_wt": 10}, {"index": "SC00019035 / SC00023658", "r_id": "R02024262", "sbo_term": "SBO:0000336", "stoichiometry": 0.0, "sc_Source": ".", "species_type": "protein", "r_isreversible": true, "direction": "forward", "string_wt": 1.0204081632653061, "weight": 1.0204081632653061, "upstream_weight": 1.0204081632653061, "source_wt": 10}]'
     data-columns='[{"title": "index", "field": "index"}, {"title": "r_id", "field": "r_id"}, {"title": "sbo_term", "field": "sbo_term"}, {"title": "stoichiometry", "field": "stoichiometry"}, {"title": "sc_Source", "field": "sc_Source"}, {"title": "species_type", "field": "species_type"}, {"title": "r_isreversible", "field": "r_isreversible"}, {"title": "direction", "field": "direction"}, {"title": "string_wt", "field": "string_wt"}, {"title": "weight", "field": "weight"}, {"title": "upstream_weight", "field": "upstream_weight"}, {"title": "source_wt", "field": "source_wt"}]'
     data-options='{"layout": "fitDataStretch", "responsiveLayout": "collapse"}'>
 </div>
@@ -1396,9 +1406,13 @@ for phenotype in phenotypes_of_interest:
     )
 
     display_tabulator(
-      reordered_table,
-      caption=f"Association ranks for {phenotype}"
+        reordered_table,
+        caption=f"Association ranks for {phenotype}",
+        wrap_columns=["node_name"],
+        column_widths={"node_name" : "50%"}
     )
+    
+    display(HTML('<div style="margin-bottom: 30px;"></div>'))
 ```
 
 <figcaption style='font-weight:bold; margin-bottom:0.5em'>
@@ -1407,9 +1421,11 @@ for phenotype in phenotypes_of_interest:
 
 <div class="data-table" style=""
     data-table='[{"node_name": "IL6 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "IGF1", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "Cyclin D", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 1, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "NADH", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "NAD+", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "LGALS3 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "L-MM-CoA", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "SUCC-CoA", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "2xMMAA:2xMUT:AdoCbl", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "CDKN2A gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "Hydrogen peroxide", "proteomics_est": ".", "proteomics_log10p": 2, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "Ac-CoA", "proteomics_est": ".", "proteomics_log10p": 4, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "IL8 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "C-X-C motif chemokine ligand 6 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "BPTF", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": 0}, {"node_name": "SPARC related modular calcium binding 2 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "retinoic acid receptor responder 2 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}]'
-    data-columns='[{"title": "node_name", "field": "node_name"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
+    data-columns='[{"title": "node_name", "field": "node_name", "formatter": "textarea", "variableHeight": true, "width": "50%"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
     data-options='{"layout": "fitColumns", "responsiveLayout": "collapse"}'>
 </div>
+
+<div style="margin-bottom: 30px;"></div>
 
 <figcaption style='font-weight:bold; margin-bottom:0.5em'>
     Association ranks for case
@@ -1417,9 +1433,11 @@ for phenotype in phenotypes_of_interest:
 
 <div class="data-table" style=""
     data-table='[{"node_name": "cellular communication network factor 5 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "EDIL3 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "EGF gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "TNF", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "NADH", "proteomics_est": 0, "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "INS gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "NAD+", "proteomics_est": 0, "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "MITF-M dimer:EDIL3 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "thrombospondin type 1 domain containing 4 [cellular_component]", "proteomics_est": 0, "proteomics_log10p": 1, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "complement factor D [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 1}, {"node_name": "BDNF gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 1, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "Ub", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "L-Glu", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "Cx43:ZO-1:c-src gap junction", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "HAPLN1", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 2, "transcriptomics_stat": 3}, {"node_name": "CDKN1A gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 1, "transcriptomics_stat": 0}, {"node_name": "Ac-CoA", "proteomics_est": ".", "proteomics_log10p": 1, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "sirtuin 5 [cellular_component]", "proteomics_est": 0, "proteomics_log10p": 1, "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "EGFR gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 2}, {"node_name": "SIRT5:Zn2+", "proteomics_est": 0, "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "2OG", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}]'
-    data-columns='[{"title": "node_name", "field": "node_name"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
+    data-columns='[{"title": "node_name", "field": "node_name", "formatter": "textarea", "variableHeight": true, "width": "50%"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
     data-options='{"layout": "fitColumns", "responsiveLayout": "collapse"}'>
 </div>
+
+<div style="margin-bottom: 30px;"></div>
 
 <figcaption style='font-weight:bold; margin-bottom:0.5em'>
     Association ranks for OHCblPlus
@@ -1427,9 +1445,11 @@ for phenotype in phenotypes_of_interest:
 
 <div class="data-table" style=""
     data-table='[{"node_name": "INS gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "inhibin subunit beta A [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "TNF", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "EGF gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "regulator of calcineurin 2 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "IL6 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 1, "transcriptomics_stat": 0}, {"node_name": "BDNF gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 2, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "cellular communication network factor 5 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": 2, "transcriptomics_stat": 2}, {"node_name": "IL1B gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 1, "transcriptomics_log10p": 4, "transcriptomics_stat": 0}, {"node_name": "p-T2609,S2612,T2638,T2647-PRKDC:XRCC5:XRCC6:p-S645-DCLRE1C:DNA DSB ends", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "L-MM-CoA", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "NADH", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "9606.ENSP00000450353 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "2xMMAA:2xMUT:AdoCbl", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "p-T2609,S2612,T2638,T2647-PRKDC:XRCC5:XRCC6:p-S516,S645-DCLRE1C:DNA DSB ends", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "Ac-CoA", "proteomics_est": ".", "proteomics_log10p": 1, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "NAD+", "proteomics_est": ".", "proteomics_log10p": 1, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "EDIL3 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "2OG", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}]'
-    data-columns='[{"title": "node_name", "field": "node_name"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
+    data-columns='[{"title": "node_name", "field": "node_name", "formatter": "textarea", "variableHeight": true, "width": "50%"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
     data-options='{"layout": "fitColumns", "responsiveLayout": "collapse"}'>
 </div>
+
+<div style="margin-bottom: 30px;"></div>
 
 <figcaption style='font-weight:bold; margin-bottom:0.5em'>
     Association ranks for responsive_to_acute_treatment
@@ -1437,9 +1457,11 @@ for phenotype in phenotypes_of_interest:
 
 <div class="data-table" style=""
     data-table='[{"node_name": "CDKN2A gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 3, "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "Protonated Carbamino DeoxyHbA", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "BPTF", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "CDKN1A gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 0}, {"node_name": "OxyHbA", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "Hemoglobin A is protonated and carbamated causing release of oxygen", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "NOTCH1 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": 0}, {"node_name": "L-Glu", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "NADH", "proteomics_est": ".", "proteomics_log10p": 0, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "DNMT1 mRNA", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 1}, {"node_name": "Hydrogen peroxide", "proteomics_est": ".", "proteomics_log10p": 1, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "INO80", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": 0, "transcriptomics_stat": 1}, {"node_name": "Ac-CoA", "proteomics_est": ".", "proteomics_log10p": 2, "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "IL8 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "MMP1", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "VWF", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "CXCL1", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "BCL6 gene", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": 0}, {"node_name": "NAD+", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": 0, "transcriptomics_est": ".", "transcriptomics_log10p": ".", "transcriptomics_stat": "."}, {"node_name": "secreted frizzled related protein 4 [cellular_component]", "proteomics_est": ".", "proteomics_log10p": ".", "proteomics_stat": ".", "transcriptomics_est": 0, "transcriptomics_log10p": ".", "transcriptomics_stat": "."}]'
-    data-columns='[{"title": "node_name", "field": "node_name"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
+    data-columns='[{"title": "node_name", "field": "node_name", "formatter": "textarea", "variableHeight": true, "width": "50%"}, {"title": "proteomics", "columns": [{"title": "est", "field": "proteomics_est"}, {"title": "log10p", "field": "proteomics_log10p"}, {"title": "stat", "field": "proteomics_stat"}]}, {"title": "transcriptomics", "columns": [{"title": "est", "field": "transcriptomics_est"}, {"title": "log10p", "field": "transcriptomics_log10p"}, {"title": "stat", "field": "transcriptomics_stat"}]}]'
     data-options='{"layout": "fitColumns", "responsiveLayout": "collapse"}'>
 </div>
+
+<div style="margin-bottom: 30px;"></div>
 
 These results are fascinating:
 

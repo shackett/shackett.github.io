@@ -74,7 +74,7 @@ If you'd like to reproduce this analysis, follow these steps:
     source .venv/bin/activate
     
     # Core dependencies
-    uv pip install "napistu[scverse]==0.5.4"
+    uv pip install "napistu[scverse]==0.5.5"
     # Personal utilities package with genomics analysis functions
     uv pip install "git+https://github.com/shackett/shackett-utils.git@v0.1.2[all]" 
     # Additional dependencies

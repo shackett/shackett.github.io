@@ -72,9 +72,9 @@ social:
 
 # Analytics
 analytics:
-  provider               : # false (default), "google", "google-universal", "google-gtag", "custom"
+  provider               : "google-gtag"
   google:
-    tracking_id          :
+    tracking_id          : "G-7MJB7LQD40"
     anonymize_ip         : # true, false (default)
 
 

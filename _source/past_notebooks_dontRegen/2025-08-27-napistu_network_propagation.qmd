@@ -94,6 +94,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from IPython.display import display, HTML
 
 from napistu import utils as napistu_utils
 from napistu.sbml_dfs_core import SBML_dfs
@@ -132,6 +133,7 @@ CACHE_DIR = os.path.join(PROJECT_DIR, "cache")
 # inputs
 # model to download from GCS and store in NAPISTU_DATA_DIR
 NAPISTU_ASSET = "human_consensus"
+NAPISTU_ASSET_VERSION = "20250901"
 # H5Mu file containing the optimal model from MOFA+ and regression summaries
 OPTIMAL_MODEL_H5MU_OUTFILE = "mofa_optimal_model.h5mu"
 
@@ -397,19 +399,22 @@ Next, I'll download and load the human consensus `SBML_dfs` from my public GCS b
 sbml_dfs_path = downloads.load_public_napistu_asset(
     asset = NAPISTU_ASSET,
     data_dir = INPUT_DATA_DIR,
-    subasset = "sbml_dfs"
+    subasset = "sbml_dfs",
+    version = NAPISTU_ASSET_VERSION
 )
 
 napistu_graph_path = downloads.load_public_napistu_asset(
     asset = NAPISTU_ASSET,
     data_dir = INPUT_DATA_DIR,
-    subasset = "napistu_graph"
+    subasset = "napistu_graph",
+    version = NAPISTU_ASSET_VERSION
 )
 
 species_identifiers_path = downloads.load_public_napistu_asset(
     asset = NAPISTU_ASSET,
     data_dir = INPUT_DATA_DIR,
-    subasset = "species_identifiers"
+    subasset = "species_identifiers",
+    version = NAPISTU_ASSET_VERSION
 )
 
 # ~2 min load
@@ -550,12 +555,20 @@ Below are the first five rows of the *MOFA* latent factors for each modality:
 
 for modality in MODALITIES:
   
-    mofa_lfs_examples = mofa_lfs[modality].drop(columns = MUDATA_ONTOLOGIES[modality]["index_which_ontology"]).sample(5).copy()
+    systematic_id_column = MUDATA_ONTOLOGIES[modality]["index_which_ontology"]
+  
+    mofa_lfs_examples = (
+        mofa_lfs[modality]
+        .drop(columns = systematic_id_column)
+        .sample(5)
+        .copy()
+    )
     format_numeric_columns(mofa_lfs_examples, inplace = True)
   
     display_tabulator(
         mofa_lfs_examples,
-        caption = f"Extracted latent factors for {modality}"
+        caption = f"Extracted latent factors for {modality}",
+        column_widths={systematic_id_column : "25%"}
     )
 ```
 
@@ -1040,9 +1053,13 @@ for phenotype in phenotypes_of_interest:
     )
 
     display_tabulator(
-      reordered_table,
-      caption=f"Association ranks for {phenotype}"
+        reordered_table,
+        caption=f"Association ranks for {phenotype}",
+        wrap_columns=["node_name"],
+        column_widths={"node_name" : "50%"}
     )
+    
+    display(HTML('<div style="margin-bottom: 30px;"></div>'))
 ```
 
 These results are fascinating:
