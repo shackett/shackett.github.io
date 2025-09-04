@@ -7,6 +7,8 @@ tags:
   - python
   - SWE
 jekyll-code-fold: true
+header:
+  image: /assets/images/banners/banner_19.png
 jupyter: blog-staging
 engine: jupyter
 ---

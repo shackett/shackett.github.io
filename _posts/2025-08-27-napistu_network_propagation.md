@@ -9,6 +9,9 @@ tags:
   - python
   - networks
 jekyll-code-fold: true
+header:
+  image: /assets/images/banners/banner_14.png
+  teaser_archive: /assets/images/teasers/napistu_blog_post_part2.png
 jupyter: forny-2023
 engine: jupyter
 ---
