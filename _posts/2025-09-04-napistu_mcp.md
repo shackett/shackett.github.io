@@ -867,7 +867,7 @@ of code and explanatory prose, just like a good biological analysis:
 <img src="{{ site.url }}/figure/napistu_mcp/cursor_no_mcp_clipped.gif" alt="GIF showing a Cursor session without using the MCP server" style="width: 100%;">
 
 The
-[artifact](https://www.shackett.org/post_support_20250903/#without-mcp)
+[artifact](https://www.shackett.org/post_support_20250903/#cursor-without-mcp)
 has its high and low points:
 
 -   ✅ The summary of the edgelist format with running code is quite
@@ -884,7 +884,7 @@ major models, so you really have to twist its arm to use it. In
 practice, the experience is underwhelming --- Cursor tends to rely
 solely on the `search_codebase` tool, which surfaces information it
 already has access to. As a result, the actual
-[output](https://www.shackett.org/post_support_20250903/#with-mcp) is
+[output](https://www.shackett.org/post_support_20250903/#cursor-with-mcp) is
 fairly poor:
 
 -   ❌ Only pseudocode describing the edgelist format

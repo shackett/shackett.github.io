@@ -536,7 +536,7 @@ Intent and context become particularly relevant when applying a framework like N
 
 <img src="{{ site.url }}/figure/napistu_mcp/cursor_no_mcp_clipped.gif" alt="GIF showing a Cursor session without using the MCP server" style="width: 100%;">
 
-The [artifact](https://www.shackett.org/post_support_20250903/#without-mcp) has its high and low points:
+The [artifact](https://www.shackett.org/post_support_20250903/#cursor-without-mcp) has its high and low points:
 
 - ✅ The summary of the edgelist format with running code is quite good.
 - ❌ It has no idea what I meant by "recent updates" and just provides code snippets for random public functions.
@@ -545,7 +545,7 @@ The [artifact](https://www.shackett.org/post_support_20250903/#without-mcp) has 
 
 <img src="{{ site.url }}/figure/napistu_mcp/cursor_w_mcp_clipped.gif" alt="GIF showing a Cursor session while using the MCP server" style="width: 100%;">
 
-Third-party integrations with Cursor are in a far rawer state than the major models, so you really have to twist its arm to use it. In practice, the experience is underwhelming — Cursor tends to rely solely on the `search_codebase` tool, which surfaces information it already has access to. As a result, the actual [output](https://www.shackett.org/post_support_20250903/#with-mcp) is fairly poor:
+Third-party integrations with Cursor are in a far rawer state than the major models, so you really have to twist its arm to use it. In practice, the experience is underwhelming — Cursor tends to rely solely on the `search_codebase` tool, which surfaces information it already has access to. As a result, the actual [output](https://www.shackett.org/post_support_20250903/#cursor-with-mcp) is fairly poor:
 
 - ❌ Only pseudocode describing the edgelist format
 - ❌ Misinterprets "recent updates," instead listing all public methods not already covered in the tutorial 
