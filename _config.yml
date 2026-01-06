@@ -20,7 +20,7 @@ title                    : "Sean Hackett"
 title_separator          : "-"
 subtitle                 : 'Finding Causality in High-Dimensional Data'
 name                     : "Sean Hackett"
-description              : "As a Director of Data Science I lay the groundwork for organizational change by connecting data collection, organization, and synthesis. But, I still love getting into the weeds on technical problems where I can continue developing my analytics and programming skills."
+description              : "As a Director of Data Science, I lay the groundwork for organizational change by connecting data collection, organization, and synthesis. But, I still love getting into the weeds on technical problems where I can continue developing my analytics and programming skills."
 url                      : "https://www.shackett.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "shackett/shackett.github.io"
@@ -82,7 +82,7 @@ analytics:
 author:
   name             : "Sean Hackett"
   avatar           : "/assets/images/sean_headshot.jpeg"
-  bio              : "As a Director of Data Science I lay the groudwork for organizational change by connecting data collection, organization, and synthesis. But, I still love getting into the weeds on technical problems where I can continue developing my statistics and programming skills."
+  bio              : "As a Director of Data Science, I lay the groudwork for organizational change by connecting data collection, organization, and synthesis. But, I still love getting into the weeds on technical problems where I can continue developing my statistics and programming skills."
   location         : "Brisbane, CA"
   links:
     - label: "GitHub"
