@@ -147,7 +147,6 @@ exclude:
   - cache/
   - renv/
   - renv.lock
-  - external/
 keep_files:
   - .git
   - .svn
