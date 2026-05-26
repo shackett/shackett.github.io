@@ -1065,9 +1065,11 @@ Three patterns stand out:
     consistently below the null. Understanding why requires looking more
     closely at the structure of the attention pairs themselves.
 
-{% include ai-aside.html content="
-scFoundation's near-null interaction recovery (as seen in the companion notebook <a href="/decoding_sc_foundation_models_part2/with-scfoundation/">with scFoundation included</a>) likely reflects a fundamental architectural constraint rather than a failure of the model itself. Its asymmetric encoder-decoder design processes only expressed genes through the encoder, recombining those representations with zero-expressed gene embeddings only at the decoder stage to produce final gene-level representations. The residual streams extracted here come from the encoder alone, which has never attended over the full transcriptome. The regulatory signal in scFoundation is probably concentrated in the decoder outputs, but the decoder is closed source, making this analysis of the encoder the limit of what is publicly accessible. This is worth keeping in mind when comparing scFoundation to the other models here, all of which expose their full forward pass.
-"%}
+<div class="content-section ai-aside">
+  <div class="section-content">
+    <p>scFoundation's near-null interaction recovery (as seen in the companion notebook <a href="/decoding_sc_foundation_models_part2/with-scfoundation/">with scFoundation included</a>) likely reflects a fundamental architectural constraint rather than a failure of the model itself. Its asymmetric encoder-decoder design processes only expressed genes through the encoder, recombining those representations with zero-expressed gene embeddings only at the decoder stage to produce final gene-level representations. The residual streams extracted here come from the encoder alone, which has never attended over the full transcriptome. The regulatory signal in scFoundation is probably concentrated in the decoder outputs, but the decoder is closed source, making this analysis of the encoder the limit of what is publicly accessible. This is worth keeping in mind when comparing scFoundation to the other models here, all of which expose their full forward pass.</p>
+  </div>
+</div>
 
 ### scPRINT attention preferentially connects mechanistically distant genes
 
