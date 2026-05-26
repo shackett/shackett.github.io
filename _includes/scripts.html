@@ -62,7 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
           autoColumns: columns ? false : true,
         },
         columns ? { columns } : {},
-        options
+        options,
+        { responsiveLayout: false }
       );
 
       new Tabulator(el, config);
