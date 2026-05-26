@@ -14,7 +14,7 @@ In [Part 1](https://www.shackett.org/decoding_sc_foundation_models_part1), I bui
 Here, I extend the analysis in two directions:
 
 1. **Cross-model attention consistency**: Do different models converge on the same high-attention gene pairs, even if the overall layer structure differs? I compare the top-K attention pairs across all model × layer combinations to ask whether models converge on a shared set of high-attention pairs despite differences in architecture and training.
-2. **Validation against molecular interaction networks**: I compare each model's high-attention pairs to the Napistu Octopus network (50K vertices, 8M edges) and to a GNN trained on self-supervised edge prediction, asking whether attention-highlighted gene pairs are enriched for known regulatory interactions.
+2. **Validation against molecular interaction networks**: I compare each model's high-attention pairs to the Napistu Octopus network (50K vertices, 8M edges) and to a [GNN trained on self-supervised edge prediction](https://www.shackett.org/napistu_torch/) ([edge_prediction_mlp_256e](https://huggingface.co/seanhacks/edge_prediction_mlp_256e)), asking whether attention-highlighted gene pairs are enriched for known regulatory interactions.
 
 <!--more-->
 
@@ -994,7 +994,7 @@ The cross-model consistency matrix reveals that agreement is neither uniform nor
 
 ## Grounding attention patterns in molecular interaction networks
 
-To evaluate whether high-attention gene pairs overlap with known molecular interactions, I mapped each pair against the 8-source Octopus network (~4M reported interactions across 50K proteins, metabolites, and complexes) to compute a reported edge rate, and scored each pair using a GNN trained on self-supervised edge prediction over the same network to obtain a continuous interaction plausibility score. Both measures are reported relative to a vocabulary-matched null (the expected values computed over all gene pairs within the observed vocabulary) since hub genes with high local edge density would inflate raw rates regardless of whether attention is specifically tracking interactions.
+To evaluate whether high-attention gene pairs overlap with known molecular interactions, I mapped each pair against the [8-source Octopus network](https://www.shackett.org/octopus_network/) (~4M reported interactions across 50K proteins, metabolites, and complexes) to compute a reported edge rate, and scored each pair using a [GNN trained on self-supervised edge prediction](https://www.shackett.org/napistu_torch/) ([edge_prediction_mlp_256e](https://huggingface.co/seanhacks/edge_prediction_mlp_256e)) over the same network to obtain a continuous interaction plausibility score. Both measures are reported relative to a vocabulary-matched null (the expected values computed over all gene pairs within the observed vocabulary) since hub genes with high local edge density would inflate raw rates regardless of whether attention is specifically tracking interactions.
 
 ```{python}
 #| label: Napistu_setup

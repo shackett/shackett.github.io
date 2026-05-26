@@ -47,8 +47,8 @@ Here, I extend the analysis in two directions:
     architecture and training.
 2.  **Validation against molecular interaction networks**: I compare
     each model's high-attention pairs to the Napistu Octopus network
-    (50K vertices, 8M edges) and to a GNN trained on self-supervised
-    edge prediction, asking whether attention-highlighted gene pairs are
+    (50K vertices, 8M edges) and to a [GNN trained on self-supervised
+    edge prediction](https://www.shackett.org/napistu_torch/) ([edge_prediction_mlp_256e](https://huggingface.co/seanhacks/edge_prediction_mlp_256e)), asking whether attention-highlighted gene pairs are
     enriched for known regulatory interactions.
 
 <!--more-->
@@ -944,10 +944,10 @@ rather than artifacts of any particular training run.
 ## Grounding attention patterns in molecular interaction networks
 
 To evaluate whether high-attention gene pairs overlap with known
-molecular interactions, I mapped each pair against the 8-source Octopus
-network (\~4M reported interactions across 50K proteins, metabolites,
+molecular interactions, I mapped each pair against the [8-source Octopus
+network](https://www.shackett.org/octopus_network/) (\~4M reported interactions across 50K proteins, metabolites,
 and complexes) to compute a reported edge rate, and scored each pair
-using a GNN trained on self-supervised edge prediction over the same
+using a [GNN trained on self-supervised edge prediction](https://www.shackett.org/napistu_torch/) ([edge_prediction_mlp_256e](https://huggingface.co/seanhacks/edge_prediction_mlp_256e)) over the same
 network to obtain a continuous interaction plausibility score. Both
 measures are reported relative to a vocabulary-matched null (the
 expected values computed over all gene pairs within the observed
