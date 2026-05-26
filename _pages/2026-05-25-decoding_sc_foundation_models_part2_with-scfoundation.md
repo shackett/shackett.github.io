@@ -4,6 +4,8 @@ title: >-
   Molecular Interactions - with scFoundation, AIDO.Cell, and scPRINT
 permalink: /decoding_sc_foundation_models_part2/with-scfoundation/
 sitemap: false
+toc: true
+toc_sticky: true
 jekyll-code-fold: true
 jupyter: blog-staging
 engine: jupyter

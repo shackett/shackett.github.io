@@ -11,7 +11,7 @@ tags:
   - PyTorch
 jekyll-code-fold: true
 header:
-  image: /assets/images/banners/banner_1.png
+  image: /assets/images/banners/banner_01.png
   teaser_archive: /figure/source/2026-05-25-decoding_sc_foundation_models_part2/edge_prediction_scores_and_existence_by_model-output-1.png
 jupyter: blog-staging
 engine: jupyter

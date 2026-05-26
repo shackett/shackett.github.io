@@ -4,6 +4,8 @@ title: >-
   Molecular Interactions - all models
 permalink: /decoding_sc_foundation_models_part2/all-models/
 sitemap: false
+toc: true
+toc_sticky: true
 jekyll-code-fold: true
 jupyter: blog-staging
 engine: jupyter

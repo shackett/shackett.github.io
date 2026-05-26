@@ -11,7 +11,7 @@ tags:
   - PyTorch
 jekyll-code-fold: true
 header:
-  image: /assets/images/banners/banner_3.png
+  image: /assets/images/banners/banner_03.png
   teaser_archive: /figure/source/2026-05-25-decoding_sc_foundation_models_part1/model_layer_correlations-output-1.png
 jupyter: blog-staging
 engine: jupyter
@@ -192,7 +192,7 @@ forward passes on individual cells and average the residual stream
 within cell-type clusters at each layer. A cluster's average embedding
 remains close to its individual members in latent space, so the
 aggregation is faithful, and cell-type resolution is the natural unit
-for mechanistic interpretation; we want to understand is which
+for mechanistic interpretation; we want to understand which
 regulatory circuits are active in a given cell type, not which are
 active in a single noisy observation.
 
