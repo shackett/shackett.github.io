@@ -56,7 +56,7 @@ Here, I extend the analysis in two directions:
 
 This analysis works with the same environment and extracted model
 summaries (weights, residual streams) from the [Part 1
-notebook](https://www.shackett.org/decoding_sc_foundation_models_part1),
+notebook](https://github.com/shackett/shackett/blob/main/posts/posted/decoding_sc_foundation_models/sc_foundation_model_overview.qmd),
 see the [Reproducing this
 analysis](https://www.shackett.org/decoding_sc_foundation_models_part1#reproducing-this-analysis)
 section for details.
@@ -132,7 +132,7 @@ MODEL_OUTPUTS_DIR = PROJECT_DIR / "model_outputs"
 STORE_DIR = Path("~/Desktop/EXPERIMENTS/.store").expanduser()
 
 # model inclusion settings
-INCLUDE_SCGPT = False
+INCLUDE_SCGPT = True
 INCLUDE_SCFOUNDATION = False
 
 # analysis settings
@@ -802,7 +802,7 @@ display_tabulator(
 ```
 
 <div class="data-table" style=""
-    data-table='[{"model": "AIDO.Cell (3M)", "model type": "AIDOCell", "model variant": "aido_cell_3m", "# dim": 128, "# layers": 6, "# heads": 4, "# parameters": 393216, "# genes": 18156, "included": "\u2705"}, {"model": "AIDO.Cell (10M)", "model type": "AIDOCell", "model variant": "aido_cell_10m", "# dim": 256, "# layers": 8, "# heads": 8, "# parameters": 2097152, "# genes": 18156, "included": "\u2705"}, {"model": "scGPT", "model type": "scGPT", "model variant": "", "# dim": 512, "# layers": 12, "# heads": 8, "# parameters": 12582912, "# genes": 1200, "included": "\u274c"}, {"model": "scPRINT (small)", "model type": "scPRINT", "model variant": "small", "# dim": 128, "# layers": 4, "# heads": 4, "# parameters": 262144, "# genes": 19261, "included": "\u2705"}, {"model": "scPRINT (medium)", "model type": "scPRINT", "model variant": "medium", "# dim": 256, "# layers": 8, "# heads": 4, "# parameters": 2097152, "# genes": 19261, "included": "\u2705"}, {"model": "scPRINT (large)", "model type": "scPRINT", "model variant": "large", "# dim": 512, "# layers": 16, "# heads": 4, "# parameters": 16777216, "# genes": 19261, "included": "\u2705"}, {"model": "scFoundation", "model type": "scFoundation", "model variant": "", "# dim": 768, "# layers": 12, "# heads": 12, "# parameters": 28311552, "# genes": "5108\u20139985", "included": "\u274c"}]'
+    data-table='[{"model": "AIDO.Cell (3M)", "model type": "AIDOCell", "model variant": "aido_cell_3m", "# dim": 128, "# layers": 6, "# heads": 4, "# parameters": 393216, "# genes": 18156, "included": "\u2705"}, {"model": "AIDO.Cell (10M)", "model type": "AIDOCell", "model variant": "aido_cell_10m", "# dim": 256, "# layers": 8, "# heads": 8, "# parameters": 2097152, "# genes": 18156, "included": "\u2705"}, {"model": "scGPT", "model type": "scGPT", "model variant": "", "# dim": 512, "# layers": 12, "# heads": 8, "# parameters": 12582912, "# genes": 1200, "included": "\u2705"}, {"model": "scPRINT (small)", "model type": "scPRINT", "model variant": "small", "# dim": 128, "# layers": 4, "# heads": 4, "# parameters": 262144, "# genes": 19261, "included": "\u2705"}, {"model": "scPRINT (medium)", "model type": "scPRINT", "model variant": "medium", "# dim": 256, "# layers": 8, "# heads": 4, "# parameters": 2097152, "# genes": 19261, "included": "\u2705"}, {"model": "scPRINT (large)", "model type": "scPRINT", "model variant": "large", "# dim": 512, "# layers": 16, "# heads": 4, "# parameters": 16777216, "# genes": 19261, "included": "\u2705"}, {"model": "scFoundation", "model type": "scFoundation", "model variant": "", "# dim": 768, "# layers": 12, "# heads": 12, "# parameters": 28311552, "# genes": "5108\u20139985", "included": "\u274c"}]'
     data-columns='[{"title": "model", "field": "model"}, {"title": "model type", "field": "model type"}, {"title": "model variant", "field": "model variant"}, {"title": "# dim", "field": "# dim"}, {"title": "# layers", "field": "# layers"}, {"title": "# heads", "field": "# heads"}, {"title": "# parameters", "field": "# parameters"}, {"title": "# genes", "field": "# genes"}, {"title": "included", "field": "included"}]'
     data-options='{"layout": "fitDataTable", "responsiveLayout": "collapse"}'>
 </div>
@@ -826,14 +826,14 @@ and AIDO.Cell are always present, while scGPT and scFoundation are
 optional. Results are consistent across versions.
 
 <div class="data-table" style=""
-    data-table='[{"scGPT": "<a href=\"/decoding_sc_foundation_models_part2/all-models/\">\u2705</a>", "scFoundation": "<a href=\"/decoding_sc_foundation_models_part2/all-models/\">\u2705</a>", "AIDO_Cell": "<a href=\"/decoding_sc_foundation_models_part2/all-models/\">\u2705</a>", "scPRINT": "<a href=\"/decoding_sc_foundation_models_part2/all-models/\">\u2705</a>", "# genes": "<a href=\"/decoding_sc_foundation_models_part2/all-models/\">123\u2013454</a>"}, {"scGPT": "<a href=\"/decoding_sc_foundation_models_part2/\">\u2705</a>", "scFoundation": "<a href=\"/decoding_sc_foundation_models_part2/\">\u274c</a>", "AIDO_Cell": "<a href=\"/decoding_sc_foundation_models_part2/\">\u2705</a>", "scPRINT": "<a href=\"/decoding_sc_foundation_models_part2/\">\u2705</a>", "# genes": "<a href=\"/decoding_sc_foundation_models_part2/\">744</a>"}, {"scGPT": "<a href=\"/decoding_sc_foundation_models_part2/with-scfoundation/\">\u274c</a>", "scFoundation": "<a href=\"/decoding_sc_foundation_models_part2/with-scfoundation/\">\u2705</a>", "AIDO_Cell": "<a href=\"/decoding_sc_foundation_models_part2/with-scfoundation/\">\u2705</a>", "scPRINT": "<a href=\"/decoding_sc_foundation_models_part2/with-scfoundation/\">\u2705</a>", "# genes": "<a href=\"/decoding_sc_foundation_models_part2/with-scfoundation/\">5096\u20139975</a>"}]'
-    data-columns='[{"title": "scGPT", "field": "scGPT", "width": 100, "formatter": "html", "hozAlign": "center", "headerHozAlign": "center", "minWidth": 100}, {"title": "scFoundation", "field": "scFoundation", "width": 130, "formatter": "html", "hozAlign": "center", "headerHozAlign": "center", "minWidth": 130}, {"title": "AIDO.Cell", "field": "AIDO_Cell", "width": 110, "formatter": "html", "hozAlign": "center", "headerHozAlign": "center", "minWidth": 110}, {"title": "scPRINT", "field": "scPRINT", "width": 100, "formatter": "html", "hozAlign": "center", "headerHozAlign": "center", "minWidth": 100}, {"title": "# genes", "field": "# genes", "width": 115, "formatter": "html", "hozAlign": "center", "headerHozAlign": "center", "minWidth": 115}]'
+    data-table='[{"scGPT": "\u2705", "scFoundation": "\u2705", "AIDO_Cell": "\u2705", "scPRINT": "\u2705", "# genes": "123\u2013454", "link": "<a href=\"/decoding_sc_foundation_models_part2/all-models/\">view</a>"}, {"scGPT": "\u274c", "scFoundation": "\u2705", "AIDO_Cell": "\u2705", "scPRINT": "\u2705", "# genes": "5096\u20139975", "link": "<a href=\"/decoding_sc_foundation_models_part2/with-scfoundation/\">view</a>"}, {"scGPT": "\u274c", "scFoundation": "\u274c", "AIDO_Cell": "\u2705", "scPRINT": "\u2705", "# genes": "18120", "link": "<a href=\"/decoding_sc_foundation_models_part2/scprint-aido/\">view</a>"}]'
+    data-columns='[{"title": "scGPT", "field": "scGPT", "width": 100, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 100}, {"title": "scFoundation", "field": "scFoundation", "width": 130, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 130}, {"title": "AIDO.Cell", "field": "AIDO_Cell", "width": 110, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 110}, {"title": "scPRINT", "field": "scPRINT", "width": 100, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 100}, {"title": "# genes", "field": "# genes", "width": 115, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 115}, {"title": "link", "field": "link", "width": 60, "formatter": "html", "hozAlign": "center", "headerHozAlign": "center", "minWidth": 60}]'
     data-options='{"layout": "fitDataTable", "responsiveLayout": "collapse"}'>
 </div>
 
-This version includes only scPRINT and AIDO.Cell, enabling a
-transcriptome-wide comparison over a shared vocabulary of 18120 genes
-without vocabulary constraints from scGPT or scFoundation.
+This version includes scGPT but excludes scFoundation, comparing models
+over a shared vocabulary of 744 genes constrained by scGPT's HVG
+selection.
 
 ### Comparing attention patterns across models
 
@@ -1062,21 +1062,7 @@ Three patterns stand out:
     consistently below the null. Understanding why requires looking more
     closely at the structure of the attention pairs themselves.
 
-{% include ai-aside.html content=" scFoundation's near-null interaction
-recovery (as seen in the companion notebook [with scFoundation
-included](./decoding_sc_foundation_models_part2/with-scfoundation/))
-likely reflects a fundamental architectural constraint rather than a
-failure of the model itself. Its asymmetric encoder-decoder design
-processes only expressed genes through the encoder, recombining those
-representations with zero-expressed gene embeddings only at the decoder
-stage to produce final gene-level representations. The residual streams
-extracted here come from the encoder alone, which has never attended
-over the full transcriptome. The regulatory signal in scFoundation is
-probably concentrated in the decoder outputs, but the decoder is closed
-source, making this analysis of the encoder the limit of what is
-publicly accessible. This is worth keeping in mind when comparing
-scFoundation to the other models here, all of which expose their full
-forward pass. " %}
+    <p>scFoundation's near-null interaction recovery (as seen in the companion notebook <a href="/decoding_sc_foundation_models_part2/with-scfoundation/">with scFoundation included</a>) likely reflects a fundamental architectural constraint rather than a failure of the model itself. Its asymmetric encoder-decoder design processes only expressed genes through the encoder, recombining those representations with zero-expressed gene embeddings only at the decoder stage to produce final gene-level representations. The residual streams extracted here come from the encoder alone, which has never attended over the full transcriptome. The regulatory signal in scFoundation is probably concentrated in the decoder outputs, but the decoder is closed source, making this analysis of the encoder the limit of what is publicly accessible. This is worth keeping in mind when comparing scFoundation to the other models here, all of which expose their full forward pass.</p>
 
 ### scPRINT attention preferentially connects mechanistically distant genes
 

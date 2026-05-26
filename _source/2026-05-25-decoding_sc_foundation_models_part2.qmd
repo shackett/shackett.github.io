@@ -22,7 +22,7 @@ Here, I extend the analysis in two directions:
 
 ### Reproducing this analysis
 
-This analysis works with the same environment and extracted model summaries (weights, residual streams) from the [Part 1 notebook](https://www.shackett.org/decoding_sc_foundation_models_part1), see the [Reproducing this analysis](https://www.shackett.org/decoding_sc_foundation_models_part1#reproducing-this-analysis) section for details.
+This analysis works with the same environment and extracted model summaries (weights, residual streams) from the [Part 1 notebook](https://github.com/shackett/shackett/blob/main/posts/posted/decoding_sc_foundation_models/sc_foundation_model_overview.qmd), see the [Reproducing this analysis](https://www.shackett.org/decoding_sc_foundation_models_part1#reproducing-this-analysis) section for details.
 
 To run this notebook:
 
@@ -804,8 +804,8 @@ TEXT_VERSIONS = {
 version_text = TEXT_VERSIONS[(INCLUDE_SCGPT, INCLUDE_SCFOUNDATION)]
 
 CHECK, CROSS = "✅", "❌"
-VARIANT_TABLE_FIELDS = ["link", "scGPT", "scFoundation", "AIDO_Cell", "scPRINT", "# genes"]
-VARIANT_FIELD_TITLES = {"AIDO_Cell": "AIDO.Cell", "link": ""}
+VARIANT_TABLE_FIELDS = ["scGPT", "scFoundation", "AIDO_Cell", "scPRINT", "# genes", "link"]
+VARIANT_FIELD_TITLES = {"AIDO_Cell": "AIDO.Cell"}
 
 NOTEBOOK_VARIANTS = [
     {
@@ -868,8 +868,8 @@ other_variants.sort(
 variant_table = pd.DataFrame(
     [
         {
-            "link": f'<a href="{variant["url"]}">view</a>',
             **{field: variant[field] for field in VARIANT_TABLE_FIELDS if field != "link"},
+            "link": f'<a href="{variant["url"]}">view</a>',
         }
         for variant in other_variants
     ]
@@ -880,12 +880,12 @@ variant_payload = export_tabulator_payload(
     layout="fitDataTable",
     include_index=False,
     column_widths={
-        "link": 55,
         "scGPT": 100,
         "scFoundation": 130,
         "AIDO_Cell": 110,
         "scPRINT": 100,
         "# genes": 115,
+        "link": 60,
     },
 )
 for column_def in variant_payload["columns"]:
@@ -1107,11 +1107,18 @@ if INCLUDE_SCFOUNDATION:
 else:
     scfoundation_aside = (
         "scFoundation's near-null interaction recovery (as seen in the companion notebook "
-        "[with scFoundation included](/decoding_sc_foundation_models_part2/with-scfoundation/)) "
+        '<a href="/decoding_sc_foundation_models_part2/with-scfoundation/">'
+        "with scFoundation included</a>) "
         + scfoundation_aside_body
     )
 
-print(f'{{% include ai-aside.html content="\n{scfoundation_aside}\n" %}}')
+print(
+    f"""<div class="content-section ai-aside">
+  <div class="section-content">
+    <p>{scfoundation_aside}</p>
+  </div>
+</div>"""
+)
 ```
 
 ### scPRINT attention preferentially connects mechanistically distant genes

@@ -10,6 +10,9 @@ tags:
   - python
   - PyTorch
 jekyll-code-fold: true
+header:
+  image: /assets/images/banners/banner_3.png
+  teaser_archive: /assets/images/teasers/napistu_blog_post_part2.png
 jupyter: blog-staging
 engine: jupyter
 ---
@@ -85,7 +88,7 @@ four scRNAseq-based foundation models. Specifically, I will:
     identify when the model has converged on stable gene-gene
     relationships.
 
-In [part
+In [Part
 two](https://www.shackett.org/decoding_sc_foundation_models_part2), I'll
 ground these attention patterns by benchmarking their consistency with
 reported interactions in [Napistu's 8-source Octopus
@@ -128,7 +131,7 @@ of how a single transformer layer operates --- from the query ($Q$), key
 ($K$), and value ($V$) projections through the gene-gene attention
 weights to the feed-forward update.
 
-<img src="{{ site.url }}/figure/decoding_sc_foundation_models/sc_foundation_model_overview.png" alt="Overview of single-cell foundation models and attention mechanisms" style="width: 100%;">
+<img src="{{ site.url }}/figure/decoding_sc_foundation_models_part1/sc_foundation_model_overview.png" alt="Overview of single-cell foundation models and attention mechanisms" style="width: 100%;">
 
 The most common pretraining objective for bag-of-genes models is masked
 expression reconstruction; a random subset of gene expression values are
@@ -1109,10 +1112,12 @@ model-agnostic from the start, which is what makes the next step
 tractable: comparing attention structure across models over a shared
 gene vocabulary, rather than within each model across layers.
 
-In part two, I'll ask whether different architectures converge on the
-same gene-gene relationships. Attention pairs that are recovered
-consistently across models turn out to be the ones most enriched for
-reported molecular interactions from the [Napistu Octopus
+In [Part
+two](https://www.shackett.org/decoding_sc_foundation_models_part2), I'll
+ask whether different architectures converge on the same gene-gene
+relationships. Attention pairs that are recovered consistently across
+models turn out to be the ones most enriched for reported molecular
+interactions from the [Napistu Octopus
 network](https://www.shackett.org/octopus_network/), and the strongest
 cross-model consensus edges overlap substantially with GNN-based edge
 predictions trained on the same network. Tying those attention patterns
