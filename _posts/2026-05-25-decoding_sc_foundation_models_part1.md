@@ -12,7 +12,7 @@ tags:
 jekyll-code-fold: true
 header:
   image: /assets/images/banners/banner_3.png
-  teaser_archive: /assets/images/teasers/napistu_blog_post_part2.png
+  teaser_archive: /figure/source/2026-05-25-decoding_sc_foundation_models_part1/model_layer_correlations-output-1.png
 jupyter: blog-staging
 engine: jupyter
 ---

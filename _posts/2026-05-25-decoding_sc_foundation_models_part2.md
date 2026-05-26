@@ -10,6 +10,9 @@ tags:
   - python
   - PyTorch
 jekyll-code-fold: true
+header:
+  image: /assets/images/banners/banner_1.png
+  teaser_archive: /figure/source/2026-05-25-decoding_sc_foundation_models_part2/edge_prediction_scores_and_existence_by_model-output-1.png
 jupyter: blog-staging
 engine: jupyter
 ---
@@ -845,8 +848,8 @@ themselves, revealing more about how each architecture processes
 information than about the biology being captured. The natural next
 question is whether any of this internal structure reflects something
 shared: do different architectures converge on the same high-attention
-gene pairs, even when their layer structure, training objectives, and
-gene vocabularies differ?
+gene pairs, even when their architecture, training data, vocabulary, and
+scale differ?
 
 To test this, I applied the same rank-agreement metric used for
 within-model comparisons, now across model-layer pairs. For each model
@@ -1215,15 +1218,15 @@ two new dimensions: cross-model consistency and grounding in molecular
 interaction networks. Using a shared gene vocabulary across four model
 families and seven variants, I showed that intermediate layers of scGPT,
 AIDO.Cell (3M), and scPRINT (large) converge on overlapping sets of
-high-attention gene pairs despite differences in architecture and
-training objective. Those same layers are also the most enriched for
-reported interactions in the Napistu Octopus network and for high
-GNN-predicted interaction scores, suggesting that cross-model coherence
-is a meaningful signal rather than architectural coincidence. The
-largest scPRINT model presents an instructive contrast: its attention
-patterns are mechanistically meaningful but biased toward cross-pathway
-interactions between dissimilar genes, an indication that it is
-precisely extracting the regulatory mechanisms that shape pathway
+high-attention gene pairs despite differences in architecture, training
+data, vocabulary, and scale. Those same layers are also the most
+enriched for reported interactions in the Napistu Octopus network and
+for high GNN-predicted interaction scores, suggesting that cross-model
+coherence is a meaningful signal rather than architectural coincidence.
+The largest scPRINT model presents an instructive contrast: its
+attention patterns are mechanistically meaningful but biased toward
+cross-pathway interactions between dissimilar genes, an indication that
+it is precisely extracting the regulatory mechanisms that shape pathway
 crosstalk.
 
 This framework opens several practical directions:

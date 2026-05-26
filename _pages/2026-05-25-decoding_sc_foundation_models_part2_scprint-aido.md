@@ -1,20 +1,49 @@
 ---
-title: "Decoding Virtual Cell Foundation Models II: Cross-Model Attention and Molecular Interactions"
-date: 2026-05-25
-tags: [foundation models, ML, napistu, python, PyTorch]
+title: >-
+  Decoding Virtual Cell Foundation Models II: Cross-Model Attention and
+  Molecular Interactions - with AIDO.Cell and scPRINT
+permalink: /decoding_sc_foundation_models_part2/scprint-aido/
+sitemap: false
 jekyll-code-fold: true
 jupyter: blog-staging
 engine: jupyter
+header:
+  image: /assets/images/banners/banner_06.png
 ---
 
-The central question motivating this series is whether the attention patterns learned by single-cell foundation models reflect genuine molecular circuits, or whether they are merely recapitulating pairwise co-expression. The distinction matters: co-expression is observational, collapsing direct regulation, shared upstream control, and correlated noise into a single undifferentiated signal. If attention is instead tracking direct regulatory relationships, it becomes causally interpretable, a map of which genes are actually controlling which, grounded in mechanisms that can be perturbed and tested experimentally.
+The central question motivating this series is whether the attention
+patterns learned by single-cell foundation models reflect genuine
+molecular circuits, or whether they are merely recapitulating pairwise
+co-expression. The distinction matters: co-expression is observational,
+collapsing direct regulation, shared upstream control, and correlated
+noise into a single undifferentiated signal. If attention is instead
+tracking direct regulatory relationships, it becomes causally
+interpretable, a map of which genes are actually controlling which,
+grounded in mechanisms that can be perturbed and tested experimentally.
 
-In [Part 1](https://www.shackett.org/decoding_sc_foundation_models_part1), I built a common framework for extracting and comparing attention patterns across four single-cell foundation model families — scGPT, scFoundation, scPRINT, and AIDO.Cell and nearly two orders of magnitude in parameter count. A key finding was that later layers actively suppress the gene-pair structure that early layers establish; early and late attention patterns are often strongly anticorrelated within a model.
+In [Part
+1](https://www.shackett.org/decoding_sc_foundation_models_part1), I
+built a common framework for extracting and comparing attention patterns
+across four single-cell foundation model families --- scGPT,
+scFoundation, scPRINT, and AIDO.Cell and nearly two orders of magnitude
+in parameter count. A key finding was that later layers actively
+suppress the gene-pair structure that early layers establish; early and
+late attention patterns are often strongly anticorrelated within a
+model.
 
 Here, I extend the analysis in two directions:
 
-1. **Cross-model attention consistency**: Do different models converge on the same high-attention gene pairs, even if the overall layer structure differs? I compare the top-K attention pairs across all model × layer combinations to ask whether models converge on a shared set of high-attention pairs despite differences in architecture and training.
-2. **Validation against molecular interaction networks**: I compare each model's high-attention pairs to the Napistu Octopus network (50K vertices, 8M edges) and to a GNN trained on self-supervised edge prediction, asking whether attention-highlighted gene pairs are enriched for known regulatory interactions.
+1.  **Cross-model attention consistency**: Do different models converge
+    on the same high-attention gene pairs, even if the overall layer
+    structure differs? I compare the top-K attention pairs across all
+    model × layer combinations to ask whether models converge on a
+    shared set of high-attention pairs despite differences in
+    architecture and training.
+2.  **Validation against molecular interaction networks**: I compare
+    each model's high-attention pairs to the Napistu Octopus network
+    (50K vertices, 8M edges) and to a GNN trained on self-supervised
+    edge prediction, asking whether attention-highlighted gene pairs are
+    enriched for known regulatory interactions.
 
 <!--more-->
 
@@ -22,20 +51,25 @@ Here, I extend the analysis in two directions:
 
 ### Reproducing this analysis
 
-This analysis works with the same environment and extracted model summaries (weights, residual streams) from the [Part 1 notebook](https://github.com/shackett/shackett/blob/main/posts/posted/decoding_sc_foundation_models/sc_foundation_model_overview.qmd), see the [Reproducing this analysis](https://www.shackett.org/decoding_sc_foundation_models_part1#reproducing-this-analysis) section for details.
+This analysis works with the same environment and extracted model
+summaries (weights, residual streams) from the [Part 1
+notebook](https://github.com/shackett/shackett/blob/main/posts/posted/decoding_sc_foundation_models/sc_foundation_model_overview.qmd),
+see the [Reproducing this
+analysis](https://www.shackett.org/decoding_sc_foundation_models_part1#reproducing-this-analysis)
+section for details.
 
 To run this notebook:
 
-1. Download the [`sc_foundation_model_network_interactions.qmd`](https://github.com/shackett/shackett/blob/main/posts/posted/decoding_sc_foundation_models/sc_foundation_model_network_interactions.qmd) notebook (or copy and paste the relevant code blocks).
+1.  Download the
+    [`sc_foundation_model_network_interactions.qmd`](https://github.com/shackett/shackett/blob/main/posts/posted/decoding_sc_foundation_models/sc_foundation_model_network_interactions.qmd)
+    notebook (or copy and paste the relevant code blocks).
 
-2. Configure `PROJECT_DIR` and other paths in the `env_setup` code block to point to your local directories.
+2.  Configure `PROJECT_DIR` and other paths in the `env_setup` code
+    block to point to your local directories.
 
 ### Configuration and imports
 
-```{python}
-#| label: env_setup
-#| output: false
-
+```python
 # standard library
 import logging
 import re
@@ -95,7 +129,7 @@ MODEL_OUTPUTS_DIR = PROJECT_DIR / "model_outputs"
 STORE_DIR = Path("~/Desktop/EXPERIMENTS/.store").expanduser()
 
 # model inclusion settings
-INCLUDE_SCGPT = True
+INCLUDE_SCGPT = False
 INCLUDE_SCFOUNDATION = False
 
 # analysis settings
@@ -131,12 +165,10 @@ bwr = LinearSegmentedColormap.from_list(
     ["#1D4A7A", "#F0EDE8", "#C01D2E"],  # flip: blue=low, red=high
 )
 
-
 def to_filename(s: str) -> str:
     s = re.sub(r"[^\w\s-]", "", s)
     s = re.sub(r"\s+", "_", s)
     return s.strip("-_")
-
 
 def get_model_names(
     include_scgpt: bool = True,
@@ -156,7 +188,6 @@ def get_model_names(
             logger.warning(f"Ignored models not found in known model names: {invalid}")
         full_names = [name for name in full_names if name not in ignored]
     return full_names
-
 
 def n_genes_in_dataset_embedding_summary(
     disk_name_or_model: str | FoundationModel,
@@ -189,18 +220,15 @@ def n_genes_in_dataset_embedding_summary(
         return uniq[0]
     return f"{min(counts)}\u2013{max(counts)}"
 
-
 def get_model_label_maps(model_metadata_summary: pd.DataFrame) -> Tuple[dict, dict]:
     model_type_map = model_metadata_summary.set_index("model")["model type"].to_dict()
     model_variant_map = model_metadata_summary.set_index("model")["model variant"].to_dict()
     return model_type_map, model_variant_map
 
-
 OPTIONAL_MODEL_TYPES = (
     FOUNDATION_MODEL_NAMES.SCGPT,
     FOUNDATION_MODEL_NAMES.SCFOUNDATION,
 )
-
 
 def append_missing_optional_model_rows(
     model_metadata_summary: pd.DataFrame,
@@ -224,7 +252,6 @@ def append_missing_optional_model_rows(
         return model_metadata_summary
     return pd.concat([model_metadata_summary, pd.DataFrame(stub_rows)], ignore_index=True)
 
-
 def mark_optional_model_inclusion(
     model_metadata_summary: pd.DataFrame,
     include_scgpt: bool,
@@ -245,7 +272,6 @@ def mark_optional_model_inclusion(
     result["included"] = result["model type"].apply(_inclusion_mark)
     return result
 
-
 def get_cache_path(
     dataset: str,
     category: str,
@@ -256,7 +282,6 @@ def get_cache_path(
     scgpt_flag = "with_scgpt" if include_scgpt else "without_scgpt"
     sf_flag = "with_scfoundation" if include_scfoundation else "without_scfoundation"
     return cache_dir / f"cross_model_{dataset}_{to_filename(category)}_{scgpt_flag}_{sf_flag}.pkl"
-
 
 def summarize_shared_n_genes_over_categories(
     category_summaries: Dict[str, dict],
@@ -275,7 +300,6 @@ def summarize_shared_n_genes_over_categories(
     if len(set(counts)) == 1:
         return counts[0]
     return f"{lo}\u2013{hi}"
-
 
 def get_all_categories(
     model_outputs_dir: Path,
@@ -298,7 +322,6 @@ def get_all_categories(
         for category in common
         if not any(substring in category for substring in ignore_categories_with)
     ])
-
 
 def get_model_comparison_metadata(
     model_outputs_dir: Path,
@@ -350,7 +373,6 @@ def get_model_comparison_metadata(
 
     return model_comparison_metadata
 
-
 def get_display_and_active_model_metadata(
     model_outputs_dir: Path,
     embedding_dataset: str,
@@ -387,14 +409,12 @@ def get_display_and_active_model_metadata(
 
     return model_metadata_summary_full, active_metadata
 
-
 def get_model_layer_labels(cross_model_top_attentions: pd.DataFrame) -> pd.DataFrame:
     model_layers_df = cross_model_top_attentions[[FM_EDGELIST.MODEL, FM_EDGELIST.LAYER]].drop_duplicates()
     model_layers_df["label"] = model_layers_df.apply(
         lambda row: f"{row[FM_EDGELIST.MODEL]}-{row[FM_EDGELIST.LAYER]}", axis=1
     )
     return model_layers_df
-
 
 def summarize_cross_model_attention_coherence(
     model_x_layer_rank_agreement: pd.DataFrame,
@@ -416,7 +436,6 @@ def summarize_cross_model_attention_coherence(
         .mean()
         .sort_values(ascending=False)
     )
-
 
 def add_vertex_names_to_edgelist(
     edgelist: pd.DataFrame,
@@ -445,7 +464,6 @@ def add_vertex_names_to_edgelist(
         )
     return top_k_with_ids.loc[~invalid_edges]
 
-
 def calculate_background_edgelist_metrics(
     napistu_data,
     edge_prediction_task,
@@ -472,7 +490,6 @@ def calculate_background_edgelist_metrics(
     ).mean().numpy()
 
     return background_edge_rate, background_edge_score
-
 
 def compare_attention_and_napistu_graphs(
     top_k_attention: pd.DataFrame,
@@ -515,7 +532,6 @@ def compare_attention_and_napistu_graphs(
     )
 
     return direct_edge_rate, average_edge_prediction
-
 
 def plot_metric_by_layer(
     data,
@@ -587,7 +603,6 @@ def plot_metric_by_layer(
 
     return fig, ax
 
-
 def plot_stacked_histogram(ax, df, score_col, x_min, x_max, n_bins=40):
     bin_edges = np.linspace(x_min, x_max, n_bins + 1)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -616,7 +631,6 @@ def plot_stacked_histogram(ax, df, score_col, x_min, x_max, n_bins=40):
     ax.set_ylabel("Count")
     ax.legend(fontsize=8)
     sns.despine(ax=ax)
-
 
 def summarize_edgelist_cosine_similarity(
     top_k_attention: pd.DataFrame,
@@ -650,7 +664,6 @@ def summarize_edgelist_cosine_similarity(
 
     return average_cosine_sim, cosine_sim.mean()
 
-
 def top_attention_to_napistu_edgelist(
     cross_model_top_attentions: pd.DataFrame,
     gene_to_vertex_map: pd.DataFrame,
@@ -670,11 +683,12 @@ def top_attention_to_napistu_edgelist(
 
 ### Building the cache
 
-For each cell-type cluster and model, I identified the top-10,000 attention pairs at each layer and evaluated how those pairs rank in every other model's attention distribution at every other layer. Results were cached to disk and aggregated across cell-type clusters.
+For each cell-type cluster and model, I identified the top-10,000
+attention pairs at each layer and evaluated how those pairs rank in
+every other model's attention distribution at every other layer. Results
+were cached to disk and aggregated across cell-type clusters.
 
-```{python}
-#| label: construct_cache
-
+```python
 all_categories = get_all_categories(
     model_outputs_dir=MODEL_OUTPUTS_DIR,
     embedding_dataset=EMBEDDING_DATASET,
@@ -728,11 +742,11 @@ for include_scgpt, include_scfoundation in scgpt_and_scfoundation_runs:
 
 ### Loading and aggregating
 
-Cached results are loaded and summarized across cell-type clusters, producing layer-indexed cross-model rank agreement scores used in the analyses below.
+Cached results are loaded and summarized across cell-type clusters,
+producing layer-indexed cross-model rank agreement scores used in the
+analyses below.
 
-```{python}
-#| label: load_cache
-
+```python
 # summaries of models under consideration
 model_metadata_summary_full, model_comparison_metadata = get_display_and_active_model_metadata(
     model_outputs_dir=MODEL_OUTPUTS_DIR,
@@ -765,11 +779,18 @@ comparisons = aggregate_embedding_comparisons_over_categories(category_summaries
 
 ## Foundation models converge on a shared set of high-attention gene pairs
 
-If the attention patterns learned by these models reflect genuine regulatory biology rather than architecture-specific artifacts, independently trained models should converge on similar high-attention gene pairs. Testing this requires a shared vocabulary: scGPT uses gene symbols while the remaining models use Ensembl IDs, and each model covers a different subset of the transcriptome. `AttentionPatternsInputs.from_expression()` handles the alignment by finding the gene intersection across all models and reordering each model's embeddings to a common index before computing any cross-model statistics.
+If the attention patterns learned by these models reflect genuine
+regulatory biology rather than architecture-specific artifacts,
+independently trained models should converge on similar high-attention
+gene pairs. Testing this requires a shared vocabulary: scGPT uses gene
+symbols while the remaining models use Ensembl IDs, and each model
+covers a different subset of the transcriptome.
+`AttentionPatternsInputs.from_expression()` handles the alignment by
+finding the gene intersection across all models and reordering each
+model's embeddings to a common index before computing any cross-model
+statistics.
 
-```{python}
-#| label: show_model_metadata_table
-
+```python
 display_tabulator(
     model_metadata_summary_full,
     layout="fitDataTable",
@@ -777,156 +798,65 @@ display_tabulator(
 )
 ```
 
-Cross-model comparison requires a common gene vocabulary, which introduces a meaningful tradeoff. A model with a smaller vocabulary may appear to perform better simply because it is already focused on genes central to core biological processes - a form of implicit HVG selection. To avoid this bias, all models are compared over their shared gene intersection, which means genome-scale models like scPRINT and AIDO.Cell have their attention patterns pared down to the common vocabulary.
-
-The models differ substantially in vocabulary size: scGPT operates on the top 1,200 highly variable genes, scFoundation restricts its vocabulary to genes expressed in each cell type (typically 5,000-10,000), and scPRINT and AIDO.Cell embed 18,000-19,000 genes. Including scGPT or scFoundation therefore dramatically reduces the shared vocabulary. To keep comparisons robust, I ran several versions of this notebook that differ only in which models were included; scPRINT and AIDO.Cell are always present, while scGPT and scFoundation are optional. Results are consistent across versions.
-
-```{python}
-#| label: notebook_variant_table
-#| echo: false
-
-import json
-
-from IPython.display import HTML, display
-
-ngenes = summarize_shared_n_genes_over_categories(
-    category_summaries,
-    include_scfoundation=INCLUDE_SCFOUNDATION,
-)
-
-TEXT_VERSIONS = {
-    (True, True): f"This version includes all four model families over a shared vocabulary of {ngenes} genes, constrained by scGPT's HVG selection.",
-    (True, False): f"This version includes scGPT but excludes scFoundation, comparing models over a shared vocabulary of {ngenes} genes constrained by scGPT's HVG selection.",
-    (False, True): f"This version excludes scGPT, allowing comparison at transcriptome-wide scale over a shared vocabulary of {ngenes} genes constrained by scFoundation's expression-dependent vocabulary.",
-    (False, False): f"This version includes only scPRINT and AIDO.Cell, enabling a transcriptome-wide comparison over a shared vocabulary of {ngenes} genes without vocabulary constraints from scGPT or scFoundation.",
-}
-
-version_text = TEXT_VERSIONS[(INCLUDE_SCGPT, INCLUDE_SCFOUNDATION)]
-
-CHECK, CROSS = "✅", "❌"
-VARIANT_TABLE_FIELDS = ["scGPT", "scFoundation", "AIDO_Cell", "scPRINT", "# genes", "link"]
-VARIANT_FIELD_TITLES = {"AIDO_Cell": "AIDO.Cell"}
-
-NOTEBOOK_VARIANTS = [
-    {
-        "url": "/decoding_sc_foundation_models_part2/all-models/",
-        "include_scgpt": True,
-        "include_scfoundation": True,
-        "scGPT": CHECK,
-        "scFoundation": CHECK,
-        "AIDO_Cell": CHECK,
-        "scPRINT": CHECK,
-        "# genes": "123–454",
-    },
-    {
-        "url": "/decoding_sc_foundation_models_part2/",
-        "include_scgpt": True,
-        "include_scfoundation": False,
-        "scGPT": CHECK,
-        "scFoundation": CROSS,
-        "AIDO_Cell": CHECK,
-        "scPRINT": CHECK,
-        "# genes": "744",
-    },
-    {
-        "url": "/decoding_sc_foundation_models_part2/with-scfoundation/",
-        "include_scgpt": False,
-        "include_scfoundation": True,
-        "scGPT": CROSS,
-        "scFoundation": CHECK,
-        "AIDO_Cell": CHECK,
-        "scPRINT": CHECK,
-        "# genes": "5096–9975",
-    },
-    {
-        "url": "/decoding_sc_foundation_models_part2/scprint-aido/",
-        "include_scgpt": False,
-        "include_scfoundation": False,
-        "scGPT": CROSS,
-        "scFoundation": CROSS,
-        "AIDO_Cell": CHECK,
-        "scPRINT": CHECK,
-        "# genes": "18120",
-    },
-]
-
-other_variants = [
-    variant
-    for variant in NOTEBOOK_VARIANTS
-    if (variant["include_scgpt"], variant["include_scfoundation"])
-    != (INCLUDE_SCGPT, INCLUDE_SCFOUNDATION)
-]
-other_variants.sort(
-    key=lambda variant: (
-        variant["include_scgpt"] + variant["include_scfoundation"],
-        variant["include_scgpt"],
-        variant["include_scfoundation"],
-    ),
-    reverse=True,
-)
-
-variant_table = pd.DataFrame(
-    [
-        {
-            **{field: variant[field] for field in VARIANT_TABLE_FIELDS if field != "link"},
-            "link": f'<a href="{variant["url"]}">view</a>',
-        }
-        for variant in other_variants
-    ]
-)
-
-variant_payload = export_tabulator_payload(
-    variant_table,
-    layout="fitDataTable",
-    include_index=False,
-    column_widths={
-        "scGPT": 100,
-        "scFoundation": 130,
-        "AIDO_Cell": 110,
-        "scPRINT": 100,
-        "# genes": 115,
-        "link": 60,
-    },
-)
-for column_def in variant_payload["columns"]:
-    if column_def["field"] == "link":
-        column_def["formatter"] = "html"
-    column_def["hozAlign"] = "center"
-    column_def["headerHozAlign"] = "center"
-    column_def["minWidth"] = column_def.get("width", 100)
-    column_def["title"] = VARIANT_FIELD_TITLES.get(
-        column_def["field"], column_def["title"]
-    )
-
-display(
-    HTML(
-        f"""
 <div class="data-table" style=""
-    data-table='{json.dumps(variant_payload["table"])}'
-    data-columns='{json.dumps(variant_payload["columns"])}'
-    data-options='{json.dumps(variant_payload["options"])}'>
+    data-table='[{"model": "AIDO.Cell (3M)", "model type": "AIDOCell", "model variant": "aido_cell_3m", "# dim": 128, "# layers": 6, "# heads": 4, "# parameters": 393216, "# genes": 18156, "included": "\u2705"}, {"model": "AIDO.Cell (10M)", "model type": "AIDOCell", "model variant": "aido_cell_10m", "# dim": 256, "# layers": 8, "# heads": 8, "# parameters": 2097152, "# genes": 18156, "included": "\u2705"}, {"model": "scGPT", "model type": "scGPT", "model variant": "", "# dim": 512, "# layers": 12, "# heads": 8, "# parameters": 12582912, "# genes": 1200, "included": "\u274c"}, {"model": "scPRINT (small)", "model type": "scPRINT", "model variant": "small", "# dim": 128, "# layers": 4, "# heads": 4, "# parameters": 262144, "# genes": 19261, "included": "\u2705"}, {"model": "scPRINT (medium)", "model type": "scPRINT", "model variant": "medium", "# dim": 256, "# layers": 8, "# heads": 4, "# parameters": 2097152, "# genes": 19261, "included": "\u2705"}, {"model": "scPRINT (large)", "model type": "scPRINT", "model variant": "large", "# dim": 512, "# layers": 16, "# heads": 4, "# parameters": 16777216, "# genes": 19261, "included": "\u2705"}, {"model": "scFoundation", "model type": "scFoundation", "model variant": "", "# dim": 768, "# layers": 12, "# heads": 12, "# parameters": 28311552, "# genes": "5108\u20139985", "included": "\u274c"}]'
+    data-columns='[{"title": "model", "field": "model"}, {"title": "model type", "field": "model type"}, {"title": "model variant", "field": "model variant"}, {"title": "# dim", "field": "# dim"}, {"title": "# layers", "field": "# layers"}, {"title": "# heads", "field": "# heads"}, {"title": "# parameters", "field": "# parameters"}, {"title": "# genes", "field": "# genes"}, {"title": "included", "field": "included"}]'
+    data-options='{"layout": "fitDataTable", "responsiveLayout": "collapse"}'>
 </div>
-"""
-    )
-)
-```
 
-```{python}
-#| echo: false
-#| output: asis
+Cross-model comparison requires a common gene vocabulary, which
+introduces a meaningful tradeoff. A model with a smaller vocabulary may
+appear to perform better simply because it is already focused on genes
+central to core biological processes - a form of implicit HVG selection.
+To avoid this bias, all models are compared over their shared gene
+intersection, which means genome-scale models like scPRINT and AIDO.Cell
+have their attention patterns pared down to the common vocabulary.
 
-print(version_text)
-```
+The models differ substantially in vocabulary size: scGPT operates on
+the top 1,200 highly variable genes, scFoundation restricts its
+vocabulary to genes expressed in each cell type (typically
+5,000-10,000), and scPRINT and AIDO.Cell embed 18,000-19,000 genes.
+Including scGPT or scFoundation therefore dramatically reduces the
+shared vocabulary. To keep comparisons robust, I ran several versions of
+this notebook that differ only in which models were included; scPRINT
+and AIDO.Cell are always present, while scGPT and scFoundation are
+optional. Results are consistent across versions.
+
+<div class="data-table" style=""
+    data-table='[{"scGPT": "\u2705", "scFoundation": "\u2705", "AIDO_Cell": "\u2705", "scPRINT": "\u2705", "# genes": "123\u2013454", "link": "<a href=\"/decoding_sc_foundation_models_part2/all-models/\">view</a>"}, {"scGPT": "\u2705", "scFoundation": "\u274c", "AIDO_Cell": "\u2705", "scPRINT": "\u2705", "# genes": "744", "link": "<a href=\"/decoding_sc_foundation_models_part2/\">view</a>"}, {"scGPT": "\u274c", "scFoundation": "\u2705", "AIDO_Cell": "\u2705", "scPRINT": "\u2705", "# genes": "5096\u20139975", "link": "<a href=\"/decoding_sc_foundation_models_part2/with-scfoundation/\">view</a>"}]'
+    data-columns='[{"title": "scGPT", "field": "scGPT", "width": 100, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 100}, {"title": "scFoundation", "field": "scFoundation", "width": 130, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 130}, {"title": "AIDO.Cell", "field": "AIDO_Cell", "width": 110, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 110}, {"title": "scPRINT", "field": "scPRINT", "width": 100, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 100}, {"title": "# genes", "field": "# genes", "width": 115, "hozAlign": "center", "headerHozAlign": "center", "minWidth": 115}, {"title": "link", "field": "link", "width": 60, "formatter": "html", "hozAlign": "center", "headerHozAlign": "center", "minWidth": 60}]'
+    data-options='{"layout": "fitDataTable", "responsiveLayout": "collapse"}'>
+</div>
+
+This version includes only scPRINT and AIDO.Cell, enabling a
+transcriptome-wide comparison over a shared vocabulary of 18120 genes
+without vocabulary constraints from scGPT or scFoundation.
 
 ### Comparing attention patterns across models
 
-In Part 1, I explored how attention patterns evolve across layers within each model, finding that later layers often actively suppress early attention patterns and that cross-layer consistency varies substantially by architecture and model size. These are properties of the models themselves, revealing more about how each architecture processes information than about the biology being captured. The natural next question is whether any of this internal structure reflects something shared: do different architectures converge on the same high-attention gene pairs, even when their architecture, training data, vocabulary, and scale differ?
+In Part 1, I explored how attention patterns evolve across layers within
+each model, finding that later layers often actively suppress early
+attention patterns and that cross-layer consistency varies substantially
+by architecture and model size. These are properties of the models
+themselves, revealing more about how each architecture processes
+information than about the biology being captured. The natural next
+question is whether any of this internal structure reflects something
+shared: do different architectures converge on the same high-attention
+gene pairs, even when their layer structure, training objectives, and
+gene vocabularies differ?
 
-To test this, I applied the same rank-agreement metric used for within-model comparisons, now across model-layer pairs. For each model and layer, the top-K attention pairs were selected and their median quantile was evaluated against every other model's layers. High quantile scores indicate that a pair ranked highly in one model also ranks highly in another. Where this coherence is strong, the underlying gene-gene relationship is robustly learned regardless of architecture; where it is weak, it may reflect architecture-specific routing, noise, or simply that the models are capturing different aspects of a complex regulatory landscape.
+To test this, I applied the same rank-agreement metric used for
+within-model comparisons, now across model-layer pairs. For each model
+and layer, the top-K attention pairs were selected and their median
+quantile was evaluated against every other model's layers. High quantile
+scores indicate that a pair ranked highly in one model also ranks highly
+in another. Where this coherence is strong, the underlying gene-gene
+relationship is robustly learned regardless of architecture; where it is
+weak, it may reflect architecture-specific routing, noise, or simply
+that the models are capturing different aspects of a complex regulatory
+landscape.
 
-```{python}
-#| label: visualize_xmodel_layer_attention_consistency
-
+```python
 cross_model_top_attentions = comparisons["cross_model_x_layer_top_attentions"]
 model_x_layer_rank_agreement = comparisons["cross_model_x_layer_rank_agreement"]
 
@@ -990,16 +920,36 @@ plot_heatmap(
 plt.show()
 ```
 
-The cross-model consistency matrix reveals that agreement is neither uniform nor random. The strongest cross-model coherence emerges between intermediate layers of scGPT, AIDO.Cell (3M), and scPRINT (large), with their top attention pairs ranking consistently highly in each other's distributions and forming visible hotspots in the off-diagonal blocks. The other scPRINT variants and AIDO.Cell (10M) show weaker cross-model signals. That three architectures, trained on different objectives, spanning nearly two orders of magnitude in parameter count, converge on overlapping sets of high-attention gene pairs in specific layers is an encouraging signal; it suggests that  these pairs reflect structure in the expression data that multiple models independently find useful, rather than artifacts of any particular training run.
+![](/figure/source/2026-05-25-decoding_sc_foundation_models_part2_scprint-aido/visualize_xmodel_layer_attention_consistency-output-1.png)
+
+The cross-model consistency matrix reveals that agreement is neither
+uniform nor random. The strongest cross-model coherence emerges between
+intermediate layers of scGPT, AIDO.Cell (3M), and scPRINT (large), with
+their top attention pairs ranking consistently highly in each other's
+distributions and forming visible hotspots in the off-diagonal blocks.
+The other scPRINT variants and AIDO.Cell (10M) show weaker cross-model
+signals. That three architectures, trained on different objectives,
+spanning nearly two orders of magnitude in parameter count, converge on
+overlapping sets of high-attention gene pairs in specific layers is an
+encouraging signal; it suggests that these pairs reflect structure in
+the expression data that multiple models independently find useful,
+rather than artifacts of any particular training run.
 
 ## Grounding attention patterns in molecular interaction networks
 
-To evaluate whether high-attention gene pairs overlap with known molecular interactions, I mapped each pair against the 8-source Octopus network (~4M reported interactions across 50K proteins, metabolites, and complexes) to compute a reported edge rate, and scored each pair using a GNN trained on self-supervised edge prediction over the same network to obtain a continuous interaction plausibility score. Both measures are reported relative to a vocabulary-matched null (the expected values computed over all gene pairs within the observed vocabulary) since hub genes with high local edge density would inflate raw rates regardless of whether attention is specifically tracking interactions.
+To evaluate whether high-attention gene pairs overlap with known
+molecular interactions, I mapped each pair against the 8-source Octopus
+network (\~4M reported interactions across 50K proteins, metabolites,
+and complexes) to compute a reported edge rate, and scored each pair
+using a GNN trained on self-supervised edge prediction over the same
+network to obtain a continuous interaction plausibility score. Both
+measures are reported relative to a vocabulary-matched null (the
+expected values computed over all gene pairs within the observed
+vocabulary) since hub genes with high local edge density would inflate
+raw rates regardless of whether attention is specifically tracking
+interactions.
 
-```{python}
-#| label: Napistu_setup
-#| output: false
-
+```python
 napistu_data_store = NapistuDataStore(STORE_DIR)
 species_identifiers = (
     napistu_data_store.load_pandas_df(DEFAULT_ARTIFACTS_NAMES.SPECIES_IDENTIFIERS)
@@ -1040,11 +990,17 @@ background_edge_rate, background_edge_score = calculate_background_edgelist_metr
 )
 ```
 
-The GNN was trained to predict edge existence in the Octopus network, so its scores are naturally calibrated to that task. The figure below confirms the expected separation: gene pairs with a direct reported interaction score with a median of 0.84, while pairs without one score 0.29. With ~4M edges among ~20K genes, the Octopus network is dense by regulatory network standards but still covers only a small fraction of possible pairs. The GNN score provides a useful continuous signal for the remaining pairs, interpolating interaction plausibility beyond what binary edge existence alone can capture.
+The GNN was trained to predict edge existence in the Octopus network, so
+its scores are naturally calibrated to that task. The figure below
+confirms the expected separation: gene pairs with a direct reported
+interaction score with a median of 0.84, while pairs without one score
+0.29. With \~4M edges among \~20K genes, the Octopus network is dense by
+regulatory network standards but still covers only a small fraction of
+possible pairs. The GNN score provides a useful continuous signal for
+the remaining pairs, interpolating interaction plausibility beyond what
+binary edge existence alone can capture.
 
-```{python}
-#| label: edge_prediction_scores_by_edge_existence
-
+```python
 fig, ax = plt.subplots(figsize=(8, 5))
 plot_stacked_histogram(ax, top_k_attention_edgelist, "prediction", x_min=0, x_max=1)
 ax.set_title("GNN edge prediction score by edge existence")
@@ -1052,13 +1008,17 @@ plt.tight_layout()
 plt.show()
 ```
 
+![](/figure/source/2026-05-25-decoding_sc_foundation_models_part2_scprint-aido/edge_prediction_scores_by_edge_existence-output-1.png)
+
 ### Interaction enrichment is strong but highly layer-dependent
 
-To assess whether attention patterns are enriched for reported and high-scoring interactions, I computed the edge rate and median GNN score for the top-K attention pairs at each model and layer. Since both measures were calculated separately for each cell-type cluster, the range across clusters is shown as a line range.
+To assess whether attention patterns are enriched for reported and
+high-scoring interactions, I computed the edge rate and median GNN score
+for the top-K attention pairs at each model and layer. Since both
+measures were calculated separately for each cell-type cluster, the
+range across clusters is shown as a line range.
 
-```{python}
-#| label: edge_prediction_scores_and_existence_by_model
-
+```python
 fig, ax = plot_metric_by_layer(
     data=direct_edge_rate,
     y_col='true_fraction',
@@ -1078,56 +1038,48 @@ fig, ax = plot_metric_by_layer(
 )
 ```
 
+![](/figure/source/2026-05-25-decoding_sc_foundation_models_part2_scprint-aido/edge_prediction_scores_and_existence_by_model-output-1.png)
+
+![](/figure/source/2026-05-25-decoding_sc_foundation_models_part2_scprint-aido/edge_prediction_scores_and_existence_by_model-output-2.png)
+
 Three patterns stand out:
 
-- **Striking enrichment in intermediate layers of scGPT and AIDO.Cell (3M)**: more than 50% of top-10,000 attention pairs correspond to reported molecular interactions at peak layers, substantially above the vocabulary-matched null.
-- **Enrichment peaks at intermediate layers across most models**: consistent with the conventional interpretation that early layers adapt raw expression to a useful embedding, intermediate layers capture general regulatory structure, and late layers specialize toward cell-type-specific states.
-- **scPRINT (large) shows a dissociation between edge rate and GNN score**: edge rates are above null at several layers, suggesting genuine recovery of reported interactions, but GNN scores remain consistently below the null. Understanding why requires looking more closely at the structure of the attention pairs themselves.
+-   **Striking enrichment in intermediate layers of scGPT and AIDO.Cell
+    (3M)**: more than 50% of top-10,000 attention pairs correspond to
+    reported molecular interactions at peak layers, substantially above
+    the vocabulary-matched null.
+-   **Enrichment peaks at intermediate layers across most models**:
+    consistent with the conventional interpretation that early layers
+    adapt raw expression to a useful embedding, intermediate layers
+    capture general regulatory structure, and late layers specialize
+    toward cell-type-specific states.
+-   **scPRINT (large) shows a dissociation between edge rate and GNN
+    score**: edge rates are above null at several layers, suggesting
+    genuine recovery of reported interactions, but GNN scores remain
+    consistently below the null. Understanding why requires looking more
+    closely at the structure of the attention pairs themselves.
 
-```{python}
-#| echo: false
-#| output: asis
-
-scfoundation_aside_body = (
-    "likely reflects a fundamental architectural constraint rather than a failure of the model "
-    "itself. Its asymmetric encoder-decoder design processes only expressed genes through the "
-    "encoder, recombining those representations with zero-expressed gene embeddings only at the "
-    "decoder stage to produce final gene-level representations. The residual streams extracted here "
-    "come from the encoder alone, which has never attended over the full transcriptome. The "
-    "regulatory signal in scFoundation is probably concentrated in the decoder outputs, but the "
-    "decoder is closed source, making this analysis of the encoder the limit of what is publicly "
-    "accessible. This is worth keeping in mind when comparing scFoundation to the other models "
-    "here, all of which expose their full forward pass."
-)
-
-if INCLUDE_SCFOUNDATION:
-    scfoundation_aside = (
-        "scFoundation's near-null interaction recovery " + scfoundation_aside_body
-    )
-else:
-    scfoundation_aside = (
-        "scFoundation's near-null interaction recovery (as seen in the companion notebook "
-        '<a href="/decoding_sc_foundation_models_part2/with-scfoundation/">'
-        "with scFoundation included</a>) "
-        + scfoundation_aside_body
-    )
-
-print(
-    f"""<div class="content-section ai-aside">
-  <div class="section-content">
-    <p>{scfoundation_aside}</p>
-  </div>
-</div>"""
-)
-```
+    <p>scFoundation's near-null interaction recovery (as seen in the companion notebook <a href="/decoding_sc_foundation_models_part2/with-scfoundation/">with scFoundation included</a>) likely reflects a fundamental architectural constraint rather than a failure of the model itself. Its asymmetric encoder-decoder design processes only expressed genes through the encoder, recombining those representations with zero-expressed gene embeddings only at the decoder stage to produce final gene-level representations. The residual streams extracted here come from the encoder alone, which has never attended over the full transcriptome. The regulatory signal in scFoundation is probably concentrated in the decoder outputs, but the decoder is closed source, making this analysis of the encoder the limit of what is publicly accessible. This is worth keeping in mind when comparing scFoundation to the other models here, all of which expose their full forward pass.</p>
 
 ### scPRINT attention preferentially connects mechanistically distant genes
 
-High-attention gene pairs in the largest scPRINT model tend to have low GNN scores despite being enriched for reported interactions. The GNN scores edges using a standard edge prediction MLP applied to source and target vertex embeddings, so low scores could reflect two distinct sources: the MLP penalizing certain interaction types, or the attended pairs being dissimilar in the underlying vertex embedding space. These are meaningfully different — the first implicates the scoring function, the second implicates the structure of the pairs themselves. Vertex embeddings in the Napistu GNN are learned from network topology, so genes with similar local interaction neighborhoods end up close in embedding space; dissimilar embeddings imply genes from different parts of the interaction network, with few shared neighbors. To distinguish between the two explanations, I compared the cosine similarity between source and target vertex embeddings for high-attention pairs across all models against the background distribution of vocabulary-matched pairs.
+High-attention gene pairs in the largest scPRINT model tend to have low
+GNN scores despite being enriched for reported interactions. The GNN
+scores edges using a standard edge prediction MLP applied to source and
+target vertex embeddings, so low scores could reflect two distinct
+sources: the MLP penalizing certain interaction types, or the attended
+pairs being dissimilar in the underlying vertex embedding space. These
+are meaningfully different --- the first implicates the scoring
+function, the second implicates the structure of the pairs themselves.
+Vertex embeddings in the Napistu GNN are learned from network topology,
+so genes with similar local interaction neighborhoods end up close in
+embedding space; dissimilar embeddings imply genes from different parts
+of the interaction network, with few shared neighbors. To distinguish
+between the two explanations, I compared the cosine similarity between
+source and target vertex embeddings for high-attention pairs across all
+models against the background distribution of vocabulary-matched pairs.
 
-```{python}
-#| label: edge_cosine_similarity_relative_to_universe
-
+```python
 average_embedding_cosine_similarity, background_embedding_cosine_similarity = summarize_edgelist_cosine_similarity(
     top_k_attention, top_k_attention_edgelist, napistu_data, napistu_gnn, model_order
 )
@@ -1142,26 +1094,73 @@ fig, ax = plot_metric_by_layer(
 )
 ```
 
-The cosine similarity results reveal a clear split across models. AIDO.Cell (3M) and scGPT intermediate layers attend preferentially to genes that are similar in the GNN embedding space, well above the vocabulary-matched null, consistent with their high edge rates and GNN scores. The largest scPRINT model is the mirror image: high-attention pairs are consistently below the null in cosine similarity throughout all layers, confirming that the low GNN scores reflect genuine dissimilarity in vertex embedding space rather than a scoring artifact from the MLP head.
+![](/figure/source/2026-05-25-decoding_sc_foundation_models_part2_scprint-aido/edge_cosine_similarity_relative_to_universe-output-1.png)
 
-Taken together, the largest scPRINT model is capturing mechanistically meaningful attention patterns, but biased toward cross-pathway interactions between genes with dissimilar local network neighborhoods. Two factors may contribute:
+The cosine similarity results reveal a clear split across models.
+AIDO.Cell (3M) and scGPT intermediate layers attend preferentially to
+genes that are similar in the GNN embedding space, well above the
+vocabulary-matched null, consistent with their high edge rates and GNN
+scores. The largest scPRINT model is the mirror image: high-attention
+pairs are consistently below the null in cosine similarity throughout
+all layers, confirming that the low GNN scores reflect genuine
+dissimilarity in vertex embedding space rather than a scoring artifact
+from the MLP head.
 
-- Cross-pathway crosstalk provides a stronger learning signal: genes from different pathways interact rarely and specifically, making those pairs more distinctive and easier for the model to learn than the dense, redundant co-expression structure within pathways.
-- Within-pathway attention is diluted across many pairs: because co-regulated genes form tight clusters, many pairs are roughly equally plausible candidates for attention, spreading weight across a large number of edges rather than concentrating it on a few, pushing any individual within-pathway pair below the top-K threshold.
+Taken together, the largest scPRINT model is capturing mechanistically
+meaningful attention patterns, but biased toward cross-pathway
+interactions between genes with dissimilar local network neighborhoods.
+Two factors may contribute:
 
-{% include ai-aside.html content="
-The cross-pathway attention bias in scPRINT may be directly attributable to its training objective. Unlike scGPT and AIDO.Cell, which are trained purely on self-supervised expression denoising, scPRINT optimizes a joint loss that includes hierarchical label prediction, classifying cell type, tissue, disease, and other metadata from disentangled cell embeddings. Cell identity is inherently a cross-pathway phenomenon: the features that distinguish cell types span metabolic, cytoskeletal, signaling, and transcriptional programs simultaneously. Attention patterns bridging pathway boundaries are directly rewarded by this classification signal, whereas scGPT and AIDO.Cell are steered toward the block-diagonal co-expression structure that is the optimal strategy for local gene imputation.
+-   Cross-pathway crosstalk provides a stronger learning signal: genes
+    from different pathways interact rarely and specifically, making
+    those pairs more distinctive and easier for the model to learn than
+    the dense, redundant co-expression structure within pathways.
+-   Within-pathway attention is diluted across many pairs: because
+    co-regulated genes form tight clusters, many pairs are roughly
+    equally plausible candidates for attention, spreading weight across
+    a large number of edges rather than concentrating it on a few,
+    pushing any individual within-pathway pair below the top-K
+    threshold.
 
-It is worth noting that this analysis aggregates attention across all heads equally, whereas scPRINT's published gene network extraction performs post-hoc head selection based on recovery of known interactions from OmniPath before aggregating. This is an inference-time decision layered on top of the trained model rather than part of the training objective itself, but it would specifically enrich for heads capturing dense within-pathway interactions, potentially reversing the cross-pathway bias observed here. The head-agnostic view taken in this analysis and the head-selected view in the original scPRINT paper may therefore be capturing complementary aspects of what the model has learned.
-" %}
+{% include ai-aside.html content=" The cross-pathway attention bias in
+scPRINT may be directly attributable to its training objective. Unlike
+scGPT and AIDO.Cell, which are trained purely on self-supervised
+expression denoising, scPRINT optimizes a joint loss that includes
+hierarchical label prediction, classifying cell type, tissue, disease,
+and other metadata from disentangled cell embeddings. Cell identity is
+inherently a cross-pathway phenomenon: the features that distinguish
+cell types span metabolic, cytoskeletal, signaling, and transcriptional
+programs simultaneously. Attention patterns bridging pathway boundaries
+are directly rewarded by this classification signal, whereas scGPT and
+AIDO.Cell are steered toward the block-diagonal co-expression structure
+that is the optimal strategy for local gene imputation.
+
+It is worth noting that this analysis aggregates attention across all
+heads equally, whereas scPRINT's published gene network extraction
+performs post-hoc head selection based on recovery of known interactions
+from OmniPath before aggregating. This is an inference-time decision
+layered on top of the trained model rather than part of the training
+objective itself, but it would specifically enrich for heads capturing
+dense within-pathway interactions, potentially reversing the
+cross-pathway bias observed here. The head-agnostic view taken in this
+analysis and the head-selected view in the original scPRINT paper may
+therefore be capturing complementary aspects of what the model has
+learned. " %}
 
 ### Layers with strong cross-model coherence are enriched for known and GNN-supported interactions
 
-The preceding analyses established two layer-dependent properties: cross-model attention coherence, where intermediate layers of certain models converge on shared gene pairs, and interaction enrichment, where those same layers show the highest edge rates and GNN scores. Comparing these directly asks whether cross-model coherence is a useful proxy for mechanistic signal, specifically whether the layers where models agree are also those most enriched for known regulatory interactions. Each point represents a single model, layer, and cell-type cluster combination, giving a fine-grained view of how coherence and enrichment co-vary across the full range of model depth and cellular context.
+The preceding analyses established two layer-dependent properties:
+cross-model attention coherence, where intermediate layers of certain
+models converge on shared gene pairs, and interaction enrichment, where
+those same layers show the highest edge rates and GNN scores. Comparing
+these directly asks whether cross-model coherence is a useful proxy for
+mechanistic signal, specifically whether the layers where models agree
+are also those most enriched for known regulatory interactions. Each
+point represents a single model, layer, and cell-type cluster
+combination, giving a fine-grained view of how coherence and enrichment
+co-vary across the full range of model depth and cellular context.
 
-```{python}
-#| label: cross_model_coherence_vs_mechanistic_strength
-
+```python
 df1 = average_edge_prediction.merge(
     cross_model_attention_coherence,
     left_on=["model", "layer", "category"],
@@ -1195,16 +1194,59 @@ plt.tight_layout()
 plt.show()
 ```
 
-The scatterplots confirm that cross-model coherence and mechanistic enrichment are correlated: the layers where models converge on shared attention pairs are also those most enriched for reported interactions and high GNN scores. This suggests that cross-model agreement is not just a reproducibility check but an interpretable signal, identifying the layers and models most likely to capture genuine regulatory structure rather than architecture-specific noise.
+![](/figure/source/2026-05-25-decoding_sc_foundation_models_part2_scprint-aido/cross_model_coherence_vs_mechanistic_strength-output-1.png)
+
+The scatterplots confirm that cross-model coherence and mechanistic
+enrichment are correlated: the layers where models converge on shared
+attention pairs are also those most enriched for reported interactions
+and high GNN scores. This suggests that cross-model agreement is not
+just a reproducibility check but an interpretable signal, identifying
+the layers and models most likely to capture genuine regulatory
+structure rather than architecture-specific noise.
 
 ## Summary and future directions
 
-This post extended the layer-wise attention analysis from [Part 1](https://www.shackett.org/decoding_sc_foundation_models_part1) into two new dimensions: cross-model consistency and grounding in molecular interaction networks. Using a shared gene vocabulary across four model families and seven variants, I showed that intermediate layers of scGPT, AIDO.Cell (3M), and scPRINT (large) converge on overlapping sets of high-attention gene pairs despite differences in architecture, training data, vocabulary, and scale. Those same layers are also the most enriched for reported interactions in the Napistu Octopus network and for high GNN-predicted interaction scores, suggesting that cross-model coherence is a meaningful signal rather than architectural coincidence. The largest scPRINT model presents an instructive contrast: its attention patterns are mechanistically meaningful but biased toward cross-pathway interactions between dissimilar genes, an indication that it is precisely extracting the regulatory mechanisms that shape pathway crosstalk.
+This post extended the layer-wise attention analysis from [Part
+1](https://www.shackett.org/decoding_sc_foundation_models_part1) into
+two new dimensions: cross-model consistency and grounding in molecular
+interaction networks. Using a shared gene vocabulary across four model
+families and seven variants, I showed that intermediate layers of scGPT,
+AIDO.Cell (3M), and scPRINT (large) converge on overlapping sets of
+high-attention gene pairs despite differences in architecture and
+training objective. Those same layers are also the most enriched for
+reported interactions in the Napistu Octopus network and for high
+GNN-predicted interaction scores, suggesting that cross-model coherence
+is a meaningful signal rather than architectural coincidence. The
+largest scPRINT model presents an instructive contrast: its attention
+patterns are mechanistically meaningful but biased toward cross-pathway
+interactions between dissimilar genes, an indication that it is
+precisely extracting the regulatory mechanisms that shape pathway
+crosstalk.
 
 This framework opens several practical directions:
 
-- **Model selection and layer identification**: cross-model coherence and interaction enrichment together provide a principled basis for identifying which model and which layers to use for a given downstream task, without requiring labeled data.
-- **Gene network inference**: high-confidence attention pairs, particularly those consistently recovered across models and enriched for known interactions, can be used to construct cell-type-specific regulatory networks that go beyond co-expression.
-- **Model evaluation**: the vocabulary-aligned comparison framework built here enables systematic benchmarking of new foundation models as they are released, assessing whether architectural or training innovations translate into improved mechanistic signals.
+-   **Model selection and layer identification**: cross-model coherence
+    and interaction enrichment together provide a principled basis for
+    identifying which model and which layers to use for a given
+    downstream task, without requiring labeled data.
+-   **Gene network inference**: high-confidence attention pairs,
+    particularly those consistently recovered across models and enriched
+    for known interactions, can be used to construct cell-type-specific
+    regulatory networks that go beyond co-expression.
+-   **Model evaluation**: the vocabulary-aligned comparison framework
+    built here enables systematic benchmarking of new foundation models
+    as they are released, assessing whether architectural or training
+    innovations translate into improved mechanistic signals.
 
-The deeper ambition behind this work is to bridge foundation model representations and actionable molecular biology. Attention patterns that are consistent across models and enriched for known regulatory interactions are not only interpretability curiosities; they are also candidate regulatory edges that can be prioritized for experimental follow-up. Beyond describing biology, a model that reliably attends to the edges of a signaling pathway in a disease-relevant cell type is generating hypotheses about which molecular interactions to perturb and which perturbations are most likely to shift cellular state in a desired direction. That is the translation from virtual cell to actionable intervention, and closing that gap is the goal this series is building toward.
+The deeper ambition behind this work is to bridge foundation model
+representations and actionable molecular biology. Attention patterns
+that are consistent across models and enriched for known regulatory
+interactions are not only interpretability curiosities; they are also
+candidate regulatory edges that can be prioritized for experimental
+follow-up. Beyond describing biology, a model that reliably attends to
+the edges of a signaling pathway in a disease-relevant cell type is
+generating hypotheses about which molecular interactions to perturb and
+which perturbations are most likely to shift cellular state in a desired
+direction. That is the translation from virtual cell to actionable
+intervention, and closing that gap is the goal this series is building
+toward.

@@ -1,5 +1,5 @@
 ---
-title: "Decoding Virtual Cell Foundation Models II: Cross-Model Attention and Molecular Interactions"
+title: "Decoding Virtual Cell Foundation Models II: Cross-Model Attention and Molecular Interactions - all models"
 date: 2026-05-25
 tags: [foundation models, ML, napistu, python, PyTorch]
 jekyll-code-fold: true
@@ -96,7 +96,7 @@ STORE_DIR = Path("~/Desktop/EXPERIMENTS/.store").expanduser()
 
 # model inclusion settings
 INCLUDE_SCGPT = True
-INCLUDE_SCFOUNDATION = False
+INCLUDE_SCFOUNDATION = True
 
 # analysis settings
 CONSENSUS_METHOD = "sum"
@@ -920,7 +920,7 @@ print(version_text)
 
 ### Comparing attention patterns across models
 
-In Part 1, I explored how attention patterns evolve across layers within each model, finding that later layers often actively suppress early attention patterns and that cross-layer consistency varies substantially by architecture and model size. These are properties of the models themselves, revealing more about how each architecture processes information than about the biology being captured. The natural next question is whether any of this internal structure reflects something shared: do different architectures converge on the same high-attention gene pairs, even when their architecture, training data, vocabulary, and scale differ?
+In Part 1, I explored how attention patterns evolve across layers within each model, finding that later layers often actively suppress early attention patterns and that cross-layer consistency varies substantially by architecture and model size. These are properties of the models themselves, revealing more about how each architecture processes information than about the biology being captured. The natural next question is whether any of this internal structure reflects something shared: do different architectures converge on the same high-attention gene pairs, even when their layer structure, training objectives, and gene vocabularies differ?
 
 To test this, I applied the same rank-agreement metric used for within-model comparisons, now across model-layer pairs. For each model and layer, the top-K attention pairs were selected and their median quantile was evaluated against every other model's layers. High quantile scores indicate that a pair ranked highly in one model also ranks highly in another. Where this coherence is strong, the underlying gene-gene relationship is robustly learned regardless of architecture; where it is weak, it may reflect architecture-specific routing, noise, or simply that the models are capturing different aspects of a complex regulatory landscape.
 
@@ -1199,7 +1199,7 @@ The scatterplots confirm that cross-model coherence and mechanistic enrichment a
 
 ## Summary and future directions
 
-This post extended the layer-wise attention analysis from [Part 1](https://www.shackett.org/decoding_sc_foundation_models_part1) into two new dimensions: cross-model consistency and grounding in molecular interaction networks. Using a shared gene vocabulary across four model families and seven variants, I showed that intermediate layers of scGPT, AIDO.Cell (3M), and scPRINT (large) converge on overlapping sets of high-attention gene pairs despite differences in architecture, training data, vocabulary, and scale. Those same layers are also the most enriched for reported interactions in the Napistu Octopus network and for high GNN-predicted interaction scores, suggesting that cross-model coherence is a meaningful signal rather than architectural coincidence. The largest scPRINT model presents an instructive contrast: its attention patterns are mechanistically meaningful but biased toward cross-pathway interactions between dissimilar genes, an indication that it is precisely extracting the regulatory mechanisms that shape pathway crosstalk.
+This post extended the layer-wise attention analysis from [Part 1](https://www.shackett.org/decoding_sc_foundation_models_part1) into two new dimensions: cross-model consistency and grounding in molecular interaction networks. Using a shared gene vocabulary across four model families and seven variants, I showed that intermediate layers of scGPT, AIDO.Cell (3M), and scPRINT (large) converge on overlapping sets of high-attention gene pairs despite differences in architecture and training objective. Those same layers are also the most enriched for reported interactions in the Napistu Octopus network and for high GNN-predicted interaction scores, suggesting that cross-model coherence is a meaningful signal rather than architectural coincidence. The largest scPRINT model presents an instructive contrast: its attention patterns are mechanistically meaningful but biased toward cross-pathway interactions between dissimilar genes, an indication that it is precisely extracting the regulatory mechanisms that shape pathway crosstalk.
 
 This framework opens several practical directions:
 
